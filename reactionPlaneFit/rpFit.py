@@ -52,7 +52,7 @@ class ReactionPlaneFit(object):
         pass
 
     def fit(self, data):
-        """
+        """ Perform the actual fit.
 
         """
         # Setup the fit components.
@@ -66,6 +66,13 @@ class ReactionPlaneFit(object):
         # Calculate the errors.
 
         # Store everything.
+
+class ReactionPlane3AngleSignalFit(ReactionPlaneFit):
+    """ Reaction Plane Fit for signal with 3 reaction plane angles.
+
+    """
+    def __init__(self):
+        pass
 
 @dataclass
 class FitType:
@@ -86,8 +93,8 @@ class FitComponent(ABC):
     Attributes:
         fitType (FitType): Overall type of the fit.
     """
-    def __init__(self, region: str, rpAngle: str, hist: base.Histogram, resolutionParameters: dict, useLogLikelihood: bool = False) -> None:
-        self.set_fit_type(region = region, angle = rpAngle)
+    def __init__(self, fitType: FitType, resolutionParameters: dict, useLogLikelihood: bool = False) -> None:
+        self.fitType = fitType
         self.resolutionParameters = resolutionParameters
         self.useLogLikelihood = useLogLikelihood
 
@@ -98,7 +105,6 @@ class FitComponent(ABC):
         # Will be determine in each subclass
         # Called last to ensure that all variables are available.
         self.fitFunction = None
-        self.determine_fit_function()
 
     def set_fit_type(self, region: Optional[str] = None, angle: Optional[str] = None):
         if not region:
@@ -127,10 +133,15 @@ class FitComponent(ABC):
         Returns:
             None: The fit object is fully setup.
         """
+        # Setup the fit itself.
+        self.determine_fit_function()
+
         hist = base.Histogram.from_existing_hist(hist = inputHist)
         limitedHist = self.set_data_limits(hist = hist)
         # Detemrine the cost function
         self.costFunction = self.cost_function(hist = limitedHist)
+
+        # TODO: Scale histogram by nEvents if necessary
 
     def set_data_limits(self, hist):
         """ Extract the data from the histogram. """
@@ -186,13 +197,15 @@ class SignalFitComponent(FitComponent):
     """ Fit component in the signal region.
 
     Args:
-
+        rpAngle (str): Reaction plane angle for the component.
+        *args (list): Only use named args.
+        **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(**args, **kwargs)
-
-        self.set_fit_type(region = "signal")
-        self.determine_fit_function()
+    def __init__(self, rpAngle, *args, **kwargs):
+        # Validation
+        if args:
+            raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
+        super().__init__(FitType(region = "signal", angle = rpAngle), **kwargs)
 
     def determine_fit_function(self):
         self.fitFunction = determineSignalDominatedFitFunction(rpOrientation = self.rpOrientation,
@@ -201,13 +214,18 @@ class SignalFitComponent(FitComponent):
 class BackgroundFitComponent(FitComponent):
     """ Fit component in the background region.
 
+    Args:
+        rpAngle (str): Reaction plane angle for the component.
+        *args (list): Only use named args.
+        **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.resolutionParameters = {}
+    def __init__(self, rpAngle, *args, **kwargs):
+        # Validation
+        if args:
+            raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
+        super().__init__(FitType(region = "background", angle = rpAngle), **kwargs)
 
-        self.set_fit_type(region = "signal")
-        self.determine_fit_function()
+        self.resolutionParameters = {}
 
     def determine_fit_function(self):
         self.fitFunction = determineBackgroundFitFunction(rpOrientation = self.rpOrientation,
