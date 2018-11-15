@@ -48,8 +48,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
+        # Using typing (some need atleast 3.5+), and data classes (3.7+),
+        # so we set the minimum value at 3.7.
+        'Programming Language :: Python :: 3.7',
     ],
 
     # What does your project relate to?
@@ -80,17 +81,6 @@ setup(
         "probfit",
     ],
 
-    # Dependeny links are explained here: https://github.com/pypa/pip/issues/3610#issuecomment-283578756
-    # I had to create forks to bump the version numbers. Otherwise, the metadata of the packages
-    # (particularly the defined version number) mismatched the version selected here, which
-    # caused constant warnings in pip (and gave confusing information where it said the requested
-    # version was, for example, 1.2.1, but it installed 1.2. It actually installed 1.2.1, but the
-    # metadata told it that it installed 1.2.). For users installing from pip, the best course of
-    # action is for them to install the packages by hand before installing this package.
-    dependency_links=[
-        "git+https://github.com/raymondEhlers/probfit.git@master#egg=probfit-1.0.5.1"
-    ],
-
     # Include additional files
     include_package_data=True,
 
@@ -110,6 +100,7 @@ setup(
         ],
         "dev": [
             "flake8",
+            "flake8-colors"
         ]
     }
 )
