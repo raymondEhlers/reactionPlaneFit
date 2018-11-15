@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-# Implement the fit functions. These functions are called repeatedly
-# for each value in an array by minuit.
-#
-# author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
-# date: 17 June 2018
+""" Implement the underlying fit functions.
+
+These functions are called repeatedly  for each value in an array by iminuit.
+
+.. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
+"""
 
 import numpy as np
 from numpy import sin, cos
@@ -13,7 +14,7 @@ import probfit
 def signalWrapper(x, nsAmplitude, asAmpltiude, nsSigma, asSigma, signalPedestal, **kwargs):
     """ Wrapper for minuit that basically reassigns descriptive parameter names to shorter names
     to make the function definition less verbose.
-    
+
     Args:
         x (float): Delta phi value for which the signal will be calculated.
         nsAmplitude (float): Near-side gaussian amplitude.
@@ -28,15 +29,13 @@ def signalWrapper(x, nsAmplitude, asAmpltiude, nsSigma, asSigma, signalPedestal,
     return signal(x = x, A1 = nsAmplitude, A2 = asAmpltiude, s1 = nsSigma, s2 = asSigma, pedestal = signalPedestal)
 
 def signal(x, A1, A2, s1, s2, pedestal):
-    """ Function for fitting the signal region of the reaction plane fit.
-    
+    r""" Function for fitting the signal region of the reaction plane fit.
+
     The signal function consists of two gaussian peaks (one at the NS (0.0) and
     one at the AS (np.pi)), along with a pedestal. Gaussians are normalized and
     are of the form:
 
-    ```
-    1/(\sigma*\sqrt(2*\pi) * e^{-(x-0.0)^{2}/(2*\sigma^{2})}
-    ```
+    .. math:: 1/(\sigma*\sqrt(2*\pi) * e^{-(x-0.0)^{2}/(2*\sigma^{2})}
 
     Args:
         x (float): Delta phi value for which the signal will be calculated.
@@ -47,10 +46,10 @@ def signal(x, A1, A2, s1, s2, pedestal):
         pedestal (float): Pedestal on which the signal sits.
     Returns:
         float: Value calculated by the function.
-    """
-    return A1*probfit.pdf.gaussian(x = x, mean = 0.0, sigma = s1) \
-           + A2*probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
-           + pedestal
+    """  # noqa: W605 - It's not parsing this correctly.
+    return A1 * probfit.pdf.gaussian(x = x, mean = 0.0, sigma = s1) \
+        + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
+        + pedestal
 
 def backgroundWrapper(phi, c, resolutionParameters):
     """ Wrapper around the RPF background function to allow the specification of
@@ -88,11 +87,11 @@ def backgroundWrapper(phi, c, resolutionParameters):
         # The resolution parameters are passed directly instead of via the backgroundParameters because
         # they are not something that should vary in our fit
         return background(x, phi = phi, c = c, resolutionParameters = resolutionParameters,
-                B = B,
-                v2_t = v2_t, v2_a = v2_a,
-                v4_t = v4_t, v4_a = v4_a,
-                v1 = v1,
-                v3 = v3)
+                          B = B,
+                          v2_t = v2_t, v2_a = v2_a,
+                          v4_t = v4_t, v4_a = v4_a,
+                          v1 = v1,
+                          v3 = v3)
 
     return bgWrapper
 
@@ -108,7 +107,7 @@ def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v
         phi (float): Center of tbe event plane bin. Matches up to phi_s in the RPF paper
         c (float): Width of the event plane bin. Matches up to c in the RPF paper
         resolutionParameters (dict): Contains the resolution parameters with respect to the n = 2 reaction plane.
-            Note the information about the parameters above. The expected keys are "R22" - "R82". 
+            Note the information about the parameters above. The expected keys are "R22" - "R82".
         B (float): Overall multiplicative background level.
         v2_t (float): Trigger v_{2}.
         v2_a (float): Associated v_{2}.
@@ -121,21 +120,29 @@ def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v
         float: Values calculated by the function.
     """
     # Define individual resolution variables to make the expressions more concise.
-    R22  = resolutionParameters["R22"]
-    R42  = resolutionParameters["R42"]
-    R62  = resolutionParameters["R62"]
-    R82  = resolutionParameters["R82"]
+    R22 = resolutionParameters["R22"]
+    R42 = resolutionParameters["R42"]
+    R62 = resolutionParameters["R62"]
+    R82 = resolutionParameters["R82"]
 
-    num = v2_t + cos(2*phi)*sin(2*c)/(2*c)*R22 + v4_t*cos(2*phi)*sin(2*c)/(2*c)*R22 + v2_t*cos(4*phi)*sin(4*c)/(4*c)*R42 + v4_t*cos(6*phi)*sin(6*c)/(6*c)*R62
-    den = 1 + 2*v2_t*cos(2*phi)*sin(2*c)/(2*c)*R22 + 2*v4_t*cos(4*phi)*sin(4*c)/(4*c)*R42
-    v2R = num/den
-    num2 = v4_t + cos(4*phi)*sin(4*c)/(4*c)*R42 + v2_t*cos(2*phi)*sin(2*c)/(2*c)*R22 + v2_t*cos(6*phi)*sin(6*c)/(6*c)*R62 + v4_t*cos(8*phi)*sin(8*c)/(8*c)*R82
-    v4R = num2/den
-    BR = B*den*c*2/np.pi
+    num = v2_t + cos(2 * phi) * sin(2 * c) / (2 * c) * R22 \
+        + v4_t * cos(2 * phi) * sin(2 * c) / (2 * c) * R22 \
+        + v2_t * cos(4 * phi) * sin(4 * c) / (4 * c) * R42 \
+        + v4_t * cos(6 * phi) * sin(6 * c) / (6 * c) * R62
+    den = 1 \
+        + 2 * v2_t * cos(2 * phi) * sin(2 * c) / (2 * c) * R22 \
+        + 2 * v4_t * cos(4 * phi) * sin(4 * c) / (4 * c) * R42
+    v2R = num / den
+    num2 = v4_t + cos(4 * phi) * sin(4 * c) / (4 * c) * R42 \
+        + v2_t * cos(2 * phi) * sin(2 * c) / (2 * c) * R22 \
+        + v2_t * cos(6 * phi) * sin(6 * c) / (6 * c) * R62 \
+        + v4_t * cos(8 * phi) * sin(8 * c) / (8 * c) * R82
+    v4R = num2 / den
+    BR = B * den * c * 2 / np.pi
     factor = 1.0
     # In the case of mid-plane, it has 4 regions instead of 2
-    if c == np.pi/12.0:
-        factor = 2.0 
+    if c == np.pi / 12.0:
+        factor = 2.0
     BR = BR * factor
     return fourier(x, BR, v2R, v2_a, v4R, v4_a, v1, v3)
 
@@ -158,5 +165,8 @@ def fourier(x, BG, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
     Returns:
         float: Values calculated by the function.
     """
-    return BG*(1 + 2*v1*np.cos(x) + 2*v2_t*v2_a*np.cos(2*x) + 2*v3*np.cos(3*x) + 2*v4_t*v4_a*np.cos(4*x))
+    return BG * (1 + 2 * v1 * np.cos(x)
+                   + 2 * v2_t * v2_a * np.cos(2 * x)
+                   + 2 * v3 * np.cos(3 * x)
+                   + 2 * v4_t * v4_a * np.cos(4 * x))
 
