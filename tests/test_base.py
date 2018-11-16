@@ -10,15 +10,10 @@ import numpy as np
 import uproot
 import tempfile
 import logging
-logger = logging.getLogger(__name__)
 
-# TODO: Change to the proper module when reformatted.
-#import reactionPlaneFit.fitManager as base
 import reactionPlaneFit.base as base
 
-# Set logging level as a global variable to simplify configuration.
-# This is not ideal, but fine for simple tests.
-loggingLevel = logging.DEBUG
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def setupHistToArray():
@@ -46,14 +41,14 @@ def setupHistToArray():
     # Uproot rootio read hist
     with tempfile.NamedTemporaryFile() as f:
         clonedHistName = "rootHistInFile"
-        with rootpy.io.root_open(f.name, "w") as fRoot:
+        with rootpy.io.root_open(f.name, "w"):
             rootHistForFile = rootHist.Clone(clonedHistName)
             rootHistForFile.Write()
 
         # Now retrieve the hist from that file
         uprootFile = uproot.open(f.name)
         uprootHist = uprootFile[clonedHistName]
-    
+
     return (uprootHist, rootHist, expected)
 
 @pytest.mark.parametrize("histType", [

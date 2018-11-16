@@ -2,19 +2,20 @@
 
 """ Defines the basic components of the reaction plane fit.
 
+.. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
 from abc import ABC, abstractmethod
-from dataclass import dataclass
+from dataclasses import dataclass
 from typing import Optional
 import logging
 
 import numpy as np
 import probfit
 
-logger = logging.getLogger(__name__)
-
 from reactionPlaneFit import base
+
+logger = logging.getLogger(__name__)
 
 #rpf = ReactionPlaneFit(signalRegion = (0, 0.6), backgroundRegion = (0.8, 1.2))
 
@@ -25,7 +26,8 @@ class ReactionPlaneFit(object):
         type (tuple): Fit type.
         regions (dict): Signal and background fit regions.
         components (dict): Reaction plane fit components used in the actual fit.
-        resolutionParameters (dict): Event plane resolution parameters for the fit.
+        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
+            the R_{2,2} parameter) to the value. Expects "R22" - "R82"
     """
     def __init__(self, type = None, signalRegion = None, backgroundRegion = None):
         self.type = type
@@ -85,28 +87,39 @@ class FitComponent(ABC):
     Args:
         region (str): Region in which the fit component is applied.
         rpAngle (str): The reaction plane orientation of the fit.
-        resolutionParameters (dict): Maps resolution paramaeters of the form "R22" (for
+        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82"
         useLogLikelihood (bool): If true, use log likelihood cost function. Often used
             when statistics are limited. Default: False
 
     Attributes:
         fitType (FitType): Overall type of the fit.
+        useLogLikelihood (bool): True if the fit should be performed using log likelihood.
+        fitFunction (function): Function of the component.
+        costFunction (probfit.costFunc): Cost function associated with the fit component.
     """
     def __init__(self, fitType: FitType, resolutionParameters: dict, useLogLikelihood: bool = False) -> None:
         self.fitType = fitType
-        self.resolutionParameters = resolutionParameters
         self.useLogLikelihood = useLogLikelihood
 
         # Additional values
-        # Fit cost function
-        self.costFunction = None
-
         # Will be determine in each subclass
         # Called last to ensure that all variables are available.
         self.fitFunction = None
+        # Fit cost function
+        self.costFunction = None
 
     def set_fit_type(self, region: Optional[str] = None, angle: Optional[str] = None):
+        """ Update the fit type.
+
+        Will use the any of the existing parameters if they are not specified.
+
+        Args:
+            region (str): Region of the fit type.
+            angle (str): Angle of the fit type.
+        Returns:
+            None: The fit type is set in the component.
+        """
         if not region:
             region = self.fitType.region
         if not angle:
@@ -122,28 +135,30 @@ class FitComponent(ABC):
         return self.fitType.region
 
     @abstractmethod
-    def determine_fit_function(self):
+    def determine_fit_function(self, resolutionParameters: dict):
         """ Use the class parameters to determine the fit function and store it. """
 
-    def setup_fit(self, inputHist):
+    def setup_fit(self, inputHist: base.Histogram, resolutionParameters: dict) -> base.Histogram:
         """ Setup the fit using information from the input hist.
 
         Args:
             inputHist (ROOT.TH1): The histogram to be fit by this function.
+            resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
+            the R_{2,2} parameter) to the value. Expects "R22" - "R82"
         Returns:
             None: The fit object is fully setup.
         """
         # Setup the fit itself.
-        self.determine_fit_function()
+        self.determine_fit_function(resolutionParameters = resolutionParameters)
 
         hist = base.Histogram.from_existing_hist(hist = inputHist)
         limitedHist = self.set_data_limits(hist = hist)
-        # Detemrine the cost function
+        # Determine the cost function
         self.costFunction = self.cost_function(hist = limitedHist)
 
         # TODO: Scale histogram by nEvents if necessary
 
-    def set_data_limits(self, hist):
+    def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
         """ Extract the data from the histogram. """
         return hist
 
@@ -154,8 +169,8 @@ class FitComponent(ABC):
 
         Note:
             We don't want to use the binned cost function versions - they will bin
-            the data that is given, which is definitely not what we want. instead,
-            use the unbinned functions (as defined by probfit).
+            the data that is given, which is definitely not what we want. Instead,
+            use the unbinned functions (as defined by ``probfit``).
 
         Args:
             x (np.ndarray): The x values associated with an input histogram.
@@ -179,7 +194,7 @@ class FitComponent(ABC):
         if self.useLogLikelihood:
             logger.debug(f"Using log likelihood for {self.fitType}, {self.rp_orientation}, {self.region}")
             # Generally will use when statistics are limited.
-            # Errors are extracted by assuming a poisson distribution, so we don't need to pass them explcitily (?)
+            # Errors are extracted by assuming a Poisson distribution, so we don't need to pass them explicitly (?)
             costFunction = probfit.UnbinnedLH(f = self.fitFunction,
                                               data = hist.x)
         else:
@@ -207,9 +222,9 @@ class SignalFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "signal", angle = rpAngle), **kwargs)
 
-    def determine_fit_function(self):
+    def determine_fit_function(self, resolutionParameters: dict) -> None:
         self.fitFunction = determineSignalDominatedFitFunction(rpOrientation = self.rpOrientation,
-                                                               resolutionParameters = self.resolutionParameters)
+                                                               resolutionParameters = resolutionParameters)
 
 class BackgroundFitComponent(FitComponent):
     """ Fit component in the background region.
@@ -225,13 +240,11 @@ class BackgroundFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "background", angle = rpAngle), **kwargs)
 
-        self.resolutionParameters = {}
-
-    def determine_fit_function(self):
+    def determine_fit_function(self, resolutionParameters: dict) -> None:
         self.fitFunction = determineBackgroundFitFunction(rpOrientation = self.rpOrientation,
-                                                          resolutionParameters = self.resolutionParameters)
+                                                          resolutionParameters = resolutionParameters)
 
-    def set_data_limits(self, hist):
+    def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
         """ Set the limits of the fit to only use near-side data (ie dPhi < pi/2)
 
         Only the near-side will be used for the fit to avoid the signal at large

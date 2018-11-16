@@ -46,7 +46,7 @@ def signal(x, A1, A2, s1, s2, pedestal):
         pedestal (float): Pedestal on which the signal sits.
     Returns:
         float: Value calculated by the function.
-    """  # noqa: W605 - It's not parsing this correctly.
+    """
     return A1 * probfit.pdf.gaussian(x = x, mean = 0.0, sigma = s1) \
         + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
         + pedestal
