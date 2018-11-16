@@ -7,9 +7,12 @@ These functions are called repeatedly  for each value in an array by iminuit.
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
+import logging
 import numpy as np
 from numpy import sin, cos
 import probfit
+
+logger = logging.getLogger(__name__)
 
 def signalWrapper(x, nsAmplitude, asAmpltiude, nsSigma, asSigma, signalPedestal, **kwargs):
     """ Wrapper for minuit that basically reassigns descriptive parameter names to shorter names
@@ -51,7 +54,49 @@ def signal(x, A1, A2, s1, s2, pedestal):
         + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
         + pedestal
 
-def backgroundWrapper(phi, c, resolutionParameters):
+def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters, reactionPlaneParameters):
+    """ Determine the signal fit function.
+
+    This function consists of near-side and away side gaussians representating the
+    signal added to a function to describe the background. For inclusive EP
+    orientations, this is a Fourier series, while for other ep orientations, this is
+    a RPF function.
+
+    Args:
+        rpOrientation (eventPlaneOrientation): The event plane orientation.
+        resolutionParameters (dict): Maps resolution paramaeters of the form "R22" (for
+            the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
+        reactionPlaneParameters (tuple):
+    Returns:
+        function: The background function
+    """
+    # Signal function
+    signalFunc = signalWrapper
+    # Background function
+    backgroundFunc = determine_background_fit_function(rpOrientation, resolutionParameters, reactionPlaneParameters)
+
+    if rpOrientation == "all":
+        # We don't need to rename the all angles function because we can only use
+        # the signal fit on all angles alone. If we fit the other event plane angles
+        # at the same time, it will double count
+        signalDominatedFunc = probfit.functor.AddPdf(signalFunc, backgroundFunc)
+    else:
+        # Rename the variables so each signal related variable is independent for each EP
+        # We do this by renaming all parameters that are _not_ used in the background
+        # NOTE: prefixSkipParameters includes the variable "x", but that is fine, as it
+        #       would be automatically excluded (and we don't want to prefix it anyway)!
+        prefixSkipParameters = probfit.describe(backgroundFunc)
+
+        # Sum the functions together
+        # NOTE: The "BG" prefix shouldn't ever need to be used, but it is included so that
+        #       it fails clearly in the case that a mistake is made and the prefix is actually
+        #       matched to and applied to some paramter
+        signalDominatedFunc = probfit.functor.AddPdf(signalFunc, backgroundFunc, prefix = [rpOrientation + "_", "BG"], skip_prefix = prefixSkipParameters)
+
+    logger.debug(f"rpOrientation: {rpOrientation}, signalDominatedFunc: {probfit.describe(signalDominatedFunc)}")
+    return signalDominatedFunc
+
+def background_wrapper(phi, c, resolutionParameters):
     """ Wrapper around the RPF background function to allow the specification of
     relevant parameters.
 
@@ -63,7 +108,7 @@ def backgroundWrapper(phi, c, resolutionParameters):
     Returns:
         function: Wrapper around the actual background function with the specified parameters.
     """
-    def bgWrapper(x, B, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
+    def bg_wrapper(x, B, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
         """ Defines the background function that will be passed to a particular cost function
         (and eventually, to iminuit).
 
@@ -93,7 +138,7 @@ def backgroundWrapper(phi, c, resolutionParameters):
                           v1 = v1,
                           v3 = v3)
 
-    return bgWrapper
+    return bg_wrapper
 
 def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
     """ The background function is of the form specified in the RPF paper.
@@ -169,4 +214,31 @@ def fourier(x, BG, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
                    + 2 * v2_t * v2_a * np.cos(2 * x)
                    + 2 * v3 * np.cos(3 * x)
                    + 2 * v4_t * v4_a * np.cos(4 * x))
+
+def determine_background_fit_function(rpOrientation, resolutionParameters, reactionPlaneParameters):
+    """ Determine the background fit function.
+
+    For inclusive EP orientations, this is a Fourier series. For other EP orientations,
+    it is an RPF function.
+
+    Args:
+        rpOrientation (eventPlaneOrientation): The event plane orientation.
+        resolutionParameters (dict): Maps resolution paramaeters of the form "R22" (for
+            the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
+        reactionPlaneParameters (tuple):
+    Returns:
+        function: The background function
+    """
+    if rpOrientation == "all":
+        backgroundFunc = fourier
+    else:
+        # Get RPF parameters
+        (phiS, c) = reactionPlaneParameters
+        # Define the function based on the parameters above.
+        backgroundFunc = background_wrapper(phi = phiS[rpOrientation],
+                                            c = c[rpOrientation],
+                                            resolutionParameters = resolutionParameters)
+
+    logger.debug(f"rpOrientation: {rpOrientation}, backgroundFunc: {probfit.describe(backgroundFunc)}")
+    return backgroundFunc
 

@@ -77,7 +77,7 @@ def setupBackground():
     def testWrapper(x):
         """ Trivial wrapper so we can set the parameter values in the fixture. Note call a wrapper and then
         return that function with the proper parameters set. """
-        func = fitFunctions.backgroundWrapper(phi = phi, c = c, resolutionParameters = resolutionParameters)
+        func = fitFunctions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters)
         return func(x = x,
                     B = B,
                     v2_t = v2_t, v2_a = v2_a,
@@ -166,7 +166,7 @@ def testRPFBackgroundArgs(loggingMixin):
     phi = 0
     c = np.pi / 6
     resolutionParameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
-    func = fitFunctions.backgroundWrapper(phi = phi, c = c, resolutionParameters = resolutionParameters)
+    func = fitFunctions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters)
     assert probfit.describe(func, verbose = True) == ["x",
                                                       "B",
                                                       "v2_t", "v2_a",

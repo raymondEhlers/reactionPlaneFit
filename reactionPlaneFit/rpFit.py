@@ -14,12 +14,20 @@ import numpy as np
 import probfit
 
 from reactionPlaneFit import base
+from reactionPlaneFit import fitFunctions
 
 logger = logging.getLogger(__name__)
 
+# TODO: Add signal and background limit ranges to the actual fit object.
 #rpf = ReactionPlaneFit(signalRegion = (0, 0.6), backgroundRegion = (0.8, 1.2))
 
-class ReactionPlaneFit(object):
+@dataclass
+class ReactionPlaneParameter:
+    angle: str
+    phiS: float
+    c: float
+
+class ReactionPlaneFit(ABC):
     """ Contains the reaction plane fit for one particular set of data and components.
 
     Attributes:
@@ -29,19 +37,20 @@ class ReactionPlaneFit(object):
         resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82"
     """
-    def __init__(self, type = None, signalRegion = None, backgroundRegion = None):
+    def __init__(self, type, resolutionParameters: dict, signalRegion = None, backgroundRegion = None):
         self.type = type
+        self.resolutionParameters = resolutionParameters
         self.components = {}
         self.regions = {}
-        self.resolutionParameters = {}
 
         # Points where the fit will be evaluated.
         self.x = np.array([])
 
-        if signalRegion:
-            self.regions["signal"] = signalRegion
-        if backgroundRegion:
-            self.regions["backgroundRegion"] = backgroundRegion
+    @property
+    def rpAngles(self):
+        """ Get the RP angles (excluding the inclusive). """
+        # "all" is the last entry.
+        return self.angles[:-1]
 
     def _add_component(self, component):
         #self.components[] = component
@@ -53,13 +62,19 @@ class ReactionPlaneFit(object):
         """
         pass
 
+    def determine_reaction_plane_parameters(self, rpAngle) -> ReactionPlaneParameter:
+        #return self.phiS[rpAngle], self.c[rpAngle]
+        return self.reactionPlaneParameters[rpAngle]
+
     def fit(self, data):
         """ Perform the actual fit.
 
         """
         # Setup the fit components.
         for component in self.components:
-            component.setup_fit(...)
+            component.setup_fit(inputHist = data[component.rpAngle],
+                                resolutionParameters = self.resolutionParameters,
+                                reactionPlaneParameters = self.determine_reaction_plane_parameters(component.rpAngle))
 
         # Extract the x locations from where the fit should be evaluated.
 
@@ -69,17 +84,81 @@ class ReactionPlaneFit(object):
 
         # Store everything.
 
-class ReactionPlane3AngleSignalFit(ReactionPlaneFit):
-    """ Reaction Plane Fit for signal with 3 reaction plane angles.
+class ReactionPlaneFit3Angles(ReactionPlaneFit):
+    """ Reaction plane fit for 3 reaction plane angles.
 
     """
-    def __init__(self):
-        pass
+    angles = ["inPlane", "midPlane", "outOfPlane", "all"]
+    reactionPlaneParameters = {
+        "inPlane": ReactionPlaneParameter(angle = "inPlane",
+                                          phiS = 0,
+                                          c = np.pi / 6.),
+        # NOTE: This c value is halved in the fit to account for the four non-continuous regions
+        "midPlane": ReactionPlaneParameter(angle = "midPlane",
+                                           phiS = np.pi / 4.,
+                                           c = np.pi / 12.),
+        "outOfPlane": ReactionPlaneParameter(angle = "outOfPlane",
+                                             phiS = np.pi / 2.,
+                                             c = np.pi / 6.),
+    }
 
 @dataclass
 class FitType:
     region: str
     angle: str
+
+class ReactionPlane3AngleBackgroundFit(ReactionPlaneFit3Angles):
+    """ RPFfor background region in 3 reaction plane angles.
+
+    """
+    def __init__(self, *args, **kwargs):
+        # Create the base class first
+        super().__init__(*args, **kwargs)
+
+        # Setup the fit components
+        for angle in self.angles:
+            fitType = FitType(region = "background", angle = angle)
+            self.component[fitType] = BackgroundFitComponent(fitType = fitType,
+                                                             resolutionParameters = self.resolutionParameters,
+                                                             useLogLikelihood = self.useLogLikelihood)
+
+class ReactionPlane3AngleInclusiveSignalFit(ReactionPlaneFit3Angles):
+    """ RPF for inclusive signal region, and background region in 3 reaction planes angles.
+
+    """
+    def __init__(self, *args, **kwargs):
+        # Create the base class first
+        super().__init__(*args, **kwargs)
+
+        # Setup the fit components
+        fitType = FitType(region = "background", angle = "inclusive")
+        self.component[fitType] = SignalFitComponent(fitType = fitType,
+                                                     resolutionParameters = self.resolutionParameters,
+                                                     useLogLikelihood = self.useLogLikelihood)
+        for angle in self.angles:
+            fitType = FitType(region = "background", angle = angle)
+            self.component[fitType] = BackgroundFitComponent(fitType = fitType,
+                                                             resolutionParameters = self.resolutionParameters,
+                                                             useLogLikelihood = self.useLogLikelihood)
+
+
+class ReactionPlane3AngleSignalFit(ReactionPlaneFit3Angles):
+    """ RPF for signal and background regions with 3 reaction plane angles.
+
+    3 signal angles, 3 background angles
+
+    """
+    def __init__(self, *args, **kwargs):
+        # Create the base class first
+        super().__init__(*args, **kwargs)
+
+        # Setup the fit components
+        for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
+            for angle in self.angles:
+                fitType = FitType(region = region, angle = angle)
+                self.component[fitType] = fitComponent(fitType = fitType,
+                                                       resolutionParameters = self.resolutionParameters,
+                                                       useLogLikelihood = self.useLogLikelihood)
 
 class FitComponent(ABC):
     """ A component of the fit.
@@ -135,10 +214,10 @@ class FitComponent(ABC):
         return self.fitType.region
 
     @abstractmethod
-    def determine_fit_function(self, resolutionParameters: dict):
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
 
-    def setup_fit(self, inputHist: base.Histogram, resolutionParameters: dict) -> base.Histogram:
+    def setup_fit(self, inputHist: base.Histogram, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> base.Histogram:
         """ Setup the fit using information from the input hist.
 
         Args:
@@ -149,7 +228,8 @@ class FitComponent(ABC):
             None: The fit object is fully setup.
         """
         # Setup the fit itself.
-        self.determine_fit_function(resolutionParameters = resolutionParameters)
+        self.determine_fit_function(resolutionParameters = resolutionParameters,
+                                    reactionPlaneParameters = reactionPlaneParameters)
 
         hist = base.Histogram.from_existing_hist(hist = inputHist)
         limitedHist = self.set_data_limits(hist = hist)
@@ -222,9 +302,12 @@ class SignalFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "signal", angle = rpAngle), **kwargs)
 
-    def determine_fit_function(self, resolutionParameters: dict) -> None:
-        self.fitFunction = determineSignalDominatedFitFunction(rpOrientation = self.rpOrientation,
-                                                               resolutionParameters = resolutionParameters)
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> None:
+        self.fitFunction = fitFunctions.determine_signal_dominated_fit_function(
+            rpOrientation = self.rpOrientation,
+            resolutionParameters = resolutionParameters,
+            reactionPlaneParameters = reactionPlaneParameters
+        )
 
 class BackgroundFitComponent(FitComponent):
     """ Fit component in the background region.
@@ -240,9 +323,12 @@ class BackgroundFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "background", angle = rpAngle), **kwargs)
 
-    def determine_fit_function(self, resolutionParameters: dict) -> None:
-        self.fitFunction = determineBackgroundFitFunction(rpOrientation = self.rpOrientation,
-                                                          resolutionParameters = resolutionParameters)
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> None:
+        self.fitFunction = fitFunctions.determine_background_fit_function(
+            rpOrientation = self.rpOrientation,
+            resolutionParameters = resolutionParameters,
+            reactionPlaneParameters = reactionPlaneParameters
+        )
 
     def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
         """ Set the limits of the fit to only use near-side data (ie dPhi < pi/2)
