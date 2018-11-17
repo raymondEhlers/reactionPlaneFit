@@ -52,11 +52,7 @@ class ReactionPlaneFit(ABC):
         # "all" is the last entry.
         return self.angles[:-1]
 
-    def _add_component(self, component):
-        #self.components[] = component
-        pass
-
-    def _validate_fit_parameters(self):
+    def _validate_fit_data(self):
         """ Check that all expected fit components are available.
 
         """
@@ -66,17 +62,54 @@ class ReactionPlaneFit(ABC):
         #return self.phiS[rpAngle], self.c[rpAngle]
         return self.reactionPlaneParameters[rpAngle]
 
+    def _format_input_data(self, data):
+        """ Convert input data into a more convenient format.
+
+        By using ``FitType``, we can very easily check that all fit components have the appropriate data.
+        """
+        # Check if it's already properly formatted.
+        properlyFormatted = all(isinstance(FitType, k) for k in data.keys())
+        if properlyFormatted:
+            return data
+
+        # If not, convert the string keys to ``FitType`` keys.
+        returnData = {}
+        for region in ["signal", "background"]:
+            if region in data:
+                for rpAngle in data[region]:
+                    returnData[FitType(region = region, angle = rpAngle)] = data[region][rpAngle]
+        return returnData
+
+    def _validate_data(self, data: dict) -> bool:
+        """ Validate that the provided data is sufficient for the defined components.
+
+        Args:
+            data (dict): Input data with ``FitType`` keys in the corresponding data stored in the values.
+        """
+        # Each component must have input data.
+        goodData = all(k in data.keys() for k in self.components.keys())
+
+        return goodData
+
     def fit(self, data):
         """ Perform the actual fit.
 
         """
+        # Setup data.
+        data = self._format_data(data)
+        goodData = self._validate_data(data)
+
+        if not goodData:
+            raise ValueError("Insufficient data provided for the fit components. Component keys: {self.components.keys()}, Data keys: {data.keys()}")
+
         # Setup the fit components.
-        for component in self.components:
-            component.setup_fit(inputHist = data[component.rpAngle],
+        for fitType, component in self.components.items():
+            component.setup_fit(inputHist = data[fitType.angle],
                                 resolutionParameters = self.resolutionParameters,
-                                reactionPlaneParameters = self.determine_reaction_plane_parameters(component.rpAngle))
+                                reactionPlaneParameters = self.determine_reaction_plane_parameters(fitType.angle))
 
         # Extract the x locations from where the fit should be evaluated.
+        x = next(data.values()).x
 
         # Perform the actual fit.
 
@@ -108,8 +141,13 @@ class FitType:
     angle: str
 
 class ReactionPlane3AngleBackgroundFit(ReactionPlaneFit3Angles):
-    """ RPFfor background region in 3 reaction plane angles.
+    """ RPF for background region in 3 reaction plane angles.
 
+    This is a simple helper class to define the necessary fit component. Contains fit compnents for
+    3 background RP angles.
+
+    Args:
+        Same as for ``ReactionPlaneFit``.
     """
     def __init__(self, *args, **kwargs):
         # Create the base class first
@@ -125,6 +163,11 @@ class ReactionPlane3AngleBackgroundFit(ReactionPlaneFit3Angles):
 class ReactionPlane3AngleInclusiveSignalFit(ReactionPlaneFit3Angles):
     """ RPF for inclusive signal region, and background region in 3 reaction planes angles.
 
+    This is a simple helper class to define the necessary fit component. Contains an inclusive signal fit,
+    and 3 background RP angles.
+
+    Args:
+        Same as for ``ReactionPlaneFit``.
     """
     def __init__(self, *args, **kwargs):
         # Create the base class first
@@ -145,8 +188,11 @@ class ReactionPlane3AngleInclusiveSignalFit(ReactionPlaneFit3Angles):
 class ReactionPlane3AngleSignalFit(ReactionPlaneFit3Angles):
     """ RPF for signal and background regions with 3 reaction plane angles.
 
-    3 signal angles, 3 background angles
+    This is a simple helper class to define the necessary fit component.  Contains 3 signal
+    angles and 3 background RP angles.
 
+    Args:
+        Same as for ``ReactionPlaneFit``.
     """
     def __init__(self, *args, **kwargs):
         # Create the base class first
