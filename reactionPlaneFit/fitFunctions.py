@@ -2,7 +2,7 @@
 
 """ Implement the underlying fit functions.
 
-These functions are called repeatedly  for each value in an array by iminuit.
+These functions are called repeatedly for each value in an array by ``iminuit``.
 
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
@@ -11,31 +11,34 @@ import logging
 import numpy as np
 from numpy import sin, cos
 import probfit
+from typing import Callable
 
 logger = logging.getLogger(__name__)
 
-def signalWrapper(x, nsAmplitude, asAmpltiude, nsSigma, asSigma, signalPedestal, **kwargs):
-    """ Wrapper for minuit that basically reassigns descriptive parameter names to shorter names
-    to make the function definition less verbose.
+def signalWrapper(x: float, nsAmplitude: float, asAmpltiude: float, nsSigma: float, asSigma: float, signalPedestal: float, **kwargs: dict) -> float:
+    """ Wrapper for use with ``iminuit`` that basically reassigns descriptive parameter names to shorter names.
+
+    These shorter names make the function definition less verbose to look and therefore easier to understand.
 
     Args:
         x (float): Delta phi value for which the signal will be calculated.
         nsAmplitude (float): Near-side gaussian amplitude.
         asAmpltiude (float): Away-side gaussian amplitude.
         nsSigma (float): Near-side gaussian sigma.
-        asSigma (float): Away-side guassian sigma.
+        asSigma (float): Away-side gaussian sigma.
         pedestal (float): Pedestal on which the signal sits.
-        kwargs (dict): Used to absorbs extra possible parameters from minuit.
+        kwargs (dict): Used to absorbs extra possible parameters from Minuit (especially when used in
+                conjunction with other functions).
     Returns:
         float: Value calculated by the function.
     """
     return signal(x = x, A1 = nsAmplitude, A2 = asAmpltiude, s1 = nsSigma, s2 = asSigma, pedestal = signalPedestal)
 
-def signal(x, A1, A2, s1, s2, pedestal):
+def signal(x: float, A1: float, A2: float, s1: float, s2: float, pedestal: float) -> float:
     r""" Function for fitting the signal region of the reaction plane fit.
 
     The signal function consists of two gaussian peaks (one at the NS (0.0) and
-    one at the AS (np.pi)), along with a pedestal. Gaussians are normalized and
+    one at the AS (``np.pi``)), along with a pedestal. Gaussians are normalized and
     are of the form:
 
     .. math:: 1/(\sigma*\sqrt(2*\pi) * e^{-(x-0.0)^{2}/(2*\sigma^{2})}
@@ -54,19 +57,19 @@ def signal(x, A1, A2, s1, s2, pedestal):
         + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
         + pedestal
 
-def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters, reactionPlaneParameters):
+def determine_signal_dominated_fit_function(rpOrientation: str, resolutionParameters: dict, reactionPlaneParameters: dict) -> Callable[..., float]:
     """ Determine the signal fit function.
 
-    This function consists of near-side and away side gaussians representing the
-    signal added to a function to describe the background. For inclusive EP
-    orientations, this is a Fourier series, while for other RP orientations, this is
-    a RPF function.
+    This function consists of near-side and away side gaussians representing the signal added to a function
+    to describe the background. For inclusive RP orientations, this is a Fourier series, while for other RP
+    orientations, this is a RPF function.
 
     Args:
         rpOrientation (str): The reaction plane orientation.
         resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
-        reactionPlaneParameters (tuple):
+        reactionPlaneParameters (dict): Contains all of the reaction plane parameters for each RP angle.
+            The keys are the RP angle, which the values are ``base.ReactionPlaneParameter`` objects.
     Returns:
         function: The background function
     """
@@ -81,7 +84,7 @@ def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters,
         # at the same time, it will double count.
         signalDominatedFunc = probfit.functor.AddPdf(signalFunc, backgroundFunc)
     else:
-        # Rename the variables so each signal related variable is independent for each EP
+        # Rename the variables so each signal related variable is independent for each RP
         # We do this by renaming all parameters that are _not_ used in the background
         # NOTE: prefixSkipParameters includes the variable "x", but that is fine, as it
         #       would be automatically excluded (and we don't want to prefix it anyway)!
@@ -96,9 +99,11 @@ def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters,
     logger.debug(f"rpOrientation: {rpOrientation}, signalDominatedFunc: {probfit.describe(signalDominatedFunc)}")
     return signalDominatedFunc
 
-def background_wrapper(phi, c, resolutionParameters):
-    """ Wrapper around the RPF background function to allow the specification of
-    relevant parameters.
+def background_wrapper(phi: float, c: float, resolutionParameters: dict):
+    """ Wrapper around the RPF background function to allow the specification of relevant parameters.
+
+    This allows the more standard background function to be used without having to pass these fixed parameters
+    to the function every time.
 
     Args:
         phi (float): Center of the reaction plane bin. Matches up to phi_s in the RPF paper.
@@ -108,13 +113,13 @@ def background_wrapper(phi, c, resolutionParameters):
     Returns:
         function: Wrapper around the actual background function with the specified parameters.
     """
-    def bg_wrapper(x, B, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
+    def bg_wrapper(x: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
         """ Defines the background function that will be passed to a particular cost function
-        (and eventually, to iminuit).
+        (and eventually, to ``iminuit``).
 
-        NOTE: The arguments must be specified explicitly here because minuit uses the argument
-              names to deteremine which arguments should be passed to this function via
-              `iminuit.util.describe()`.
+        Note:
+            The arguments must be specified explicitly here because Minuit uses the argument names to
+            determine which arguments should be passed to this function via ``iminuit.util.describe()``.
 
         Args:
             x (float): Delta phi value for which the background will be calculated.
@@ -125,7 +130,8 @@ def background_wrapper(phi, c, resolutionParameters):
             v4_a (float): Associated v_{4}
             v1 (float): v1 parameter.
             v3 (float): v3 parameter.
-            kwargs (dict): Used to absorbs extra possible parameters from minuit.
+            kwargs (dict): Used to absorbs extra possible parameters from Minuit (especially when used in
+                conjunction with other functions).
         Returns:
             float: Value calculated by the function.
         """
@@ -140,7 +146,7 @@ def background_wrapper(phi, c, resolutionParameters):
 
     return bg_wrapper
 
-def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
+def background(x: float, phi: float, c: float, resolutionParameters: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
     """ The background function is of the form specified in the RPF paper.
 
     Resolution parameters implemented include R{2,2} through R{8,2}, which denotes the resolution of an order
@@ -160,7 +166,8 @@ def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v
         v4_a (float): Associated v_{4}
         v1 (float): v1 parameter.
         v3 (float): v3 parameter.
-        kwargs (dict): Used to absorbs extra possible parameters from minuit.
+        kwargs (dict): Used to absorbs extra possible parameters from Minuit (especially when used in
+                conjunction with other functions).
     Returns:
         float: Values calculated by the function.
     """
@@ -191,12 +198,12 @@ def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v
     BR = BR * factor
     return fourier(x, BR, v2R, v2_a, v4R, v4_a, v1, v3)
 
-def fourier(x, BG, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
+def fourier(x: float, BG: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
     """ Fourier decomposition for use in describing the background.
 
-    NOTE: `B` was renamed to `BG` in the args so the argument would be decoupled (ie separate)
-          from the background of the RPF! This is needed because iminuit routes the arguments
-          based on these names.
+    Note:
+        `B` was renamed to `BG` in the args so the argument would be decoupled (ie separate) from the background
+        of the RPF! This is needed because ``iminuit`` routes the arguments based on these names.
 
     Args:
         BG (float): Overall multiplicative background level.
@@ -206,7 +213,8 @@ def fourier(x, BG, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
         v4_a (float): Associated v_{4}
         v1 (float): v1 parameter.
         v3 (float): v3 parameter.
-        kwargs (dict): Used to absorbs extra possible parameters from minuit.
+        kwargs (dict): Used to absorbs extra possible parameters from Minuit (especially when used in
+                conjunction with other functions).
     Returns:
         float: Values calculated by the function.
     """
@@ -215,17 +223,18 @@ def fourier(x, BG, v2_t, v2_a, v4_t, v4_a, v1, v3, **kwargs):
                    + 2 * v3 * np.cos(3 * x)
                    + 2 * v4_t * v4_a * np.cos(4 * x))
 
-def determine_background_fit_function(rpOrientation, resolutionParameters, reactionPlaneParameters):
+def determine_background_fit_function(rpOrientation: str, resolutionParameters: dict, reactionPlaneParameters: dict) -> Callable[..., float]:
     """ Determine the background fit function.
 
-    For inclusive EP orientations, this is a Fourier series. For other EP orientations,
+    For inclusive RP orientations, this is a Fourier series. For other RP orientations,
     it is an RPF function.
 
     Args:
         rpOrientation (str): The reaction plane orientation.
         resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
-        reactionPlaneParameters (tuple):
+        reactionPlaneParameters (dict): Contains all of the reaction plane parameters for each RP angle.
+            The keys are the RP angle, which the values are ``base.ReactionPlaneParameter`` objects.
     Returns:
         function: The background function
     """
@@ -235,8 +244,8 @@ def determine_background_fit_function(rpOrientation, resolutionParameters, react
         # Get RPF parameters
         (phiS, c) = reactionPlaneParameters
         # Define the function based on the parameters above.
-        backgroundFunc = background_wrapper(phi = phiS[rpOrientation],
-                                            c = c[rpOrientation],
+        backgroundFunc = background_wrapper(phi = reactionPlaneParameters[rpOrientation].phiS,
+                                            c = reactionPlaneParameters[rpOrientation].c,
                                             resolutionParameters = resolutionParameters)
 
     logger.debug(f"rpOrientation: {rpOrientation}, backgroundFunc: {probfit.describe(backgroundFunc)}")
