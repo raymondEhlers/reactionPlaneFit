@@ -57,14 +57,14 @@ def signal(x, A1, A2, s1, s2, pedestal):
 def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters, reactionPlaneParameters):
     """ Determine the signal fit function.
 
-    This function consists of near-side and away side gaussians representating the
+    This function consists of near-side and away side gaussians representing the
     signal added to a function to describe the background. For inclusive EP
-    orientations, this is a Fourier series, while for other ep orientations, this is
+    orientations, this is a Fourier series, while for other RP orientations, this is
     a RPF function.
 
     Args:
-        rpOrientation (eventPlaneOrientation): The event plane orientation.
-        resolutionParameters (dict): Maps resolution paramaeters of the form "R22" (for
+        rpOrientation (str): The reaction plane orientation.
+        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
         reactionPlaneParameters (tuple):
     Returns:
@@ -77,8 +77,8 @@ def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters,
 
     if rpOrientation == "all":
         # We don't need to rename the all angles function because we can only use
-        # the signal fit on all angles alone. If we fit the other event plane angles
-        # at the same time, it will double count
+        # the signal fit on all angles alone. If we fit the other reaction plane angles
+        # at the same time, it will double count.
         signalDominatedFunc = probfit.functor.AddPdf(signalFunc, backgroundFunc)
     else:
         # Rename the variables so each signal related variable is independent for each EP
@@ -90,7 +90,7 @@ def determine_signal_dominated_fit_function(rpOrientation, resolutionParameters,
         # Sum the functions together
         # NOTE: The "BG" prefix shouldn't ever need to be used, but it is included so that
         #       it fails clearly in the case that a mistake is made and the prefix is actually
-        #       matched to and applied to some paramter
+        #       matched to and applied to some parameter.
         signalDominatedFunc = probfit.functor.AddPdf(signalFunc, backgroundFunc, prefix = [rpOrientation + "_", "BG"], skip_prefix = prefixSkipParameters)
 
     logger.debug(f"rpOrientation: {rpOrientation}, signalDominatedFunc: {probfit.describe(signalDominatedFunc)}")
@@ -101,9 +101,9 @@ def background_wrapper(phi, c, resolutionParameters):
     relevant parameters.
 
     Args:
-        phi (float): Center of tbe event plane bin. Matches up to phi_s in the RPF paper.
-        c (float): Width of the event plane bin. Matches up to c in the RPF paper.
-        resolutionParameters (dict): Maps resolution paramaeters of the form "R22" (for
+        phi (float): Center of the reaction plane bin. Matches up to phi_s in the RPF paper.
+        c (float): Width of the reaction plane bin. Matches up to c in the RPF paper.
+        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82".
     Returns:
         function: Wrapper around the actual background function with the specified parameters.
@@ -149,8 +149,8 @@ def background(x, phi, c, resolutionParameters, B, v2_t, v2_a, v4_t, v4_a, v1, v
 
     Args:
         x (float): Delta phi value for which the background will be calculated.
-        phi (float): Center of tbe event plane bin. Matches up to phi_s in the RPF paper
-        c (float): Width of the event plane bin. Matches up to c in the RPF paper
+        phi (float): Center of the reaction plane bin. Matches up to phi_s in the RPF paper
+        c (float): Width of the reaction plane bin. Matches up to c in the RPF paper
         resolutionParameters (dict): Contains the resolution parameters with respect to the n = 2 reaction plane.
             Note the information about the parameters above. The expected keys are "R22" - "R82".
         B (float): Overall multiplicative background level.
@@ -222,8 +222,8 @@ def determine_background_fit_function(rpOrientation, resolutionParameters, react
     it is an RPF function.
 
     Args:
-        rpOrientation (eventPlaneOrientation): The event plane orientation.
-        resolutionParameters (dict): Maps resolution paramaeters of the form "R22" (for
+        rpOrientation (str): The reaction plane orientation.
+        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
         reactionPlaneParameters (tuple):
     Returns:
