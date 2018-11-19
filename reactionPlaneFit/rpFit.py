@@ -7,9 +7,12 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
 import logging
+from typing import Optional
+import time
 
+import iminuit
+import numdifftools as nd
 import numpy as np
 import probfit
 
@@ -91,6 +94,32 @@ class ReactionPlaneFit(ABC):
 
         return goodData
 
+    def defineArgs(self):
+        """
+
+        Returns:
+            dict: Arguments for the fit.
+        """
+        minuitArgs = {}
+
+        # Get args from each component.
+        # Will need some strategy to merge them.
+
+        # Background arguments
+        # These should consistent regardless of the fit definition.
+        # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit is correct.
+        backgroundLimits = dict(
+            v2_t = 0.02, limit_v2_t = (0, 0.50), error_v2_t = 0.001,
+            v2_a = 0.02, limit_v2_a = (0, 0.50), error_v2_a = 0.001,
+            v4_t = 0.01, limit_v4_t = (0, 0.50), error_v4_t = 0.001,
+            v4_a = 0.01, limit_v4_a = (0, 0.50), error_v4_a = 0.001,
+            v3 = 0.0, limit_v3 = (-0.1, 0.5), error_v3 = 0.001,
+            v1 = 0.0, fix_v1 = True
+        )
+        minuitArgs.update(backgroundLimits)
+
+        return minuitArgs
+
     def fit(self, data):
         """ Perform the actual fit.
 
@@ -111,11 +140,101 @@ class ReactionPlaneFit(ABC):
         # Extract the x locations from where the fit should be evaluated.
         x = next(data.values()).x
 
-        # Perform the actual fit.
+        # Setup the final fit.
+        self._fit = probfit.SimultaneousFit(*[component.costFunction for component in self.fitComponents.values()])
+        args = self.defineArgs()
+
+        # Perform the actual fit
+        logger.debug(f"Minuit args: {args}")
+        minuit = iminuit.Minuit(self._fit, **args)
+
+        # Perform the fit
+        minuit.migrad()
+        # Just in case (doesn't hurt anything, but may help in a few cases).
+        minuit.hesse()
+        # Plot the correlation matrix
+        minuit.print_matrix()
+        # Check if fit is considered valid
+        if not minuit.migrad_ok():
+            raise RuntimeError("Fit is not valid!")
+
+        # Store minuit information.
 
         # Calculate the errors.
+        self.calculate_errors()
 
         # Store everything.
+
+    def calculate_errors(self):
+        """ Calculate the errors based on values from the fit. """
+        # Wrapper needed to call the function because ``numdifftools`` requires that multiple arguments
+        # are in a single list. The wrapper expands that list for us
+        def func_wrap(x):
+            # Need to expand the arguments
+            return self.fitFunction(*x)
+
+        # Determine the arguments for the fit function
+        argsForFuncCall = base.GetArgsForFunc(func = self.fitFunction, xValue = None, fitContainer = fitContainer)
+        logger.debug("argsForFuncCall: {}".format(argsForFuncCall))
+
+        # Retrieve the parameters to use in calculating the fit errors
+        funcArgs = probfit.describe(self.fitFunction)
+        # Remove "x" as an argument, because we don't want to evaluate the error on it
+        funcArgs.pop(funcArgs.index("x"))
+        # Remove free parameters, as they won't contribute to the error and will cause problems for the gradient
+        for param in fitContainer.params:
+            if "fix_" in param and fitContainer.params[param] is True:
+                # This parameter is fixed. We need to remove it from the funcArgs!
+                funcArgParamName = param.replace("fix_", "")
+                # Remove it from funcArgs if it exists
+                if funcArgParamName in funcArgs:
+                    funcArgs.pop(funcArgs.index(funcArgParamName))
+        logger.debug("funcArgs: {}".format(funcArgs))
+
+        # Compute the derivative
+        partialDerivatives = nd.Gradient(func_wrap)
+
+        # To store the errors for each point
+        # Just using "binCenters" as a proxy
+        errorVals = np.zeros(len(self.x))
+        #logger.debug("len(self.x]): {}, self.x: {}".format(len(self.x), self.x))
+
+        for i, val in enumerate(self.x):
+            # Add in x for the function call
+            argsForFuncCall["x"] = val
+
+            #logger.debug("Actual list of args: {}".format(list(argsForFuncCall.itervalues())))
+
+            # We need to calculate the derivative once per x value
+            start = time.time()
+            logger.debug("Calculating the gradient for point {}.".format(i))
+            partialDerivative = partialDerivatives(list(argsForFuncCall.itervalues()))
+            end = time.time()
+            logger.debug("Finished calculating the graident in {} seconds.".format(end - start))
+
+            # Calculate error
+            errorVal = 0
+            for iName in funcArgs:
+                for jName in funcArgs:
+                    # Evaluate the partial derivative at a point
+                    # Must be called as a list!
+                    listOfArgsForFuncCall = list(argsForFuncCall.itervalues())
+                    iNameIndex = listOfArgsForFuncCall.index(argsForFuncCall[iName])
+                    jNameIndex = listOfArgsForFuncCall.index(argsForFuncCall[jName])
+                    #logger.debug("Calculating error for iName: {}, iNameIndex: {} jName: {}, jNameIndex: {}".format(iName, iNameIndex, jName, jNameIndex))
+                    #logger.debug("Calling partial derivative for args {}".format(argsForFuncCall))
+
+                    # Add error to overall error value
+                    errorVal += partialDerivative[iNameIndex] * partialDerivative[jNameIndex] * fitContainer.covarianceMatrix[(iName, jName)]
+
+            # Modify from error squared to error
+            errorVal = np.sqrt(errorVal)
+
+            # Store
+            #logger.debug("i: {}, errorVal: {}".format(i, errorVal))
+            errorVals[i] = errorVal
+
+        return errorVals
 
 class ReactionPlaneFit3Angles(ReactionPlaneFit):
     """ Reaction plane fit for 3 reaction plane angles.

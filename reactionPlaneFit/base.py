@@ -7,6 +7,7 @@
 
 from dataclasses import dataclass
 import numpy as np
+import probfit
 from typing import Tuple
 
 @dataclass
@@ -98,4 +99,28 @@ class Histogram:
             (x, y, errors) = cls._from_th1(hist)
 
         return cls(x = x, y = y, errors = errors)
+
+def get_args_for_func(func, xValue, fitContainer):
+    """
+
+    Args:
+        func (Callable): Function for which the arguments should be determined.
+        xValue (int, float, or np.array): Whatever the x value (or values for an np.array) that should be called.
+        fitContainer (analysisObjects.FitContainer): Fit container which holds the values that will be used when
+            calling the function.
+    """
+    # Get description of the arguments of the function
+    funcDescription = probfit.describe(func)
+    # Remove "x" because we need to assign it manually (or want to remove it)
+    funcDescription.pop(funcDescription.index("x"))
+
+    # Define the arguments we will call
+    argsForFuncCall = collections.OrderedDict()
+    # Store the argument for x first
+    argsForFuncCall["x"] = xValue
+    # Store the rest of the arguments in order
+    for name in funcDescription:
+        argsForFuncCall[name] = fitContainer.values[name]
+
+    return argsForFuncCall
 
