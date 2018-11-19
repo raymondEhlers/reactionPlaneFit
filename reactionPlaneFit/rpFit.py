@@ -8,7 +8,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import logging
-from typing import Optional
+from typing import Tuple, Optional
 import time
 
 import iminuit
@@ -23,12 +23,6 @@ logger = logging.getLogger(__name__)
 
 # TODO: Add signal and background limit ranges to the actual fit object.
 #rpf = ReactionPlaneFit(signalRegion = (0, 0.6), backgroundRegion = (0.8, 1.2))
-
-@dataclass
-class ReactionPlaneParameter:
-    angle: str
-    phiS: float
-    c: float
 
 class ReactionPlaneFit(ABC):
     """ Contains the reaction plane fit for one particular set of data and components.
@@ -48,6 +42,8 @@ class ReactionPlaneFit(ABC):
 
         # Points where the fit will be evaluated.
         self.x = np.array([])
+        # Contains the simultaneous fit to all of the components.
+        self._fit = None
 
     @property
     def rpAngles(self):
@@ -61,8 +57,7 @@ class ReactionPlaneFit(ABC):
         """
         pass
 
-    def determine_reaction_plane_parameters(self, rpAngle) -> ReactionPlaneParameter:
-        #return self.phiS[rpAngle], self.c[rpAngle]
+    def determine_reaction_plane_parameters(self, rpAngle) -> base.ReactionPlaneParameter:
         return self.reactionPlaneParameters[rpAngle]
 
     def _format_input_data(self, data):
@@ -94,31 +89,43 @@ class ReactionPlaneFit(ABC):
 
         return goodData
 
-    def defineArgs(self):
-        """
+    def _determine_component_parameter_limits(self) -> dict:
+        """ Determine the seed values, limits, and step sizes of parameters defined in the components.
 
+        Note:
+            These values should be specified with the proper names such that they will be recognized by Minuit.
+
+        Args:
+            None.
         Returns:
-            dict: Arguments for the fit.
+            dict: Parameter values and limits in a dictionary suitable to be used as Minuit args.
         """
-        minuitArgs = {}
+        arguments = {}
+        for component in self.components.values():
+            arguments.update(component.determine_parameters_limits())
 
-        # Get args from each component.
-        # Will need some strategy to merge them.
+        return arguments
 
-        # Background arguments
-        # These should consistent regardless of the fit definition.
-        # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit is correct.
-        backgroundLimits = dict(
-            v2_t = 0.02, limit_v2_t = (0, 0.50), error_v2_t = 0.001,
-            v2_a = 0.02, limit_v2_a = (0, 0.50), error_v2_a = 0.001,
-            v4_t = 0.01, limit_v4_t = (0, 0.50), error_v4_t = 0.001,
-            v4_a = 0.01, limit_v4_a = (0, 0.50), error_v4_a = 0.001,
-            v3 = 0.0, limit_v3 = (-0.1, 0.5), error_v3 = 0.001,
-            v1 = 0.0, fix_v1 = True
-        )
-        minuitArgs.update(backgroundLimits)
+    def _run_fit(self, arguments: dict) -> Tuple[bool, iminuit.Minuit]:
+        """ Make the proper calls to ``iminuit`` to run the fit.
 
-        return minuitArgs
+        Args:
+            arguments (dict): Arguments for the ``minuit`` object based on seed values and limits specified in
+                the fit components.
+        Returns:
+            tuple: (fitOkay, minuit) where fitOkay (bool) is ``True`` if the fit is okay, and
+                ``minuit`` (``iminuit.minuit``) is the Minuit object which was used to perform the fit.
+        """
+        logger.debug(f"Minuit args: {arguments}")
+        minuit = iminuit.Minuit(self._fit, **arguments)
+
+        # Perform the fit
+        minuit.migrad()
+        # Just in case (doesn't hurt anything, but may help in a few cases).
+        minuit.hesse()
+        # Plot the correlation matrix
+        minuit.print_matrix()
+        return (minuit.migrad_ok(), minuit)
 
     def fit(self, data):
         """ Perform the actual fit.
@@ -133,32 +140,24 @@ class ReactionPlaneFit(ABC):
 
         # Setup the fit components.
         for fitType, component in self.components.items():
-            component.setup_fit(inputHist = data[fitType.angle],
-                                resolutionParameters = self.resolutionParameters,
-                                reactionPlaneParameters = self.determine_reaction_plane_parameters(fitType.angle))
+            component._setup_fit(inputHist = data[fitType.angle],
+                                 resolutionParameters = self.resolutionParameters,
+                                 reactionPlaneParameters = self.determine_reaction_plane_parameters(fitType.angle))
 
         # Extract the x locations from where the fit should be evaluated.
         x = next(data.values()).x
 
         # Setup the final fit.
         self._fit = probfit.SimultaneousFit(*[component.costFunction for component in self.fitComponents.values()])
-        args = self.defineArgs()
+        arguments = self._determine_component_parameter_limits()
 
         # Perform the actual fit
-        logger.debug(f"Minuit args: {args}")
-        minuit = iminuit.Minuit(self._fit, **args)
-
-        # Perform the fit
-        minuit.migrad()
-        # Just in case (doesn't hurt anything, but may help in a few cases).
-        minuit.hesse()
-        # Plot the correlation matrix
-        minuit.print_matrix()
+        goodFit = self._run_fit(arguments = arguments)
         # Check if fit is considered valid
-        if not minuit.migrad_ok():
+        if goodFit is False:
             raise RuntimeError("Fit is not valid!")
 
-        # Store minuit information.
+        # Store Minuit information for calculating the errors.
 
         # Calculate the errors.
         self.calculate_errors()
@@ -242,16 +241,16 @@ class ReactionPlaneFit3Angles(ReactionPlaneFit):
     """
     angles = ["inPlane", "midPlane", "outOfPlane", "all"]
     reactionPlaneParameters = {
-        "inPlane": ReactionPlaneParameter(angle = "inPlane",
-                                          phiS = 0,
-                                          c = np.pi / 6.),
+        "inPlane": base.ReactionPlaneParameter(angle = "inPlane",
+                                               phiS = 0,
+                                               c = np.pi / 6.),
         # NOTE: This c value is halved in the fit to account for the four non-continuous regions
-        "midPlane": ReactionPlaneParameter(angle = "midPlane",
-                                           phiS = np.pi / 4.,
-                                           c = np.pi / 12.),
-        "outOfPlane": ReactionPlaneParameter(angle = "outOfPlane",
-                                             phiS = np.pi / 2.,
-                                             c = np.pi / 6.),
+        "midPlane": base.ReactionPlaneParameter(angle = "midPlane",
+                                                phiS = np.pi / 4.,
+                                                c = np.pi / 12.),
+        "outOfPlane": base.ReactionPlaneParameter(angle = "outOfPlane",
+                                                  phiS = np.pi / 2.,
+                                                  c = np.pi / 6.),
     }
 
 @dataclass
@@ -379,10 +378,10 @@ class FitComponent(ABC):
         return self.fitType.region
 
     @abstractmethod
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
         """ Use the class parameters to determine the fit function and store it. """
 
-    def setup_fit(self, inputHist: base.Histogram, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> base.Histogram:
+    def _setup_fit(self, inputHist: base.Histogram, resolutionParameters: dict, reactionPlaneParameters: dict) -> base.Histogram:
         """ Setup the fit using information from the input hist.
 
         Args:
@@ -453,6 +452,59 @@ class FitComponent(ABC):
         # so that it is clear that it is being assigned.
         return costFunction
 
+    def determine_parameters_limits(self) -> dict:
+        """ Determine the parameter seed values, limits, step sizes for the component.
+
+        Note:
+            These values should be specified with the proper names such that they will be recognized by Minuit.
+
+        Args:
+            None
+        Returns:
+            Dictionary of the function arguments which specifies their
+        """
+        arguments = {}
+        if self.region == "signal":
+            # Signal default parameters
+            # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
+            #       is correct.
+            nsSigmaInit = 0.07
+            asSigmaInit = 0.2
+            sigmaLowerLimit = 0.025
+            sigmaUpperLimit = 0.35
+            signalLimits = {
+                "nsSigma": nsSigmaInit,
+                "limit_nsSigma": (sigmaLowerLimit, sigmaUpperLimit), "error_nsSigma": 0.1 * nsSigmaInit,
+                "asSigma": asSigmaInit,
+                "limit_asSigma": (sigmaLowerLimit, sigmaUpperLimit), "error_asSigma": 0.1 * asSigmaInit,
+                "signalPedestal": 0.0, "fix_signalPedestal": True,
+            }
+
+            if self.angle != "all":
+                # Add the reaction plane prefix so the arguments don't conflict.
+                signalLimits = iminuit.util.fitarg_rename(signalLimits, lambda name: self.angle + "_" + name)
+
+            # Add in the signal limits for all angles
+            arguments.update(signalLimits)
+
+        # Background arguments
+        # These should consistently be defined regardless of the fit definition.
+        # Note that if the arguments already exist, they made be updated to the same value. However, this shouldn't
+        # cause any problems of have any effect.
+        # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
+        #       is correct.
+        backgroundLimits = {
+            "v2_t": 0.02, "limit_v2_t": (0, 0.50), "error_v2_t": 0.001,
+            "v2_a": 0.02, "limit_v2_a": (0, 0.50), "error_v2_a": 0.001,
+            "v4_t": 0.01, "limit_v4_t": (0, 0.50), "error_v4_t": 0.001,
+            "v4_a": 0.01, "limit_v4_a": (0, 0.50), "error_v4_a": 0.001,
+            "v3": 0.0, "limit_v3": (-0.1, 0.5), "error_v3": 0.001,
+            "v1": 0.0, "fix_v1": True,
+        }
+        arguments.update(backgroundLimits)
+
+        return arguments
+
 class SignalFitComponent(FitComponent):
     """ Fit component in the signal region.
 
@@ -467,7 +519,7 @@ class SignalFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "signal", angle = rpAngle), **kwargs)
 
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
         self.fitFunction = fitFunctions.determine_signal_dominated_fit_function(
             rpOrientation = self.rpOrientation,
             resolutionParameters = resolutionParameters,
@@ -488,7 +540,7 @@ class BackgroundFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "background", angle = rpAngle), **kwargs)
 
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
         self.fitFunction = fitFunctions.determine_background_fit_function(
             rpOrientation = self.rpOrientation,
             resolutionParameters = resolutionParameters,

@@ -5,10 +5,20 @@
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
+import collections
 from dataclasses import dataclass
 import numpy as np
 import probfit
 from typing import Tuple
+
+@dataclass
+class ReactionPlaneParameter:
+    """
+
+    """
+    angle: str
+    phiS: float
+    c: float
 
 @dataclass
 class Histogram:
