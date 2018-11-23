@@ -48,8 +48,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        # Using typing (some need atleast 3.5+), and data classes (3.7+),
-        # so we set the minimum value at 3.7.
+        # Using typing (some need atleast 3.5+), and data classes (3.6+ with backport),
+        # so we set the minimum value at 3.6.
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
 
@@ -66,11 +67,9 @@ setup(
     # This is usually the minimal set of the required packages.
     # Packages should be installed via pip -r requirements.txt !
     install_requires=[
-        "future",
-        "aenum",
+        "dataclasses",  # Needed for python 3.6
         "ruamel.yaml",
         "numpy",
-        "scipy",
         "matplotlib",
         "seaborn",
         "uproot",  # Handles ROOT io without needing ROOT itself.
