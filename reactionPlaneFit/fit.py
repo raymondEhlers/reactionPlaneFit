@@ -17,7 +17,7 @@ import numpy as np
 import probfit
 
 from reactionPlaneFit import base
-from reactionPlaneFit import fitFunctions
+from reactionPlaneFit import functions
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +451,7 @@ class SignalFitComponent(FitComponent):
         super().__init__(FitType(region = "signal", angle = rpAngle), **kwargs)
 
     def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
-        self.fitFunction = fitFunctions.determine_signal_dominated_fit_function(
+        self.fitFunction = functions.determine_signal_dominated_fit_function(
             rpOrientation = self.rpOrientation,
             resolutionParameters = resolutionParameters,
             reactionPlaneParameters = reactionPlaneParameters
@@ -472,7 +472,7 @@ class BackgroundFitComponent(FitComponent):
         super().__init__(FitType(region = "background", angle = rpAngle), **kwargs)
 
     def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
-        self.fitFunction = fitFunctions.determine_background_fit_function(
+        self.fitFunction = functions.determine_background_fit_function(
             rpOrientation = self.rpOrientation,
             resolutionParameters = resolutionParameters,
             reactionPlaneParameters = reactionPlaneParameters

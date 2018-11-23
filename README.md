@@ -1,5 +1,7 @@
 # Reaction plane fit
 
+[![Build Status](https://travis-ci.com/raymondEhlers/reactionPlaneFit.svg?branch=master)](https://travis-ci.com/raymondEhlers/reactionPlaneFit)
+
 Implements the reaction plane fit described in [Phys. Rev. C 93,
 044915](https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915)
 ([arxiv](https://arxiv.org/abs/1509.04732)) to characterize and subtract background contributions to

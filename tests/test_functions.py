@@ -10,7 +10,8 @@ import probfit
 import pytest
 import logging
 
-import reactionPlaneFit.fitFunctions as fitFunctions
+from reactionPlaneFit import functions
+from reactionPlaneFit import three_orientations
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +36,12 @@ def setupSignal():
 
     def testWrapper(x):
         """ Trivial wraper so we can set the parameter values in the fixture. """
-        return fitFunctions.signalWrapper(x, nsAmplitude = nsAmplitude,
-                                          asAmpltiude = asAmpltiude,
-                                          nsSigma = nsSigma,
-                                          asSigma = asSigma,
-                                          signalPedestal = signalPedestal,
-                                          **kwargs)
+        return functions.signalWrapper(x, nsAmplitude = nsAmplitude,
+                                       asAmpltiude = asAmpltiude,
+                                       nsSigma = nsSigma,
+                                       asSigma = asSigma,
+                                       signalPedestal = signalPedestal,
+                                       **kwargs)
 
     expected = np.array([10.        , 10.        , 10.        , 10.00000004, 10.00000128,  # noqa: E203
                          10.00003006, 10.0004764 , 10.00508941, 10.03663746, 10.17771922,  # noqa: E203
@@ -77,7 +78,8 @@ def setupBackground():
     def testWrapper(x):
         """ Trivial wrapper so we can set the parameter values in the fixture. Note call a wrapper and then
         return that function with the proper parameters set. """
-        func = fitFunctions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters)
+        func = functions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters,
+                                            background_function = three_orientations.background)
         return func(x = x,
                     B = B,
                     v2_t = v2_t, v2_a = v2_a,
@@ -117,13 +119,13 @@ def setupFourier(loggingMixin):
 
     def testWrapper(x):
         """ Trivial wraper so we can set the parameter values in the fixture. """
-        return fitFunctions.fourier(x = x,
-                                    BG = BG,
-                                    v2_t = v2_t, v2_a = v2_a,
-                                    v4_t = v4_t, v4_a = v4_a,
-                                    v1 = v1,
-                                    v3 = v3,
-                                    **kwargs)
+        return functions.fourier(x = x,
+                                 BG = BG,
+                                 v2_t = v2_t, v2_a = v2_a,
+                                 v4_t = v4_t, v4_a = v4_a,
+                                 v1 = v1,
+                                 v3 = v3,
+                                 **kwargs)
 
     expected = np.array([9.9625     , 10.06594132, 10.18644343, 10.33865473, 10.53218308,  # noqa: E203, E241
                          10.76958434, 11.04534796, 11.34607188, 11.65184372, 11.93865899,
@@ -156,17 +158,18 @@ def testFitFunctions(loggingMixin, setupFit, request):
 
 def testSignalArgs(loggingMixin):
     """ Test the arguments for the signal function. """
-    assert probfit.describe(fitFunctions.signalWrapper) == ["x",
-                                                            "nsAmplitude", "asAmpltiude",
-                                                            "nsSigma", "asSigma",
-                                                            "signalPedestal"]
+    assert probfit.describe(functions.signalWrapper) == ["x",
+                                                         "nsAmplitude", "asAmpltiude",
+                                                         "nsSigma", "asSigma",
+                                                         "signalPedestal"]
 
-def testRPFBackgroundArgs(loggingMixin):
+def testRPFBackgroundArgs(loggingMixin, mocker):
     """ Test the arguments for the RPF function. """
     phi = 0
     c = np.pi / 6
     resolutionParameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
-    func = fitFunctions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters)
+    func = functions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters,
+                                        background_function = mocker.MagicMock())
     assert probfit.describe(func, verbose = True) == ["x",
                                                       "B",
                                                       "v2_t", "v2_a",
@@ -175,9 +178,9 @@ def testRPFBackgroundArgs(loggingMixin):
 
 def testFourierArgs(loggingMixin):
     """ Test the arguments for the Fourier series function. """
-    assert probfit.describe(fitFunctions.fourier) == ["x",
-                                                      "BG",
-                                                      "v2_t", "v2_a",
-                                                      "v4_t", "v4_a",
-                                                      "v1", "v3"]
+    assert probfit.describe(functions.fourier) == ["x",
+                                                   "BG",
+                                                   "v2_t", "v2_a",
+                                                   "v4_t", "v4_a",
+                                                   "v1", "v3"]
 
