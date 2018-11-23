@@ -24,6 +24,11 @@ logger = logging.getLogger(__name__)
 # TODO: Add signal and background limit ranges to the actual fit object.
 #rpf = ReactionPlaneFit(signalRegion = (0, 0.6), backgroundRegion = (0.8, 1.2))
 
+@dataclass
+class FitType:
+    region: str
+    angle: str
+
 class ReactionPlaneFit(ABC):
     """ Contains the reaction plane fit for one particular set of data and components.
 
@@ -249,95 +254,6 @@ class ReactionPlaneFit(ABC):
             errorVals[i] = errorVal
 
         return errorVals
-
-class ReactionPlaneFit3Angles(ReactionPlaneFit):
-    """ Reaction plane fit for 3 reaction plane angles.
-
-    """
-    angles = ["inPlane", "midPlane", "outOfPlane", "all"]
-    reactionPlaneParameters = {
-        "inPlane": base.ReactionPlaneParameter(angle = "inPlane",
-                                               phiS = 0,
-                                               c = np.pi / 6.),
-        # NOTE: This c value is halved in the fit to account for the four non-continuous regions
-        "midPlane": base.ReactionPlaneParameter(angle = "midPlane",
-                                                phiS = np.pi / 4.,
-                                                c = np.pi / 12.),
-        "outOfPlane": base.ReactionPlaneParameter(angle = "outOfPlane",
-                                                  phiS = np.pi / 2.,
-                                                  c = np.pi / 6.),
-    }
-
-@dataclass
-class FitType:
-    region: str
-    angle: str
-
-class ReactionPlane3AngleBackgroundFit(ReactionPlaneFit3Angles):
-    """ RPF for background region in 3 reaction plane angles.
-
-    This is a simple helper class to define the necessary fit component. Contains fit compnents for
-    3 background RP angles.
-
-    Args:
-        Same as for ``ReactionPlaneFit``.
-    """
-    def __init__(self, *args, **kwargs):
-        # Create the base class first
-        super().__init__(*args, **kwargs)
-
-        # Setup the fit components
-        for angle in self.angles:
-            fitType = FitType(region = "background", angle = angle)
-            self.component[fitType] = BackgroundFitComponent(fitType = fitType,
-                                                             resolutionParameters = self.resolutionParameters,
-                                                             useLogLikelihood = self.useLogLikelihood)
-
-class ReactionPlane3AngleInclusiveSignalFit(ReactionPlaneFit3Angles):
-    """ RPF for inclusive signal region, and background region in 3 reaction planes angles.
-
-    This is a simple helper class to define the necessary fit component. Contains an inclusive signal fit,
-    and 3 background RP angles.
-
-    Args:
-        Same as for ``ReactionPlaneFit``.
-    """
-    def __init__(self, *args, **kwargs):
-        # Create the base class first
-        super().__init__(*args, **kwargs)
-
-        # Setup the fit components
-        fitType = FitType(region = "background", angle = "inclusive")
-        self.component[fitType] = SignalFitComponent(fitType = fitType,
-                                                     resolutionParameters = self.resolutionParameters,
-                                                     useLogLikelihood = self.useLogLikelihood)
-        for angle in self.angles:
-            fitType = FitType(region = "background", angle = angle)
-            self.component[fitType] = BackgroundFitComponent(fitType = fitType,
-                                                             resolutionParameters = self.resolutionParameters,
-                                                             useLogLikelihood = self.useLogLikelihood)
-
-
-class ReactionPlane3AngleSignalFit(ReactionPlaneFit3Angles):
-    """ RPF for signal and background regions with 3 reaction plane angles.
-
-    This is a simple helper class to define the necessary fit component.  Contains 3 signal
-    angles and 3 background RP angles.
-
-    Args:
-        Same as for ``ReactionPlaneFit``.
-    """
-    def __init__(self, *args, **kwargs):
-        # Create the base class first
-        super().__init__(*args, **kwargs)
-
-        # Setup the fit components
-        for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
-            for angle in self.angles:
-                fitType = FitType(region = region, angle = angle)
-                self.component[fitType] = fitComponent(fitType = fitType,
-                                                       resolutionParameters = self.resolutionParameters,
-                                                       useLogLikelihood = self.useLogLikelihood)
 
 class FitComponent(ABC):
     """ A component of the fit.
