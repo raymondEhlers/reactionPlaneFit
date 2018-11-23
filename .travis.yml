@@ -1,10 +1,9 @@
 # Needed for python 3.7
 dist: xenial
 language: python
-matrix:
-    include:
-        - python: 3.6
-        - python: 3.7
+python:
+    - 3.6
+    - 3.7
 sudo: required
 # Use cache with pip to save time.
 cache: pip
