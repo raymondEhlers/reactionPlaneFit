@@ -1,0 +1,12 @@
+build:
+    image: latest
+formats:
+    - htmlzip
+    # Disable pdf because RTD can't handle converting svg to pdf (because an underlying converter
+    # such as `imagemagick` is required).
+    #- pdf
+python:
+    version: 3
+    pip_install: true
+    extra_requirements:
+        - docs
