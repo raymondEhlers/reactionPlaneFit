@@ -15,10 +15,11 @@ script:
     # Since we ran the tests above, we don't need to run them here.
     # Check code quality
     - flake8 .
-      # Run the tests
+    # Run the tests
     - pytest -l -vv --cov=reactionPlaneFit --cov-branch -m "not root" --durations=5 tests/
-      # Check that the docs build successfully
-    - pushd docs && make html && popd
+    # Check that the docs build successfully
+    # TODO: Implement docs
+    #- pushd docs && make html && popd
 after_success:
     # Upload coverage report to codecov.
     - bash < (curl -s https://codecov.io/bash)

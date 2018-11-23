@@ -12,6 +12,18 @@ import probfit
 from typing import Tuple
 
 @dataclass
+class FitResult:
+    """ Store the Fit Result.
+
+    """
+    # TODO: Fold into main fit object?
+    minimumVal: float
+    nDOF: int
+    args_at_mimimum: list
+    x: list
+    covariance_matrix: dict
+
+@dataclass
 class ReactionPlaneParameter:
     """
 
