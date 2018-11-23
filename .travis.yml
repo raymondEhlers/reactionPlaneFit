@@ -1,3 +1,5 @@
+# Needed for python 3.7
+dict: xenail
 language: python
 matrix:
     include:
