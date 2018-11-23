@@ -44,18 +44,14 @@ class ReactionPlaneFit(ABC):
         self.x = np.array([])
         # Contains the simultaneous fit to all of the components.
         self._fit = None
+        # Degress of freedom
+        self.nDOF = None
 
     @property
-    def rpAngles(self):
-        """ Get the RP angles (excluding the inclusive). """
+    def rpAngles(self) -> list:
+        """ Get the RP angles (excluding the inclusive, which is the last entry). """
         # "all" is the last entry.
         return self.angles[:-1]
-
-    def _validate_fit_data(self):
-        """ Check that all expected fit components are available.
-
-        """
-        pass
 
     def determine_reaction_plane_parameters(self, rpAngle) -> base.ReactionPlaneParameter:
         return self.reactionPlaneParameters[rpAngle]
@@ -152,12 +148,20 @@ class ReactionPlaneFit(ABC):
         arguments = self._determine_component_parameter_limits()
 
         # Perform the actual fit
-        goodFit = self._run_fit(arguments = arguments)
+        (goodFit, minuit) = self._run_fit(arguments = arguments)
         # Check if fit is considered valid
         if goodFit is False:
             raise RuntimeError("Fit is not valid!")
 
         # Store Minuit information for calculating the errors.
+        # TODO: Should this be in a separate object that can be more easily YAML storable?
+
+        # Calculate chi2/ndf (or really, min function value/ndf)
+        self.minFunctionValue = minuit.fval
+        # NDF = number of points used in the fit minus the number of free parameters.
+        fixedValues = iminuit.extract_fix(minuit.fitargs)
+        freeParameters = len(probfit.describe(self._fit)) - len(fixedValues)
+        self.nDOF = len(x) - freeParameters
 
         # Calculate the errors.
         self.calculate_errors()
@@ -170,17 +174,17 @@ class ReactionPlaneFit(ABC):
         # are in a single list. The wrapper expands that list for us
         def func_wrap(x):
             # Need to expand the arguments
-            return self.fitFunction(*x)
+            return self._fit(*x)
 
         # Determine the arguments for the fit function
-        argsForFuncCall = base.GetArgsForFunc(func = self.fitFunction, xValue = None, fitContainer = fitContainer)
+        argsForFuncCall = base.GetArgsForFunc(func = self._fit, xValue = None, fitContainer = fitContainer)
         logger.debug("argsForFuncCall: {}".format(argsForFuncCall))
 
         # Retrieve the parameters to use in calculating the fit errors
-        funcArgs = probfit.describe(self.fitFunction)
+        funcArgs = probfit.describe(self._fit)
         # Remove "x" as an argument, because we don't want to evaluate the error on it
         funcArgs.pop(funcArgs.index("x"))
-        # Remove free parameters, as they won't contribute to the error and will cause problems for the gradient
+        # Remove fixed parameters, as they won't contribute to the error and will cause problems for the gradient
         for param in fitContainer.params:
             if "fix_" in param and fitContainer.params[param] is True:
                 # This parameter is fixed. We need to remove it from the funcArgs!
