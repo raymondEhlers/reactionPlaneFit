@@ -6,33 +6,30 @@ matrix:
 sudo: required
 # Use cache with pip to save time.
 cache: pip
+install:
+    # Needed on a separate line so that the packages install properly.
+    - pip install --upgrade numpy cython
+    - pip install --upgrade -e .[tests,dev,docs]
+script:
+    # Since we ran the tests above, we don't need to run them here.
+    # Check code quality
+    - flake8 .
+      # Run the tests
+    - pytest -l -vv --cov=reactionPlaneFit --cov-branch --durations=5 tests/
+      # Check that the docs build successfully
+    - pushd docs && make html && popd
+after_success:
+    # Upload coverage report to codecov.
+    - bash < (curl -s https://codecov.io/bash)
 jobs:
     include:
-        - stage: test
-          before_install:
-              # Needed so that the packages install properly.
-              - pip install --ugprade numpy cython
-          install:
-              - pip install --upgrade -e .[tests,dev,docs]
-          script:
-              # Since we ran the tests above, we don't need to run them here.
-              # Check code quality
-              - flake8 .
-              # Run the tests
-              - pytest -l -vv --cov=reactionPlaneFit --cov-branch --durations=5 tests/
-              # Check that the docs build successfully
-              - pushd docs && make html && popd
-          after_success:
-              # Upload coverage report to codecov.
-              - bash < (curl -s https://codecov.io/bash)
         - stage: deploy
           python: 3.7
-          provider: pypi
-          user: rehlers
-          password:
-              secure: jGJTAlpfNsTcZJbU24/m0GjxVzoWKBhKkloaKTqpZkrymDydX5K08DZn/U1y86/8HUB6gCT9L8ecOyecmWjwKQiGYt0wF3lyCjzjwd82nZWeWunsoMkVo9hkWwlh4+7jBd3QdYGH5DpI1DHK2RDwMAN5lUUa+qGTvnZzhxR/DVJcIva9XNFOYNKD6fDr3DvWw25Dhb5xL1ojl0silPYMXu8eXmO+x7Et4bdnzeU5eFZT//IPDJp4OGn1jCy9uXCgvE7s25ScHNPzY7WbTU2L1y07VHBOSPtkT5BIB7/HAipf2ydG7XR2YGl6U3X5cb4eqS4JDh9AUFhP1kNLx1uZWChraqeB7gXCbTcl6hNGNIQ16pEbFuwLaZkbmn75EvVBFkAzM0RpDMr+zCY4Sc0uJnEYj5xX1IDvS4qtAQdr31t0POwtuuUe6S0eL/8ikzGMHuX/OqwSPqlW4vvcvhdJkMwwL5RcJ2icBxuN5mK+JdmgMRHLuSopgA0d7v4Hi3EWPtcmjZ/vcS9gfx3cNQykqHYNCWCwWUaUQgbgn+SUb4efSxvqTtQizU40q9KJRbPEf1mQNFDF8nPb8a2f006LcR9Mnsb4l69azGBCRVTKPcF/UqK+B917pqJmXNOOeNomqHiNaEJej9ADJG0WrM2CqqyGAXye2eZz+iux9V7kKXI=
-          distributions: sdist bdist_wheel
-          # Skip cleanup because we added files from polymer and jsRoot.
-          skip_cleanup: true
-          on:
-              tags: true
+          deploy:
+              provider: pypi
+              user: rehlers
+              password:
+                  secure: jGJTAlpfNsTcZJbU24/m0GjxVzoWKBhKkloaKTqpZkrymDydX5K08DZn/U1y86/8HUB6gCT9L8ecOyecmWjwKQiGYt0wF3lyCjzjwd82nZWeWunsoMkVo9hkWwlh4+7jBd3QdYGH5DpI1DHK2RDwMAN5lUUa+qGTvnZzhxR/DVJcIva9XNFOYNKD6fDr3DvWw25Dhb5xL1ojl0silPYMXu8eXmO+x7Et4bdnzeU5eFZT//IPDJp4OGn1jCy9uXCgvE7s25ScHNPzY7WbTU2L1y07VHBOSPtkT5BIB7/HAipf2ydG7XR2YGl6U3X5cb4eqS4JDh9AUFhP1kNLx1uZWChraqeB7gXCbTcl6hNGNIQ16pEbFuwLaZkbmn75EvVBFkAzM0RpDMr+zCY4Sc0uJnEYj5xX1IDvS4qtAQdr31t0POwtuuUe6S0eL/8ikzGMHuX/OqwSPqlW4vvcvhdJkMwwL5RcJ2icBxuN5mK+JdmgMRHLuSopgA0d7v4Hi3EWPtcmjZ/vcS9gfx3cNQykqHYNCWCwWUaUQgbgn+SUb4efSxvqTtQizU40q9KJRbPEf1mQNFDF8nPb8a2f006LcR9Mnsb4l69azGBCRVTKPcF/UqK+B917pqJmXNOOeNomqHiNaEJej9ADJG0WrM2CqqyGAXye2eZz+iux9V7kKXI=
+              distributions: sdist bdist_wheel
+              on:
+                  tags: true
