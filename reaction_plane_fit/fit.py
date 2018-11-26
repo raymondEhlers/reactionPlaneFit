@@ -170,15 +170,15 @@ class ReactionPlaneFit(ABC):
         if not good_data:
             raise ValueError(f"Insufficient data provided for the fit components. Component keys: {self.components.keys()}, Data keys: {data.keys()}")
 
+        # Extract the x locations from where the fit should be evaluated.
+        # Must be set before setting up the fit, which can limit the histogram x.
+        x = next(iter(data.values())).x
+
         # Setup the fit components.
         for fit_type, component in self.components.items():
-            component._setup_fit(inputHist = data[fit_type],
-                                 resolution_parameters = self.resolution_parameters,
-                                 reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
-
-        # Extract the x locations from where the fit should be evaluated.
-        print(f"{data}")
-        x = next(iter(data.values())).x
+            data[fit_type] = component._setup_fit(input_hist = data[fit_type],
+                                                  resolution_parameters = self.resolution_parameters,
+                                                  reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
 
         # Setup the final fit.
         self._fit = probfit.SimultaneousFit(*[component.cost_function for component in self.components.values()])
@@ -195,7 +195,12 @@ class ReactionPlaneFit(ABC):
         fixed_parameters = [k for k, v in minuit.fixed.items() if v is True]
         parameters = iminuit.util.describe(self._fit)
         free_parameters = list(set(parameters) - set(fixed_parameters))
-        logger.debug(f"fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
+        # Determine the number of fit data points. This cannot just be the length of x because we need to count
+        # the data points that are used in all histograms!
+        # For example, 36 data points / hist with the three orientation background fit should have
+        # 18 (since near-side only) * 3 = 54 points.
+        n_fit_data_points = sum(len(hist.x) for hist in data.values())
+        logger.debug(f"n_fit_data_points: {n_fit_data_points}, fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
 
         # Store Minuit information for calculating the errors.
         # TODO: Should this be in a separate object that can be more easily YAML storable?
@@ -207,6 +212,7 @@ class ReactionPlaneFit(ABC):
             args_at_minimum = list(minuit.args),
             values_at_minimum = dict(minuit.values),
             x = x,
+            n_fit_data_points = n_fit_data_points,
             covariance_matrix = minuit.covariance,
         )
         # TODO: Store fitarg so we can recreate the minuit object?
@@ -342,28 +348,31 @@ class FitComponent(ABC):
     def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
 
-    def _setup_fit(self, inputHist: base.Histogram, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def _setup_fit(self, input_hist: base.Histogram, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> base.Histogram:
         """ Setup the fit using information from the input hist.
 
         Args:
-            inputHist (ROOT.TH1): The histogram to be fit by this function.
+            input_hist (base.Histogram): The histogram to be fit by this function.
             resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
                 the R_{2,2} parameter) to the value. Expects "R22" - "R82"
             reaction_plane_parameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
                 reaction plane.
         Returns:
-            None: The fit object is fully setup.
+            base.Histogram: The data limited histogram (to be used for determining the number of data points used
+                in the fit). Note that the fit is fully setup at this point.
         """
         # Setup the fit itself.
         self.determine_fit_function(resolution_parameters = resolution_parameters,
                                     reaction_plane_parameter = reaction_plane_parameter)
 
-        #hist = base.Histogram.from_existing_hist(hist = inputHist)
-        limitedHist = self.set_data_limits(hist = inputHist)
+        #hist = base.Histogram.from_existing_hist(hist = input_hist)
+        limited_hist = self.set_data_limits(hist = input_hist)
         # TODO: Scale histogram by nEvents if necessary
 
         # Determine the cost function
-        self.cost_function = self._cost_function(hist = limitedHist)
+        self.cost_function = self._cost_function(hist = limited_hist)
+
+        return limited_hist
 
     def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
         """ Extract the data from the histogram. """

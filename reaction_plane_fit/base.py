@@ -30,6 +30,7 @@ class FitResult:
         values_at_minimum (dict): Keys are the names of parameters, while values are the numerical values
             at convergence. This is somewhat redundant with ``args_at_minimum``, but both can be useful.
         x (list): x values where the fit result should be evaluated.
+        n_fit_data_points (int): Number of data points used in the fit.
         covariance_matrix (dict): Keys are tuples with (paramNameA, paramNameB), and the values are covariance
             between the specified parameters. Note that fixed parameters are _not_ included in this matrix.
     """
@@ -41,11 +42,12 @@ class FitResult:
     args_at_minimum: list
     values_at_minimum: dict
     x: list
+    n_fit_data_points: int
     covariance_matrix: dict
 
     @property
     def nDOF(self):
-        return len(self.x) - len(self.free_parameters)
+        return self.n_fit_data_points - len(self.free_parameters)
 
 @dataclass
 class ReactionPlaneParameter:
