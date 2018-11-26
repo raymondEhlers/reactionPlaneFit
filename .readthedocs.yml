@@ -7,6 +7,9 @@ formats:
     #- pdf
 python:
     version: 3
+    # So numpy will be available before pip installing the package. numpy needs to be available before
+    # starting the install due to probfit.
+    use_system_site_packages: true
     pip_install: true
     extra_requirements:
         - docs
