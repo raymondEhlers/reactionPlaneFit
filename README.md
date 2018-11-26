@@ -2,6 +2,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/reactionplanefit/badge/?version=latest)](https://reactionplanefit.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.com/raymondEhlers/reactionPlaneFit.svg?branch=master)](https://travis-ci.com/raymondEhlers/reactionPlaneFit)
+[![codecov](https://codecov.io/gh/raymondEhlers/reactionPlaneFit/branch/master/graph/badge.svg)](https://codecov.io/gh/raymondEhlers/reactionPlaneFit)
 
 Implements the reaction plane fit described in [Phys. Rev. C 93,
 044915](https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915)

@@ -149,11 +149,12 @@ class ReactionPlaneFit(ABC):
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data) -> bool:
+    def fit(self, data: dict) -> bool:
         """ Perform the actual fit.
 
         Args:
-
+            data (dict): Input data to be used for the fit. The keys should either be of the form ``[region][orientation]`` or
+                 ``[FitType]``. The values can be uproot or ROOT 1D histograms.
         Returns:
             bool: True if the fitting procedure was successful.
         """
