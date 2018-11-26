@@ -73,8 +73,6 @@ setup(
         "matplotlib",
         "seaborn",
         "uproot",  # Handles ROOT io without needing ROOT itself.
-        #"rootpy",
-        #"root_numpy",
         "numdifftools",
         "iminuit",
         "probfit",

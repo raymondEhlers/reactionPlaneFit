@@ -194,7 +194,8 @@ class ReactionPlaneFit(ABC):
         # NDF = number of points used in the fit minus the number of free parameters.
         fixed_parameters = [k for k, v in minuit.fixed.items() if v is True]
         parameters = iminuit.util.describe(self._fit)
-        free_parameters = list(set(parameters) - set(fixed_parameters))
+        # Can't just use set(parameters) - set(fixed_parameters) becase set() is unordered!
+        free_parameters = [p for p in parameters if p not in set(fixed_parameters)]
         # Determine the number of fit data points. This cannot just be the length of x because we need to count
         # the data points that are used in all histograms!
         # For example, 36 data points / hist with the three orientation background fit should have
