@@ -15,7 +15,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 
-def determine_signal_dominated_fit_function(rpOrientation: str, resolutionParameters: dict, reactionPlaneParameters: dict, rp_background_function: Callable[..., float]) -> Callable[..., float]:
+def determine_signal_dominated_fit_function(rpOrientation: str, resolutionParameters: dict, reactionPlaneParameter, rp_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the signal fit function.
 
     This function consists of near-side and away side gaussians representing the signal added to a function
@@ -26,21 +26,21 @@ def determine_signal_dominated_fit_function(rpOrientation: str, resolutionParame
         rpOrientation (str): The reaction plane orientation.
         resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
-        reactionPlaneParameters (dict): Contains all of the reaction plane parameters for each RP angle.
-            The keys are the RP angle, which the values are ``base.ReactionPlaneParameter`` objects.
+        reactionPlaneParameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
+                reaction plane.
         rp_background_function (function): Background RP fit function.
     Returns:
         Callable: The signal fit function.
     """
     # Signal function
-    signalFunc = signalWrapper
+    signalFunc = signal_wrapper
     # Background function
     backgroundFunc = determine_background_fit_function(rpOrientation,
                                                        resolutionParameters,
-                                                       reactionPlaneParameters,
+                                                       reactionPlaneParameter,
                                                        rp_background_function = rp_background_function)
 
-    if rpOrientation == "all":
+    if rpOrientation == "inclusive":
         # We don't need to rename the all angles function because we can only use
         # the signal fit on all angles alone. If we fit the other reaction plane angles
         # at the same time, it will double count.
@@ -61,39 +61,38 @@ def determine_signal_dominated_fit_function(rpOrientation: str, resolutionParame
     logger.debug(f"rpOrientation: {rpOrientation}, signalDominatedFunc: {probfit.describe(signalDominatedFunc)}")
     return signalDominatedFunc
 
-def determine_background_fit_function(rpOrientation: str, resolutionParameters: dict, reactionPlaneParameters: dict, rp_background_function: Callable[..., float]) -> Callable[..., float]:
+def determine_background_fit_function(rpOrientation: str, resolutionParameters: dict, reactionPlaneParameter, rp_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the background fit function.
 
     For inclusive RP orientations, this is a Fourier series. For other RP orientations,
     it is an RPF function.
 
     Note:
-        If the RP angle is inclusive, it is assumed to be labeled as "all".
+        If the RP angle is inclusive, it is assumed to be labeled as "inclusive".
 
     Args:
         rpOrientation (str): The reaction plane orientation.
         resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
-        reactionPlaneParameters (dict): Contains all of the reaction plane parameters for each RP angle.
-            The keys are the RP angle, which the values are ``base.ReactionPlaneParameter`` objects.
+        reactionPlaneParameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
+                reaction plane.
         rp_background_function (function): Background RP fit function.
     Returns:
         function: The background function.
     """
-    if rpOrientation == "all":
+    if rpOrientation == "inclusive":
         backgroundFunc = fourier
     else:
-        # Get RPF parameters
-        (phiS, c) = reactionPlaneParameters
-        # Define the function based on the parameters above.
-        backgroundFunc = rp_background_function(phi = reactionPlaneParameters[rpOrientation].phiS,
-                                                c = reactionPlaneParameters[rpOrientation].c,
-                                                resolutionParameters = resolutionParameters)
+        # Define the function based on the parameters passed to the function.
+        backgroundFunc = background_wrapper(phi = reactionPlaneParameter.phiS,
+                                            c = reactionPlaneParameter.c,
+                                            resolutionParameters = resolutionParameters,
+                                            background_function = rp_background_function)
 
     logger.debug(f"rpOrientation: {rpOrientation}, backgroundFunc: {probfit.describe(backgroundFunc)}")
     return backgroundFunc
 
-def signalWrapper(x: float, nsAmplitude: float, asAmpltiude: float, nsSigma: float, asSigma: float, signalPedestal: float, **kwargs: dict) -> float:
+def signal_wrapper(x: float, nsAmplitude: float, asAmpltiude: float, nsSigma: float, asSigma: float, signalPedestal: float, **kwargs: dict) -> float:
     """ Wrapper for use with ``iminuit`` that basically reassigns descriptive parameter names to shorter names.
 
     These shorter names make the function definition less verbose to look and therefore easier to understand.

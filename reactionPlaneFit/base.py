@@ -7,19 +7,33 @@
 
 import collections
 from dataclasses import dataclass
+import logging
 import numpy as np
 import probfit
 from typing import Tuple
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class FitResult:
     """ Store the Fit Result.
 
+    Note:
+        free_parameters + fixed_parameters = parameters
+
+    Attributes:
+        parameters (list): Names of the parameters used in the fit.
+        free_parameters (list): Names of the free parameters used in the fit.
+        fixed_parameters (list): Names of the fixed parameters used in the fit.
     """
     # TODO: Fold into main fit object?
-    minimumVal: float
+    parameters: list
+    free_parameters: list
+    fixed_parameters: list
+    minimum_val: float
     nDOF: int
-    args_at_mimimum: list
+    args_at_minimum: list
+    values_at_minimum: dict
     x: list
     covariance_matrix: dict
 
@@ -114,6 +128,8 @@ class Histogram:
             Histogram: Data class with x, y, and errors
         """
         # "values" is a proxy for if we have an uproot hist.
+        logger.debug(f"{hist}, {type(hist)}")
+        logger.debug(f"hasattr: {hasattr(hist, 'values')}")
         if hasattr(hist, "values"):
             (x, y, errors) = cls._from_uproot(hist)
         else:

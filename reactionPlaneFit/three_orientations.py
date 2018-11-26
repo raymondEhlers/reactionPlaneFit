@@ -17,20 +17,20 @@ logger = logging.getLogger(__name__)
 
 # Define the the relevant fit components for this set of RP orientation.
 class SignalFitComponent(fit.SignalFitComponent):
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
         self.fitFunction = functions.determine_signal_dominated_fit_function(
             rpOrientation = self.rpOrientation,
             resolutionParameters = resolutionParameters,
-            reactionPlaneParameters = reactionPlaneParameters,
+            reactionPlaneParameter = reactionPlaneParameter,
             rp_background_function = background,
         )
 
 class BackgroundFitComponent(fit.BackgroundFitComponent):
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameters: dict) -> None:
+    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
         self.fitFunction = functions.determine_background_fit_function(
             rpOrientation = self.rpOrientation,
             resolutionParameters = resolutionParameters,
-            reactionPlaneParameters = reactionPlaneParameters,
+            reactionPlaneParameter = reactionPlaneParameter,
             rp_background_function = background,
         )
 
@@ -38,7 +38,7 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
     """ Base class for reaction plane fit for 3 reaction plane orientations.
 
     """
-    angles = ["inPlane", "midPlane", "outOfPlane", "all"]
+    angles = ["inPlane", "midPlane", "outOfPlane", "inclusive"]
     reactionPlaneParameters = {
         "inPlane": base.ReactionPlaneParameter(angle = "inPlane",
                                                phiS = 0,
@@ -50,6 +50,9 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
         "outOfPlane": base.ReactionPlaneParameter(angle = "outOfPlane",
                                                   phiS = np.pi / 2.,
                                                   c = np.pi / 6.),
+        # This is invalid and will be ignored!
+        # However, it is helpful for it to be defined in this dict for lookup purposes.
+        "inclusive": None,
     }
 
 class BackgroundFit(ReactionPlaneFit):
@@ -66,11 +69,11 @@ class BackgroundFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        for angle in self.angles:
+        for angle in self.rpAngles:
             fitType = fit.FitType(region = "background", angle = angle)
-            self.component[fitType] = BackgroundFitComponent(fitType = fitType,
-                                                             resolutionParameters = self.resolutionParameters,
-                                                             useLogLikelihood = self.useLogLikelihood)
+            self.components[fitType] = BackgroundFitComponent(rpAngle = fitType.angle,
+                                                              resolutionParameters = self.resolutionParameters,
+                                                              useLogLikelihood = self.useLogLikelihood)
 
 class InclusiveSignalFit(ReactionPlaneFit):
     """ RPF for inclusive signal region, and background region in 3 reaction planes orientations.
@@ -86,15 +89,15 @@ class InclusiveSignalFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        fitType = fit.FitType(region = "background", angle = "inclusive")
-        self.component[fitType] = SignalFitComponent(fitType = fitType,
-                                                     resolutionParameters = self.resolutionParameters,
-                                                     useLogLikelihood = self.useLogLikelihood)
-        for angle in self.angles:
+        fitType = fit.FitType(region = "signal", angle = "inclusive")
+        self.components[fitType] = SignalFitComponent(rpAngle = fitType.angle,
+                                                      resolutionParameters = self.resolutionParameters,
+                                                      useLogLikelihood = self.useLogLikelihood)
+        for angle in self.rpAngles:
             fitType = fit.FitType(region = "background", angle = angle)
-            self.component[fitType] = BackgroundFitComponent(fitType = fitType,
-                                                             resolutionParameters = self.resolutionParameters,
-                                                             useLogLikelihood = self.useLogLikelihood)
+            self.components[fitType] = BackgroundFitComponent(rpAngle = fitType.angle,
+                                                              resolutionParameters = self.resolutionParameters,
+                                                              useLogLikelihood = self.useLogLikelihood)
 
 class SignalFit(ReactionPlaneFit):
     """ RPF for signal and background regions with 3 reaction plane orientations.
@@ -111,11 +114,11 @@ class SignalFit(ReactionPlaneFit):
 
         # Setup the fit components
         for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
-            for angle in self.angles:
+            for angle in self.rpAngles:
                 fitType = fit.FitType(region = region, angle = angle)
-                self.component[fitType] = fitComponent(fitType = fitType,
-                                                       resolutionParameters = self.resolutionParameters,
-                                                       useLogLikelihood = self.useLogLikelihood)
+                self.components[fitType] = fitComponent(rpAngle = fitType.angle,
+                                                        resolutionParameters = self.resolutionParameters,
+                                                        useLogLikelihood = self.useLogLikelihood)
 
 def background(x: float, phi: float, c: float, resolutionParameters: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
     """ The background function is of the form specified in the RPF paper.
