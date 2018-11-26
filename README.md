@@ -21,7 +21,7 @@ details of `probfit`.
 $ pip install numpy cython
 ```
 
-The package is available on [pypi](https://pypi.org/project/reactionPlaneFit) and is available via pip.
+The package is available on [pypi](https://pypi.org/project/reaction_plane_fit) and is available via pip.
 
 ```bash
 $ pip install --user reaction_plane_fit
@@ -31,9 +31,37 @@ This assumes installation for only the current user.
 
 ## Usage
 
-To perform the fit, a number of parameters need to be specified. In particular, the reaction plane resolution
-parameters must be specified. An example configuration is in the `config/` folder. Example data is in the
-`data/` folder.
+Performing a fit with this package only requires a few lines of code. Below is sufficient to define and run a
+fit with some sample values:
+
+```python
+from reaction_plane_fit import three_orientations
+# Define the fit object.
+rp_fit = three_orientations.BackgroundFit(
+    resolution_parameters = {"R22": 0.6, "R42": 0.3, "R62": 0.1, "R82": 0.1},
+    use_log_likelihood = False,
+    signal_region = (0, 0.6),
+    background_region = (0.8, 1.2),
+)
+# Load or otherwise provide the relevant histograms here.
+# The structure of this dictionary is important to ensure that the proper data ends up in the right place.
+data = {"background": {"inPlane": ROOT.TH1.., "midPlane": ROOT.TH1..., "outOfPlane": ROOT.TH1...}}
+# Perform the actual fit.
+success = rp_fit.fit(data = data)
+# Print the fit results
+print("Fit result: {fit_result}".format(fit_result = rp_fit.fit_result))
+```
+
+Examples for fitting an inclusive reaction plane orientation signal alongside the background, or for fitting
+only the background are both available in `reaction_plane_fit.example`. This module can also be run directly
+in the terminal via:
+
+```
+$ python -m reaction_plane_fit.example [-b] [-i dataFilename]
+```
+
+If fit data is not specified, it will use some sample data. For further information, including all possible
+fit function combinations, please see the [full documentation](https://reactionplanefit.readthedocs.io/en/latest/?badge=latest).
 
 # Citations
 
