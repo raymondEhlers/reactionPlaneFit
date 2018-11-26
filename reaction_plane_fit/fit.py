@@ -16,8 +16,8 @@ import numdifftools as nd
 import numpy as np
 import probfit
 
-from reactionPlaneFit import base
-from reactionPlaneFit import functions
+from reaction_plane_fit import base
+from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
 

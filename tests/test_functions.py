@@ -10,8 +10,8 @@ import probfit
 import pytest
 import logging
 
-from reactionPlaneFit import functions
-from reactionPlaneFit import three_orientations
+from reaction_plane_fit import functions
+from reaction_plane_fit import three_orientations
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +36,12 @@ def setupSignal():
 
     def testWrapper(x):
         """ Trivial wraper so we can set the parameter values in the fixture. """
-        return functions.signalWrapper(x, nsAmplitude = nsAmplitude,
-                                       asAmpltiude = asAmpltiude,
-                                       nsSigma = nsSigma,
-                                       asSigma = asSigma,
-                                       signalPedestal = signalPedestal,
-                                       **kwargs)
+        return functions.signal_wrapper(x, nsAmplitude = nsAmplitude,
+                                        asAmpltiude = asAmpltiude,
+                                        nsSigma = nsSigma,
+                                        asSigma = asSigma,
+                                        signalPedestal = signalPedestal,
+                                        **kwargs)
 
     expected = np.array([10.        , 10.        , 10.        , 10.00000004, 10.00000128,  # noqa: E203
                          10.00003006, 10.0004764 , 10.00508941, 10.03663746, 10.17771922,  # noqa: E203
@@ -158,10 +158,10 @@ def testFitFunctions(loggingMixin, setupFit, request):
 
 def testSignalArgs(loggingMixin):
     """ Test the arguments for the signal function. """
-    assert probfit.describe(functions.signalWrapper) == ["x",
-                                                         "nsAmplitude", "asAmpltiude",
-                                                         "nsSigma", "asSigma",
-                                                         "signalPedestal"]
+    assert probfit.describe(functions.signal_wrapper) == ["x",
+                                                          "nsAmplitude", "asAmpltiude",
+                                                          "nsSigma", "asSigma",
+                                                          "signalPedestal"]
 
 def testRPFBackgroundArgs(loggingMixin, mocker):
     """ Test the arguments for the RPF function. """

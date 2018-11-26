@@ -9,7 +9,7 @@ log/
 .pytest_cache/
 # Python packaging
 dist/
-reactionPlaneFit.egg-info/
+reaction_plane_fit.egg-info/
 build/
 
 # Ignore filetypes

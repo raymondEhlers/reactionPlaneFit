@@ -23,7 +23,7 @@ $ pip install numpy cython
 The package is available on [pypi](https://pypi.org/project/reactionPlaneFit) and is available via pip.
 
 ```{bash}
-$ pip install --user reactionPlaneFit
+$ pip install --user reaction_plane_fit
 ```
 
 This assumes installation for only the current user. 

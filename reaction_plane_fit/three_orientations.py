@@ -9,9 +9,9 @@ import logging
 import numpy as np
 from numpy import sin, cos
 
-from reactionPlaneFit import fit
-from reactionPlaneFit import functions
-from reactionPlaneFit import base
+from reaction_plane_fit import fit
+from reaction_plane_fit import functions
+from reaction_plane_fit import base
 
 logger = logging.getLogger(__name__)
 

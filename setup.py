@@ -10,9 +10,9 @@ from setuptools import setup, find_packages
 from codecs import open
 import os
 
-def getVersion():
+def get_version():
     versionModule = {}
-    with open(os.path.join("reactionPlaneFit", "version.py")) as f:
+    with open(os.path.join("reaction_plane_fit", "version.py")) as f:
         exec(f.read(), versionModule)
     return versionModule["__version__"]
 
@@ -22,8 +22,8 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name="reactionPlaneFit",
-    version=getVersion(),
+    name="reaction_plane_fit",
+    version=get_version(),
 
     description="Implments the reaction plane fit for background subtraction in heavy ion collisions.",
     long_description=long_description,

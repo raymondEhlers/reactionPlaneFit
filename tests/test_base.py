@@ -11,7 +11,7 @@ import pytest
 import numpy as np
 import uproot
 
-import reactionPlaneFit.base as base
+import reaction_plane_fit.base as base
 
 logger = logging.getLogger(__name__)
 

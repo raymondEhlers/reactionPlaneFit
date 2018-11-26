@@ -10,8 +10,8 @@ import logging
 import os
 import uproot
 
-from reactionPlaneFit import fit
-from reactionPlaneFit import three_orientations
+from reaction_plane_fit import fit
+from reaction_plane_fit import three_orientations
 
 logger = logging.getLogger(__name__)
 
