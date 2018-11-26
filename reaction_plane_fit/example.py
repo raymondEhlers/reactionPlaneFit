@@ -92,7 +92,7 @@ def run_inclusive_signal_fit(input_filename: str) -> fit.ReactionPlaneFit:
     rp_fit = run_fit(fit_object = three_orientations.InclusiveSignalFit, data = data)
     return rp_fit
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     """ Allow direction execution of this module.
 
     The user can specify the input filename and which type of fit to perform. However, the names of the input

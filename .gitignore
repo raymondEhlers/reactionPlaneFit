@@ -43,3 +43,7 @@ notes.md
 .env/
 .env3/
 .py3.7/
+
+# Generate coverage reports from testing
+.coverage
+htmlcov/
