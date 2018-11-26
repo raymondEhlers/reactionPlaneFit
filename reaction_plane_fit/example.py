@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 def setup_data(input_filename: str) -> dict:
     """ Setup the example input data.
 
-    Read the data using uproot so we can avoid an explicit dependency on ROOT.
+    Read the data using uproot so we can avoid an explicit dependency on ROOT. Histograms
+    are assumed to be named ``{region}_{orientation}`` (for example, "signalDominated_inclusive").
 
     Args:
         input_filename (str): Path to the input data to use.
@@ -30,16 +31,6 @@ def setup_data(input_filename: str) -> dict:
         data["signal"]["inclusive"] = f["signalDominated_inclusive"]
         for rp in ["inPlane", "midPlane", "outOfPlane"]:
             data["background"][rp] = f[f"backgroundDominated_{rp}"]
-
-    #x = np.linspace(-np.pi / 2, 3. / 2. * np.pi, 36 + 1)
-    ## Gaussian signal
-    #ns_signal = probfit.pdf.gaussian(x, mean = 0, sigma = 0.5)
-    #as_signal = probfit.pdf.gaussian(x, mean = np.pi, sigma = 0.7)
-    #bg_amplitude = 3.0
-    ## Background data.
-    #data["inPlane"] = ns_signal + as_signal + bg_amplitude * np.cos(2*x)
-    #data["midPlane"] = ns_signal + as_signal + bg_amplitude * np.cos(3*x)
-    #data["inPlane"] = ns_signal + as_signal - bg_amplitude * np.cos(2*x)
 
     return data
 
@@ -60,10 +51,10 @@ def run_fit(input_filename: str) -> fit.ReactionPlaneFit:
 
     # Define the fit.
     rp_fit = three_orientations.InclusiveSignalFit(
-        resolutionParameters = {"R22": 1, "R42": 1, "R62": 1, "R82": 1},
-        useLogLikelihood = False,
-        signalRegion = (0, 0.6),
-        backgroundRegion = (0.8, 1.2),
+        resolution_parameters = {"R22": 1, "R42": 1, "R62": 1, "R82": 1},
+        use_log_likelihood = False,
+        signal_region = (0, 0.6),
+        background_region = (0.8, 1.2),
     )
 
     # Perform the actual fit.
@@ -75,6 +66,11 @@ def run_fit(input_filename: str) -> fit.ReactionPlaneFit:
     return fit_result
 
 if __name__ == "__main__":
+    """ Allow direction execution of this module.
+
+    The user can specify the input filename. However, the names of he input histograms must be as specified in
+    ``setup_data(...)``.
+    """
     # Setup logging
     logging.basicConfig(level=logging.DEBUG)
     # Setup parser

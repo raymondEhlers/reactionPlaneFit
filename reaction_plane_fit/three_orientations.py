@@ -17,20 +17,20 @@ logger = logging.getLogger(__name__)
 
 # Define the the relevant fit components for this set of RP orientation.
 class SignalFitComponent(fit.SignalFitComponent):
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
-        self.fitFunction = functions.determine_signal_dominated_fit_function(
-            rpOrientation = self.rpOrientation,
-            resolutionParameters = resolutionParameters,
-            reactionPlaneParameter = reactionPlaneParameter,
+    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+        self.fit_function = functions.determine_signal_dominated_fit_function(
+            rp_orientation = self.rp_orientation,
+            resolution_parameters = resolution_parameters,
+            reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
         )
 
 class BackgroundFitComponent(fit.BackgroundFitComponent):
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
-        self.fitFunction = functions.determine_background_fit_function(
-            rpOrientation = self.rpOrientation,
-            resolutionParameters = resolutionParameters,
-            reactionPlaneParameter = reactionPlaneParameter,
+    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+        self.fit_function = functions.determine_background_fit_function(
+            rp_orientation = self.rp_orientation,
+            resolution_parameters = resolution_parameters,
+            reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
         )
 
@@ -39,7 +39,7 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
 
     """
     angles = ["inPlane", "midPlane", "outOfPlane", "inclusive"]
-    reactionPlaneParameters = {
+    reaction_plane_parameters = {
         "inPlane": base.ReactionPlaneParameter(angle = "inPlane",
                                                phiS = 0,
                                                c = np.pi / 6.),
@@ -69,11 +69,11 @@ class BackgroundFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        for angle in self.rpAngles:
-            fitType = fit.FitType(region = "background", angle = angle)
-            self.components[fitType] = BackgroundFitComponent(rpAngle = fitType.angle,
-                                                              resolutionParameters = self.resolutionParameters,
-                                                              useLogLikelihood = self.useLogLikelihood)
+        for angle in self.rp_angles:
+            fit_type = fit.FitType(region = "background", angle = angle)
+            self.components[fit_type] = BackgroundFitComponent(rp_angle = fit_type.angle,
+                                                               resolution_parameters = self.resolution_parameters,
+                                                               use_log_likelihood = self.use_log_likelihood)
 
 class InclusiveSignalFit(ReactionPlaneFit):
     """ RPF for inclusive signal region, and background region in 3 reaction planes orientations.
@@ -89,15 +89,15 @@ class InclusiveSignalFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        fitType = fit.FitType(region = "signal", angle = "inclusive")
-        self.components[fitType] = SignalFitComponent(rpAngle = fitType.angle,
-                                                      resolutionParameters = self.resolutionParameters,
-                                                      useLogLikelihood = self.useLogLikelihood)
-        for angle in self.rpAngles:
-            fitType = fit.FitType(region = "background", angle = angle)
-            self.components[fitType] = BackgroundFitComponent(rpAngle = fitType.angle,
-                                                              resolutionParameters = self.resolutionParameters,
-                                                              useLogLikelihood = self.useLogLikelihood)
+        fit_type = fit.FitType(region = "signal", angle = "inclusive")
+        self.components[fit_type] = SignalFitComponent(rp_angle = fit_type.angle,
+                                                       resolution_parameters = self.resolution_parameters,
+                                                       use_log_likelihood = self.use_log_likelihood)
+        for angle in self.rp_angles:
+            fit_type = fit.FitType(region = "background", angle = angle)
+            self.components[fit_type] = BackgroundFitComponent(rp_angle = fit_type.angle,
+                                                               resolution_parameters = self.resolution_parameters,
+                                                               use_log_likelihood = self.use_log_likelihood)
 
 class SignalFit(ReactionPlaneFit):
     """ RPF for signal and background regions with 3 reaction plane orientations.
@@ -114,13 +114,13 @@ class SignalFit(ReactionPlaneFit):
 
         # Setup the fit components
         for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
-            for angle in self.rpAngles:
-                fitType = fit.FitType(region = region, angle = angle)
-                self.components[fitType] = fitComponent(rpAngle = fitType.angle,
-                                                        resolutionParameters = self.resolutionParameters,
-                                                        useLogLikelihood = self.useLogLikelihood)
+            for angle in self.rp_angles:
+                fit_type = fit.FitType(region = region, angle = angle)
+                self.components[fit_type] = fitComponent(rp_angle = fit_type.angle,
+                                                         resolution_parameters = self.resolution_parameters,
+                                                         use_log_likelihood = self.use_log_likelihood)
 
-def background(x: float, phi: float, c: float, resolutionParameters: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
+def background(x: float, phi: float, c: float, resolution_parameters: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
     """ The background function is of the form specified in the RPF paper.
 
     Resolution parameters implemented include R{2,2} through R{8,2}, which denotes the resolution of an order
@@ -131,7 +131,7 @@ def background(x: float, phi: float, c: float, resolutionParameters: float, B: f
         x (float): Delta phi value for which the background will be calculated.
         phi (float): Center of the reaction plane bin. Matches up to phi_s in the RPF paper
         c (float): Width of the reaction plane bin. Matches up to c in the RPF paper
-        resolutionParameters (dict): Contains the resolution parameters with respect to the n = 2 reaction plane.
+        resolution_parameters (dict): Contains the resolution parameters with respect to the n = 2 reaction plane.
             Note the information about the parameters above. The expected keys are "R22" - "R82".
         B (float): Overall multiplicative background level.
         v2_t (float): Trigger v_{2}.
@@ -146,10 +146,10 @@ def background(x: float, phi: float, c: float, resolutionParameters: float, B: f
         float: Values calculated by the function.
     """
     # Define individual resolution variables to make the expressions more concise.
-    R22 = resolutionParameters["R22"]
-    R42 = resolutionParameters["R42"]
-    R62 = resolutionParameters["R62"]
-    R82 = resolutionParameters["R82"]
+    R22 = resolution_parameters["R22"]
+    R42 = resolution_parameters["R42"]
+    R62 = resolution_parameters["R62"]
+    R82 = resolution_parameters["R82"]
 
     num = v2_t + cos(2 * phi) * sin(2 * c) / (2 * c) * R22 \
         + v4_t * cos(2 * phi) * sin(2 * c) / (2 * c) * R22 \

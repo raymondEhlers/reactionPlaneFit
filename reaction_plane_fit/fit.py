@@ -22,7 +22,7 @@ from reaction_plane_fit import functions
 logger = logging.getLogger(__name__)
 
 # TODO: Add signal and background limit ranges to the actual fit object.
-#rpf = ReactionPlaneFit(signalRegion = (0, 0.6), backgroundRegion = (0.8, 1.2))
+#rpf = ReactionPlaneFit(signal_region = (0, 0.6), background_region = (0.8, 1.2))
 
 @dataclass(frozen = True)
 class FitType:
@@ -35,14 +35,14 @@ class ReactionPlaneFit(ABC):
     Attributes:
         regions (dict): Signal and background fit regions.
         components (dict): Reaction plane fit components used in the actual fit.
-        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
+        resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82"
-        useLogLikelihood (bool): If true, use log likelihood cost function. Often used
+        use_log_likelihood (bool): If true, use log likelihood cost function. Often used
             when statistics are limited. Default: False
     """
-    def __init__(self, resolutionParameters: dict, useLogLikelihood: bool, signalRegion = None, backgroundRegion = None):
-        self.resolutionParameters = resolutionParameters
-        self.useLogLikelihood = useLogLikelihood
+    def __init__(self, resolution_parameters: dict, use_log_likelihood: bool, signal_region = None, background_region = None):
+        self.resolution_parameters = resolution_parameters
+        self.use_log_likelihood = use_log_likelihood
         self.components = {}
         self.regions = {}
 
@@ -50,28 +50,26 @@ class ReactionPlaneFit(ABC):
         self._fit = None
         # Contains the fit results
         self.fit_result = None
-        # Degress of freedom
-        self.nDOF = None
 
     @property
-    def rpAngles(self) -> list:
+    def rp_angles(self) -> list:
         """ Get the RP angles (excluding the inclusive, which is the last entry). """
         # "inclusive" must be the last entry.
         return self.angles[:-1]
 
-    def _determine_reaction_plane_parameters(self, rpAngle) -> base.ReactionPlaneParameter:
+    def _determine_reaction_plane_parameters(self, rp_angle) -> base.ReactionPlaneParameter:
         """ Helper to determine the reaction plane parameters. """
-        return self.reactionPlaneParameters[rpAngle]
+        return self.reaction_plane_parameters[rp_angle]
 
     def _validate_settings(self) -> bool:
         """ Validate the passed settings. """
         # Check that there are sufficient res params
         resParams = set(["R22", "R42", "R62", "R82"])
-        goodParams = resParams.issubset(self.resolutionParameters.keys())
-        if not goodParams:
-            raise ValueError(f"Missing resolution parameters. Passed: {self.resolutionParameters.keys()}")
+        good_params = resParams.issubset(self.resolution_parameters.keys())
+        if not good_params:
+            raise ValueError(f"Missing resolution parameters. Passed: {self.resolution_parameters.keys()}")
 
-        return all([goodParams])
+        return all([good_params])
 
     def _format_input_data(self, data: dict) -> bool:
         """ Convert input data into a more convenient format.
@@ -79,8 +77,8 @@ class ReactionPlaneFit(ABC):
         By using ``FitType``, we can very easily check that all fit components have the appropriate data.
         """
         # Check if it's already properly formatted.
-        properlyFormatted = all(isinstance(k, FitType) for k in data.keys())
-        if not properlyFormatted:
+        properly_formatted = all(isinstance(k, FitType) for k in data.keys())
+        if not properly_formatted:
             # Convert the string keys to ``FitType`` keys.
             for region in ["signal", "background"]:
                 if region in data:
@@ -104,9 +102,9 @@ class ReactionPlaneFit(ABC):
             data (dict): Input data with ``FitType`` keys in the corresponding data stored in the values.
         """
         # Each component must have input data.
-        goodData = all(k in data.keys() for k in self.components.keys())
+        good_data = all(k in data.keys() for k in self.components.keys())
 
-        return goodData
+        return good_data
 
     def _determine_component_parameter_limits(self) -> dict:
         """ Determine the seed values, limits, and step sizes of parameters defined in the components.
@@ -155,36 +153,36 @@ class ReactionPlaneFit(ABC):
             bool: True if the fitting procedure was successful.
         """
         # Validate settings.
-        goodSettings = self._validate_settings()
-        if not goodSettings:
+        good_settings = self._validate_settings()
+        if not good_settings:
             raise ValueError("Invalid settings! Please check the inputs.")
 
         # Setup and validate data.
         if not data:
             raise ValueError("Must pass data to be fitted!")
         data = self._format_input_data(data)
-        goodData = self._validate_data(data)
-        if not goodData:
+        good_data = self._validate_data(data)
+        if not good_data:
             raise ValueError(f"Insufficient data provided for the fit components. Component keys: {self.components.keys()}, Data keys: {data.keys()}")
 
         # Setup the fit components.
-        for fitType, component in self.components.items():
-            component._setup_fit(inputHist = data[fitType],
-                                 resolutionParameters = self.resolutionParameters,
-                                 reactionPlaneParameter = self._determine_reaction_plane_parameters(fitType.angle))
+        for fit_type, component in self.components.items():
+            component._setup_fit(inputHist = data[fit_type],
+                                 resolution_parameters = self.resolution_parameters,
+                                 reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.angle))
 
         # Extract the x locations from where the fit should be evaluated.
         print(f"{data}")
         x = next(iter(data.values())).x
 
         # Setup the final fit.
-        self._fit = probfit.SimultaneousFit(*[component.costFunction for component in self.components.values()])
+        self._fit = probfit.SimultaneousFit(*[component.cost_function for component in self.components.values()])
         arguments = self._determine_component_parameter_limits()
 
         # Perform the actual fit
-        (goodFit, minuit) = self._run_fit(arguments = arguments)
+        (good_fit, minuit) = self._run_fit(arguments = arguments)
         # Check if fit is considered valid
-        if goodFit is False:
+        if good_fit is False:
             raise RuntimeError("Fit is not valid!")
 
         # Calculate chi2/ndf (or really, min function value/ndf)
@@ -232,15 +230,15 @@ class ReactionPlaneFit(ABC):
         logger.debug(f"args_at_minimum: {args_at_minimum}")
 
         # Retrieve the parameters to use in calculating the fit errors
-        funcArgs = self.fit_result.free_parameters
-        logger.debug(f"funcArgs: {funcArgs}")
+        func_args = self.fit_result.free_parameters
+        logger.debug(f"func_args: {func_args}")
 
         # Compute the derivative
-        partialDerivatives = nd.Gradient(func_wrap)
+        partial_derivatives = nd.Gradient(func_wrap)
 
         # To store the errors for each point
         # Just using "binCenters" as a proxy
-        errorVals = np.zeros(len(self.fit_result.x))
+        error_vals = np.zeros(len(self.fit_result.x))
         logger.debug("len(self.fit_result.x]): {}, self.fit_result.x: {}".format(len(self.fit_result.x), self.fit_result.x))
         logger.debug(f"Covariance matrix: {self.fit_result.covariance_matrix}")
 
@@ -254,61 +252,61 @@ class ReactionPlaneFit(ABC):
             # We need to calculate the derivative once per x value
             start = time.time()
             logger.debug(f"Calculating the gradient for point {i}.")
-            partialDerivative = partialDerivatives(list(args_at_minimum.values()))
+            partial_derivative = partial_derivatives(list(args_at_minimum.values()))
             end = time.time()
             logger.debug("Finished calculating the graident in {} seconds.".format(end - start))
 
             # Calculate error
-            errorVal = 0
-            for iName in funcArgs:
-                for jName in funcArgs:
+            error_val = 0
+            for i_name in func_args:
+                for j_name in func_args:
                     # Evaluate the partial derivative at a point
                     # Must be called as a list!
-                    listOfArgsForFuncCall = list(args_at_minimum.values())
-                    iNameIndex = listOfArgsForFuncCall.index(args_at_minimum[iName])
-                    jNameIndex = listOfArgsForFuncCall.index(args_at_minimum[jName])
-                    #logger.debug("Calculating error for iName: {}, iNameIndex: {} jName: {}, jNameIndex: {}".format(iName, iNameIndex, jName, jNameIndex))
+                    list_of_args_for_func_call = list(args_at_minimum.values())
+                    i_name_index = list_of_args_for_func_call.index(args_at_minimum[i_name])
+                    j_name_index = list_of_args_for_func_call.index(args_at_minimum[j_name])
+                    #logger.debug("Calculating error for i_name: {}, i_name_index: {} j_name: {}, j_name_index: {}".format(i_name, i_name_index, j_name, j_name_index))
                     #logger.debug("Calling partial derivative for args {}".format(argsForFuncCall))
 
                     # Add error to overall error value
-                    errorVal += partialDerivative[iNameIndex] * partialDerivative[jNameIndex] * self.fit_result.covariance_matrix[(iName, jName)]
+                    error_val += partial_derivative[i_name_index] * partial_derivative[j_name_index] * self.fit_result.covariance_matrix[(i_name, j_name)]
 
             # Modify from error squared to error
-            errorVal = np.sqrt(errorVal)
+            error_val = np.sqrt(error_val)
 
             # Store
-            #logger.debug("i: {}, errorVal: {}".format(i, errorVal))
-            errorVals[i] = errorVal
+            #logger.debug("i: {}, error_val: {}".format(i, error_val))
+            error_vals[i] = error_val
 
-        return errorVals
+        return error_vals
 
 class FitComponent(ABC):
     """ A component of the fit.
 
     Args:
         region (str): Region in which the fit component is applied.
-        rpAngle (str): The reaction plane orientation of the fit.
-        resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
+        rp_angle (str): The reaction plane orientation of the fit.
+        resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82"
-        useLogLikelihood (bool): If true, use log likelihood cost function. Often used
+        use_log_likelihood (bool): If true, use log likelihood cost function. Often used
             when statistics are limited. Default: False
 
     Attributes:
-        fitType (FitType): Overall type of the fit.
-        useLogLikelihood (bool): True if the fit should be performed using log likelihood.
-        fitFunction (function): Function of the component.
-        costFunction (probfit.costFunc): Cost function associated with the fit component.
+        fit_type (FitType): Overall type of the fit.
+        use_log_likelihood (bool): True if the fit should be performed using log likelihood.
+        fit_function (function): Function of the component.
+        cost_function (probfit.costFunc): Cost function associated with the fit component.
     """
-    def __init__(self, fitType: FitType, resolutionParameters: dict, useLogLikelihood: bool = False) -> None:
-        self.fitType = fitType
-        self.useLogLikelihood = useLogLikelihood
+    def __init__(self, fit_type: FitType, resolution_parameters: dict, use_log_likelihood: bool = False) -> None:
+        self.fit_type = fit_type
+        self.use_log_likelihood = use_log_likelihood
 
         # Additional values
         # Will be determine in each subclass
         # Called last to ensure that all variables are available.
-        self.fitFunction = None
+        self.fit_function = None
         # Fit cost function
-        self.costFunction = None
+        self.cost_function = None
 
     def set_fit_type(self, region: Optional[str] = None, angle: Optional[str] = None):
         """ Update the fit type.
@@ -322,51 +320,51 @@ class FitComponent(ABC):
             None: The fit type is set in the component.
         """
         if not region:
-            region = self.fitType.region
+            region = self.fit_type.region
         if not angle:
-            angle = self.fitType.angle
-        self.fitType = FitType(region = region, angle = angle)
+            angle = self.fit_type.angle
+        self.fit_type = FitType(region = region, angle = angle)
 
     @property
-    def rpOrientation(self) -> str:
-        return self.fitType.angle
+    def rp_orientation(self) -> str:
+        return self.fit_type.angle
 
     @property
     def region(self) -> str:
-        return self.fitType.region
+        return self.fit_type.region
 
     @abstractmethod
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
 
-    def _setup_fit(self, inputHist: base.Histogram, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
+    def _setup_fit(self, inputHist: base.Histogram, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Setup the fit using information from the input hist.
 
         Args:
             inputHist (ROOT.TH1): The histogram to be fit by this function.
-            resolutionParameters (dict): Maps resolution parameters of the form "R22" (for
+            resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
                 the R_{2,2} parameter) to the value. Expects "R22" - "R82"
-            reactionPlaneParameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
+            reaction_plane_parameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
                 reaction plane.
         Returns:
             None: The fit object is fully setup.
         """
         # Setup the fit itself.
-        self.determine_fit_function(resolutionParameters = resolutionParameters,
-                                    reactionPlaneParameter = reactionPlaneParameter)
+        self.determine_fit_function(resolution_parameters = resolution_parameters,
+                                    reaction_plane_parameter = reaction_plane_parameter)
 
         #hist = base.Histogram.from_existing_hist(hist = inputHist)
         limitedHist = self.set_data_limits(hist = inputHist)
         # TODO: Scale histogram by nEvents if necessary
 
         # Determine the cost function
-        self.costFunction = self.cost_function(hist = limitedHist)
+        self.cost_function = self._cost_function(hist = limitedHist)
 
     def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
         """ Extract the data from the histogram. """
         return hist
 
-    def cost_function(self, hist: Optional[base.Histogram] = None, x: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors: Optional[np.ndarray] = None):
+    def _cost_function(self, hist: Optional[base.Histogram] = None, x: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors: Optional[np.ndarray] = None):
         """ Define the cost function.
 
         Called when setting up a fit object.
@@ -395,22 +393,22 @@ class FitComponent(ABC):
             if x or y or errors:
                 raise ValueError("Provided histogram, and x, y, or errors. Must provide only the histogram!")
 
-        if self.useLogLikelihood:
-            logger.debug(f"Using log likelihood for {self.fitType}, {self.rpOrientation}, {self.region}")
+        if self.use_log_likelihood:
+            logger.debug(f"Using log likelihood for {self.fit_type}, {self.rp_orientation}, {self.region}")
             # Generally will use when statistics are limited.
             # Errors are extracted by assuming a Poisson distribution, so we don't need to pass them explicitly (?)
-            costFunction = probfit.UnbinnedLH(f = self.fitFunction,
-                                              data = hist.x)
+            cost_function = probfit.UnbinnedLH(f = self.fit_function,
+                                               data = hist.x)
         else:
-            logger.debug(f"Using Chi2 for {self.fitType}, {self.rpOrientation}, {self.region}")
-            costFunction = probfit.Chi2Regression(f = self.fitFunction,
-                                                  x = hist.x,
-                                                  y = hist.y,
-                                                  error = hist.errors)
+            logger.debug(f"Using Chi2 for {self.fit_type}, {self.rp_orientation}, {self.region}")
+            cost_function = probfit.Chi2Regression(f = self.fit_function,
+                                                   x = hist.x,
+                                                   y = hist.y,
+                                                   error = hist.errors)
 
         # Return the function so that it can be stored. We explicitly return it
         # so that it is clear that it is being assigned.
-        return costFunction
+        return cost_function
 
     def determine_parameters_limits(self) -> dict:
         """ Determine the parameter seed values, limits, step sizes for the component.
@@ -428,21 +426,21 @@ class FitComponent(ABC):
             # Signal default parameters
             # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
             #       is correct.
-            nsSigmaInit = 0.07
-            asSigmaInit = 0.2
-            sigmaLowerLimit = 0.025
-            sigmaUpperLimit = 0.35
+            ns_sigma_init = 0.07
+            as_sigma_init = 0.2
+            sigma_lower_limit = 0.025
+            sigma_upper_limit = 0.35
             signalLimits = {
-                "nsSigma": nsSigmaInit,
-                "limit_nsSigma": (sigmaLowerLimit, sigmaUpperLimit), "error_nsSigma": 0.1 * nsSigmaInit,
-                "asSigma": asSigmaInit,
-                "limit_asSigma": (sigmaLowerLimit, sigmaUpperLimit), "error_asSigma": 0.1 * asSigmaInit,
-                "signalPedestal": 0.0, "fix_signalPedestal": True,
+                "ns_sigma": ns_sigma_init,
+                "limit_ns_sigma": (sigma_lower_limit, sigma_upper_limit), "error_ns_sigma": 0.1 * ns_sigma_init,
+                "as_sigma": as_sigma_init,
+                "limit_as_sigma": (sigma_lower_limit, sigma_upper_limit), "error_as_sigma": 0.1 * as_sigma_init,
+                "signal_pedestal": 0.0, "fix_signal_pedestal": True,
             }
 
-            if self.rpOrientation != "inclusive":
+            if self.rp_orientation != "inclusive":
                 # Add the reaction plane prefix so the arguments don't conflict.
-                signalLimits = iminuit.util.fitarg_rename(signalLimits, lambda name: self.rpOrientation + "_" + name)
+                signalLimits = iminuit.util.fitarg_rename(signalLimits, lambda name: self.rp_orientation + "_" + name)
 
             # Add in the signal limits regardless of RP orientation
             arguments.update(signalLimits)
@@ -469,42 +467,42 @@ class SignalFitComponent(FitComponent):
     """ Fit component in the signal region.
 
     Args:
-        rpAngle (str): Reaction plane angle for the component.
+        rp_angle (str): Reaction plane angle for the component.
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rpAngle, *args, **kwargs):
+    def __init__(self, rp_angle, *args, **kwargs):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
-        super().__init__(FitType(region = "signal", angle = rpAngle), **kwargs)
+        super().__init__(FitType(region = "signal", angle = rp_angle), **kwargs)
 
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
-        self.fitFunction = functions.determine_signal_dominated_fit_function(
-            rpOrientation = self.rpOrientation,
-            resolutionParameters = resolutionParameters,
-            reactionPlaneParameter = reactionPlaneParameter
+    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+        self.fit_function = functions.determine_signal_dominated_fit_function(
+            rp_orientation = self.rp_orientation,
+            resolution_parameters = resolution_parameters,
+            reaction_plane_parameter = reaction_plane_parameter
         )
 
 class BackgroundFitComponent(FitComponent):
     """ Fit component in the background region.
 
     Args:
-        rpAngle (str): Reaction plane angle for the component.
+        rp_angle (str): Reaction plane angle for the component.
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rpAngle, *args, **kwargs):
+    def __init__(self, rp_angle, *args, **kwargs):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
-        super().__init__(FitType(region = "background", angle = rpAngle), **kwargs)
+        super().__init__(FitType(region = "background", angle = rp_angle), **kwargs)
 
-    def determine_fit_function(self, resolutionParameters: dict, reactionPlaneParameter: base.ReactionPlaneParameter) -> None:
-        self.fitFunction = functions.determine_background_fit_function(
-            rpOrientation = self.rpOrientation,
-            resolutionParameters = resolutionParameters,
-            reactionPlaneParameter = reactionPlaneParameter,
+    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+        self.fit_function = functions.determine_background_fit_function(
+            rp_orientation = self.rp_orientation,
+            resolution_parameters = resolution_parameters,
+            reaction_plane_parameter = reaction_plane_parameter,
         )
 
     def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
@@ -519,10 +517,10 @@ class BackgroundFitComponent(FitComponent):
             base.Histogram: The data limited to the near-side.
         """
         # Use only near-side data (ie dPhi < pi/2)
-        NSrange = int(len(hist.x) / 2.0)
-        x = hist.x[:NSrange]
-        y = hist.y[:NSrange]
-        errors = hist.errors[:NSrange]
+        ns_range = int(len(hist.x) / 2.0)
+        x = hist.x[:ns_range]
+        y = hist.y[:ns_range]
+        errors = hist.errors[:ns_range]
 
         # Return a data limits histogram
         return base.Histogram(x = x, y = y, errors = errors)
