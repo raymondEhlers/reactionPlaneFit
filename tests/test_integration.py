@@ -48,7 +48,8 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.covariance_matrix.keys()) == list(expected_fit_result.covariance_matrix.keys())
-    assert np.allclose(list(fit_result.covariance_matrix.values()), list(expected_fit_result.covariance_matrix.values()))
+    # Need the extra tolerance to work on other systems.
+    assert np.allclose(list(fit_result.covariance_matrix.values()), list(expected_fit_result.covariance_matrix.values()), rtol = 0.001)
 
     # Calculated values
     assert fit_result.nDOF == expected_fit_result.nDOF
