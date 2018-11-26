@@ -14,8 +14,8 @@ out-of-plane ($\pi/3<|\Delta\varphi|<\pi/2$).
 
 ## Installation
 
-A few prerequisites are required which unfortunately cannot be resolved solely by pip because of the packaging
-details of `probfit`.
+This package requires python 3.6 and above. A few prerequisites are required which unfortunately cannot be
+resolved solely by pip because of the packaging details of `probfit`.
 
 ```bash
 $ pip install numpy cython
@@ -76,6 +76,10 @@ If developing the packaging, clone the repository and then install with
 ```bash
 $ pip install -e .[dev,tests]
 ```
+
+Note that python 3.6 and above is required because this package uses `dataclasses` (which has a python 3.6
+backport), and it relies on dictionaries being ordered (which is true for `cpython` 3.6 and is required for
+python 3.7 in general).
 
 # Acknowledgments
 
