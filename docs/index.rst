@@ -15,6 +15,7 @@ Contents:
    Docs home <self>
    Detailed documentation <documentation.rst>
    about.md
+   tests.md
 
 The Reaction Plane Fit (RPF) package implements the Reaction Plane Fit method described in `Phys. Rev. C 93,
 044915 <https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915>`_ (or on the `arxiv
