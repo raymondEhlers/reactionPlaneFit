@@ -41,8 +41,8 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
                                                         rp_background_function = rp_background_function)
 
     if rp_orientation == "inclusive":
-        # We don't need to rename the all angles function because we can only use
-        # the signal fit on all angles alone. If we fit the other reaction plane angles
+        # We don't need to rename the all orientations function because we can only use
+        # the signal fit on all orientations alone. If we fit the other reaction plane orientations
         # at the same time, it will double count.
         signal_dominated_func = probfit.functor.AddPdf(signal_func, background_func)
     else:
@@ -68,7 +68,7 @@ def determine_background_fit_function(rp_orientation: str, resolution_parameters
     it is an RPF function.
 
     Note:
-        If the RP angle is inclusive, it is assumed to be labeled as "inclusive".
+        If the RP orientation is inclusive, it is assumed to be labeled as "inclusive".
 
     Args:
         rp_orientation (str): The reaction plane orientation.

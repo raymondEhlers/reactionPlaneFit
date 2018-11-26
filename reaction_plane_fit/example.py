@@ -57,6 +57,8 @@ def run_fit(input_filename: str) -> fit.ReactionPlaneFit:
         background_region = (0.8, 1.2),
     )
 
+    logger.debug(f"{rp_fit.rp_orientations}")
+
     # Perform the actual fit.
     fit_result = rp_fit.fit(data = data)
 

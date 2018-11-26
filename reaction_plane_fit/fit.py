@@ -27,24 +27,29 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen = True)
 class FitType:
     region: str
-    angle: str
+    orientation: str
 
 class ReactionPlaneFit(ABC):
     """ Contains the reaction plane fit for one particular set of data and components.
 
     Attributes:
-        regions (dict): Signal and background fit regions.
-        components (dict): Reaction plane fit components used in the actual fit.
-        resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
-            the R_{2,2} parameter) to the value. Expects "R22" - "R82"
-        use_log_likelihood (bool): If true, use log likelihood cost function. Often used
-            when statistics are limited. Default: False
+        resolution_parameters (dict): Maps resolution parameters of the form "R22" (for the R_{2,2} parameter)
+            to the value. Expects "R22" - "R82" (even RP only).
+        use_log_likelihood (bool): If true, use log likelihood cost function. Often used when statistics are
+            limited. Default: False
+        signal_region (tuple): Min and max extraction range for the signal dominated region. Should be provided as the
+            absolute value (ex: (0., 0.6)).
+        background_region (tuple): Min and max extraction range for the background dominated region. Should be provided
+            as the absolute value (ex: (0.8, 1.2)).
     """
+    # RP orientations (including inclusive). Should be overridden by the derived class.
+    _rp_orientations = []
+
     def __init__(self, resolution_parameters: dict, use_log_likelihood: bool, signal_region = None, background_region = None):
         self.resolution_parameters = resolution_parameters
         self.use_log_likelihood = use_log_likelihood
         self.components = {}
-        self.regions = {}
+        self.regions = {"signal": signal_region, "background": background_region}
 
         # Contains the simultaneous fit to all of the components.
         self._fit = None
@@ -52,14 +57,14 @@ class ReactionPlaneFit(ABC):
         self.fit_result = None
 
     @property
-    def rp_angles(self) -> list:
-        """ Get the RP angles (excluding the inclusive, which is the last entry). """
+    def rp_orientations(self) -> list:
+        """ Get the RP orientations (excluding the inclusive, which is the last entry). """
         # "inclusive" must be the last entry.
-        return self.angles[:-1]
+        return self._rp_orientations[:-1]
 
-    def _determine_reaction_plane_parameters(self, rp_angle) -> base.ReactionPlaneParameter:
+    def _determine_reaction_plane_parameters(self, rp_orientation) -> base.ReactionPlaneParameter:
         """ Helper to determine the reaction plane parameters. """
-        return self.reaction_plane_parameters[rp_angle]
+        return self.reaction_plane_parameters[rp_orientation]
 
     def _validate_settings(self) -> bool:
         """ Validate the passed settings. """
@@ -82,10 +87,10 @@ class ReactionPlaneFit(ABC):
             # Convert the string keys to ``FitType`` keys.
             for region in ["signal", "background"]:
                 if region in data:
-                    for rp_angle in data[region]:
+                    for rp_orientation in data[region]:
                         # Restruct the data within the same dict.
-                        # For example, ["background"]["inPlane"] -> [FitType(region = "background", angle = "inPlane")]
-                        data[FitType(region = region, angle = rp_angle)] = data[region][rp_angle]
+                        # For example, ["background"]["inPlane"] -> [FitType(region = "background", orientation = "inPlane")]
+                        data[FitType(region = region, orientation = rp_orientation)] = data[region][rp_orientation]
                     # Cleanup the previous dict structure
                     del data[region]
 
@@ -169,7 +174,7 @@ class ReactionPlaneFit(ABC):
         for fit_type, component in self.components.items():
             component._setup_fit(inputHist = data[fit_type],
                                  resolution_parameters = self.resolution_parameters,
-                                 reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.angle))
+                                 reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
 
         # Extract the x locations from where the fit should be evaluated.
         print(f"{data}")
@@ -285,7 +290,7 @@ class FitComponent(ABC):
 
     Args:
         region (str): Region in which the fit component is applied.
-        rp_angle (str): The reaction plane orientation of the fit.
+        rp_orientation (str): The reaction plane orientation of the fit.
         resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82"
         use_log_likelihood (bool): If true, use log likelihood cost function. Often used
@@ -308,26 +313,26 @@ class FitComponent(ABC):
         # Fit cost function
         self.cost_function = None
 
-    def set_fit_type(self, region: Optional[str] = None, angle: Optional[str] = None):
+    def set_fit_type(self, region: Optional[str] = None, orientation: Optional[str] = None):
         """ Update the fit type.
 
         Will use the any of the existing parameters if they are not specified.
 
         Args:
             region (str): Region of the fit type.
-            angle (str): Angle of the fit type.
+            orientation (str): Orientation of the fit type.
         Returns:
             None: The fit type is set in the component.
         """
         if not region:
             region = self.fit_type.region
-        if not angle:
-            angle = self.fit_type.angle
-        self.fit_type = FitType(region = region, angle = angle)
+        if not orientation:
+            orientation = self.fit_type.orientation
+        self.fit_type = FitType(region = region, orientation = orientation)
 
     @property
     def rp_orientation(self) -> str:
-        return self.fit_type.angle
+        return self.fit_type.orientation
 
     @property
     def region(self) -> str:
@@ -467,15 +472,15 @@ class SignalFitComponent(FitComponent):
     """ Fit component in the signal region.
 
     Args:
-        rp_angle (str): Reaction plane angle for the component.
+        rp_orientation (str): Reaction plane orientation for the component.
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rp_angle, *args, **kwargs):
+    def __init__(self, rp_orientation, *args, **kwargs):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
-        super().__init__(FitType(region = "signal", angle = rp_angle), **kwargs)
+        super().__init__(FitType(region = "signal", orientation = rp_orientation), **kwargs)
 
     def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
@@ -488,15 +493,15 @@ class BackgroundFitComponent(FitComponent):
     """ Fit component in the background region.
 
     Args:
-        rp_angle (str): Reaction plane angle for the component.
+        rp_orientation (str): Reaction plane orientation for the component.
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rp_angle, *args, **kwargs):
+    def __init__(self, rp_orientation, *args, **kwargs):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
-        super().__init__(FitType(region = "background", angle = rp_angle), **kwargs)
+        super().__init__(FitType(region = "background", orientation = rp_orientation), **kwargs)
 
     def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_background_fit_function(

@@ -26,21 +26,21 @@ def setupValues():
 def setupSignal():
     """ Setup for testing the signal function. """
     values = setupValues()
-    nsAmplitude = 1
-    asAmpltiude = 0.5
-    nsSigma = 0.2
-    asSigma = 0.7
-    signalPedestal = 10
+    ns_amplitude = 1
+    as_amplitude = 0.5
+    ns_sigma = 0.2
+    as_sigma = 0.7
+    signal_pedestal = 10
     # These will be ignored.
     kwargs = {"randomValue": "toBeIgnored"}
 
-    def testWrapper(x):
+    def test_wrapper(x):
         """ Trivial wraper so we can set the parameter values in the fixture. """
-        return functions.signal_wrapper(x, nsAmplitude = nsAmplitude,
-                                        asAmpltiude = asAmpltiude,
-                                        nsSigma = nsSigma,
-                                        asSigma = asSigma,
-                                        signalPedestal = signalPedestal,
+        return functions.signal_wrapper(x, ns_amplitude = ns_amplitude,
+                                        as_amplitude = as_amplitude,
+                                        ns_sigma = ns_sigma,
+                                        as_sigma = as_sigma,
+                                        signal_pedestal = signal_pedestal,
                                         **kwargs)
 
     expected = np.array([10.        , 10.        , 10.        , 10.00000004, 10.00000128,  # noqa: E203
@@ -55,7 +55,7 @@ def setupSignal():
                          10.11511738, 10.0889553 , 10.06655898, 10.04822202, 10.03382891,  # noqa: E203
                          10.02297917])
 
-    return (values, testWrapper, expected)
+    return (values, test_wrapper, expected)
 
 @pytest.fixture
 def setupBackground():
@@ -64,7 +64,7 @@ def setupBackground():
 
     phi = 0
     c = np.pi / 6
-    resolutionParameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
+    resolution_parameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
     B = 10
     v2_t = 0.05
     v2_a = 0.05
@@ -75,10 +75,10 @@ def setupBackground():
     # These will be ignored.
     kwargs = {"randomValue": "toBeIgnored"}
 
-    def testWrapper(x):
+    def test_wrapper(x):
         """ Trivial wrapper so we can set the parameter values in the fixture. Note call a wrapper and then
         return that function with the proper parameters set. """
-        func = functions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters,
+        func = functions.background_wrapper(phi = phi, c = c, resolution_parameters = resolution_parameters,
                                             background_function = three_orientations.background)
         return func(x = x,
                     B = B,
@@ -100,7 +100,7 @@ def setupBackground():
                          3.14248097, 3.20024986, 3.25282532, 3.29849401, 3.33764871,
                          3.37312343])
 
-    return (values, testWrapper, expected)
+    return (values, test_wrapper, expected)
 
 @pytest.fixture
 def setupFourier(loggingMixin):
@@ -117,7 +117,7 @@ def setupFourier(loggingMixin):
     # These will be ignored.
     kwargs = {"randomValue": "toBeIgnored"}
 
-    def testWrapper(x):
+    def test_wrapper(x):
         """ Trivial wraper so we can set the parameter values in the fixture. """
         return functions.fourier(x = x,
                                  BG = BG,
@@ -139,7 +139,7 @@ def setupFourier(loggingMixin):
                          9.17928854 ,  9.40358976,  9.59001817,  9.73932157,  9.85910803,  # noqa: E203, E241
                          9.9625])  # noqa: E203
 
-    return (values, testWrapper, expected)
+    return (values, test_wrapper, expected)
 
 @pytest.mark.parametrize("setupFit", [
     "setupSignal",
@@ -159,16 +159,16 @@ def testFitFunctions(loggingMixin, setupFit, request):
 def testSignalArgs(loggingMixin):
     """ Test the arguments for the signal function. """
     assert probfit.describe(functions.signal_wrapper) == ["x",
-                                                          "nsAmplitude", "asAmpltiude",
-                                                          "nsSigma", "asSigma",
-                                                          "signalPedestal"]
+                                                          "ns_amplitude", "as_amplitude",
+                                                          "ns_sigma", "as_sigma",
+                                                          "signal_pedestal"]
 
 def testRPFBackgroundArgs(loggingMixin, mocker):
     """ Test the arguments for the RPF function. """
     phi = 0
     c = np.pi / 6
-    resolutionParameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
-    func = functions.background_wrapper(phi = phi, c = c, resolutionParameters = resolutionParameters,
+    resolution_parameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
+    func = functions.background_wrapper(phi = phi, c = c, resolution_parameters = resolution_parameters,
                                         background_function = mocker.MagicMock())
     assert probfit.describe(func, verbose = True) == ["x",
                                                       "B",

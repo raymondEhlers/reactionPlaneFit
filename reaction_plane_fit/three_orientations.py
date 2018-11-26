@@ -38,16 +38,16 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
     """ Base class for reaction plane fit for 3 reaction plane orientations.
 
     """
-    angles = ["inPlane", "midPlane", "outOfPlane", "inclusive"]
+    _rp_orientations = ["inPlane", "midPlane", "outOfPlane", "inclusive"]
     reaction_plane_parameters = {
-        "inPlane": base.ReactionPlaneParameter(angle = "inPlane",
+        "inPlane": base.ReactionPlaneParameter(orientation = "inPlane",
                                                phiS = 0,
                                                c = np.pi / 6.),
         # NOTE: This c value is halved in the fit to account for the four non-continuous regions
-        "midPlane": base.ReactionPlaneParameter(angle = "midPlane",
+        "midPlane": base.ReactionPlaneParameter(orientation = "midPlane",
                                                 phiS = np.pi / 4.,
                                                 c = np.pi / 12.),
-        "outOfPlane": base.ReactionPlaneParameter(angle = "outOfPlane",
+        "outOfPlane": base.ReactionPlaneParameter(orientation = "outOfPlane",
                                                   phiS = np.pi / 2.,
                                                   c = np.pi / 6.),
         # This is invalid and will be ignored!
@@ -69,9 +69,9 @@ class BackgroundFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        for angle in self.rp_angles:
-            fit_type = fit.FitType(region = "background", angle = angle)
-            self.components[fit_type] = BackgroundFitComponent(rp_angle = fit_type.angle,
+        for orientation in self.rp_orientations:
+            fit_type = fit.FitType(region = "background", orientation = orientation)
+            self.components[fit_type] = BackgroundFitComponent(rp_orientation = fit_type.orientation,
                                                                resolution_parameters = self.resolution_parameters,
                                                                use_log_likelihood = self.use_log_likelihood)
 
@@ -89,13 +89,13 @@ class InclusiveSignalFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        fit_type = fit.FitType(region = "signal", angle = "inclusive")
-        self.components[fit_type] = SignalFitComponent(rp_angle = fit_type.angle,
+        fit_type = fit.FitType(region = "signal", orientation = "inclusive")
+        self.components[fit_type] = SignalFitComponent(rp_orientation = fit_type.orientation,
                                                        resolution_parameters = self.resolution_parameters,
                                                        use_log_likelihood = self.use_log_likelihood)
-        for angle in self.rp_angles:
-            fit_type = fit.FitType(region = "background", angle = angle)
-            self.components[fit_type] = BackgroundFitComponent(rp_angle = fit_type.angle,
+        for orientation in self.rp_orientations:
+            fit_type = fit.FitType(region = "background", orientation = orientation)
+            self.components[fit_type] = BackgroundFitComponent(rp_orientation = fit_type.orientation,
                                                                resolution_parameters = self.resolution_parameters,
                                                                use_log_likelihood = self.use_log_likelihood)
 
@@ -114,9 +114,9 @@ class SignalFit(ReactionPlaneFit):
 
         # Setup the fit components
         for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
-            for angle in self.rp_angles:
-                fit_type = fit.FitType(region = region, angle = angle)
-                self.components[fit_type] = fitComponent(rp_angle = fit_type.angle,
+            for orientation in self.rp_orientations:
+                fit_type = fit.FitType(region = region, orientation = orientation)
+                self.components[fit_type] = fitComponent(rp_orientation = fit_type.orientation,
                                                          resolution_parameters = self.resolution_parameters,
                                                          use_log_likelihood = self.use_log_likelihood)
 

@@ -52,11 +52,11 @@ class ReactionPlaneParameter:
     """ Parameters that defined a reaction plane.
 
     Attributes:
-        angle (str): Reaction plane orientation.
+        orientation (str): Reaction plane orientation.
         phiS (float): Center of the reaction plane bin.
         c (float): Width of the reaction plane bin.
     """
-    angle: str
+    orientation: str
     phiS: float
     c: float
 
