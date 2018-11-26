@@ -38,10 +38,12 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     assert fit_result.free_parameters == expected_fit_result.free_parameters
     assert fit_result.fixed_parameters == expected_fit_result.fixed_parameters
     assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
-    assert np.allclose(fit_result.args_at_minimum, expected_fit_result.args_at_minimum)
+    # Need the extra tolerance to work on other systems.
+    assert np.allclose(fit_result.args_at_minimum, expected_fit_result.args_at_minimum, rtol = 0.001)
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.values_at_minimum.keys()) == list(expected_fit_result.values_at_minimum.keys())
-    assert np.allclose(list(fit_result.values_at_minimum.values()), list(expected_fit_result.values_at_minimum.values()))
+    # Need the extra tolerance to work on other systems.
+    assert np.allclose(list(fit_result.values_at_minimum.values()), list(expected_fit_result.values_at_minimum.values()), rtol = 0.001)
     assert np.allclose(fit_result.x, expected_fit_result.x)
     assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
     # Need to compare separately the keys and values so we can use np.allclose() for the values
