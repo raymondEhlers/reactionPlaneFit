@@ -63,7 +63,7 @@ def run_fit(input_filename: str) -> fit.ReactionPlaneFit:
     fit_result = rp_fit.fit(data = data)
 
     if fit_result:
-        logger.info("Fit was successful! Fit result: {fit_result}")
+        logger.info(f"Fit was successful! Fit result: {fit_result}")
 
     return fit_result
 
