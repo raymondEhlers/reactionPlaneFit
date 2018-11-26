@@ -1,5 +1,6 @@
 # Reaction plane fit
 
+[![Documentation Status](https://readthedocs.org/projects/reactionplanefit/badge/?version=latest)](https://reactionplanefit.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.com/raymondEhlers/reactionPlaneFit.svg?branch=master)](https://travis-ci.com/raymondEhlers/reactionPlaneFit)
 
 Implements the reaction plane fit described in [Phys. Rev. C 93,

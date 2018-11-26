@@ -10,6 +10,7 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
 
    Docs home <self>
    Detailed documentation <documentation.rst>
