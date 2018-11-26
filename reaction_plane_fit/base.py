@@ -5,11 +5,9 @@
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
-import collections
 from dataclasses import dataclass
 import logging
 import numpy as np
-import probfit
 from typing import Tuple
 
 logger = logging.getLogger(__name__)
@@ -25,22 +23,38 @@ class FitResult:
         parameters (list): Names of the parameters used in the fit.
         free_parameters (list): Names of the free parameters used in the fit.
         fixed_parameters (list): Names of the fixed parameters used in the fit.
+        minimul_val (float): Minimum value of the fit when it coverages. This is the chi2 value for a
+            chi2 minimization fit.
+        nDOF (int): Number of degrees of freedom.
+        args_at_minimum (list): Numerical values of parameters at the convergence.
+        values_at_minimum (dict): Keys are the names of parameters, while values are the numerical values
+            at convergence. This is somewhat redundant with ``args_at_minimum``, but both can be useful.
+        x (list): x values where the fit result should be evaluated.
+        covariance_matrix (dict): Keys are tuples with (paramNameA, paramNameB), and the values are covariance
+            between the specified parameters. Note that fixed parameters are _not_ included in this matrix.
     """
     # TODO: Fold into main fit object?
     parameters: list
     free_parameters: list
     fixed_parameters: list
     minimum_val: float
-    nDOF: int
     args_at_minimum: list
     values_at_minimum: dict
     x: list
     covariance_matrix: dict
 
+    @property
+    def nDOF(self):
+        return len(self.x) - len(self.free_parameters)
+
 @dataclass
 class ReactionPlaneParameter:
-    """
+    """ Parameters that defined a reaction plane.
 
+    Attributes:
+        angle (str): Reaction plane orientation.
+        phiS (float): Center of the reaction plane bin.
+        c (float): Width of the reaction plane bin.
     """
     angle: str
     phiS: float
@@ -137,28 +151,4 @@ class Histogram:
             (x, y, errors) = cls._from_th1(hist)
 
         return cls(x = x, y = y, errors = errors)
-
-def get_args_for_func(func, xValue, fitContainer):
-    """
-
-    Args:
-        func (Callable): Function for which the arguments should be determined.
-        xValue (int, float, or np.array): Whatever the x value (or values for an np.array) that should be called.
-        fitContainer (analysisObjects.FitContainer): Fit container which holds the values that will be used when
-            calling the function.
-    """
-    # Get description of the arguments of the function
-    funcDescription = probfit.describe(func)
-    # Remove "x" because we need to assign it manually (or want to remove it)
-    funcDescription.pop(funcDescription.index("x"))
-
-    # Define the arguments we will call
-    argsForFuncCall = collections.OrderedDict()
-    # Store the argument for x first
-    argsForFuncCall["x"] = xValue
-    # Store the rest of the arguments in order
-    for name in funcDescription:
-        argsForFuncCall[name] = fitContainer.values[name]
-
-    return argsForFuncCall
 

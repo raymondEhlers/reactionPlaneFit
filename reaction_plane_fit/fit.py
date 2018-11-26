@@ -192,8 +192,7 @@ class ReactionPlaneFit(ABC):
         fixed_parameters = [k for k, v in minuit.fixed.items() if v is True]
         parameters = iminuit.util.describe(self._fit)
         free_parameters = list(set(parameters) - set(fixed_parameters))
-        nDOF = len(x) - len(free_parameters)
-        logger.debug(f"fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}, nDOF: {nDOF}")
+        logger.debug(f"fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
 
         # Store Minuit information for calculating the errors.
         # TODO: Should this be in a separate object that can be more easily YAML storable?
@@ -202,13 +201,13 @@ class ReactionPlaneFit(ABC):
             fixed_parameters = fixed_parameters,
             free_parameters = free_parameters,
             minimum_val = minuit.fval,
-            nDOF = nDOF,
             args_at_minimum = list(minuit.args),
             values_at_minimum = dict(minuit.values),
             x = x,
             covariance_matrix = minuit.covariance,
         )
         # TODO: Store fitarg so we can recreate the minuit object?
+        logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
         self.calculate_errors()
