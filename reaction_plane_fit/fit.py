@@ -220,6 +220,7 @@ class ReactionPlaneFit(ABC):
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
+        # TODO: Since this is so slow, should it be moved to another call?
         self.calculate_errors()
 
         # TODO: Store everything, including errors.
@@ -238,7 +239,11 @@ class ReactionPlaneFit(ABC):
         # Determine the arguments for the fit function
         #argsForFuncCall = base.GetArgsForFunc(func = self._fit, xValue = None, fitContainer = fitContainer)
         #logger.debug("argsForFuncCall: {}".format(argsForFuncCall))
-        args_at_minimum = self.fit_result.values_at_minimum
+        # Cannot use just values_at_minimum because x must be the first argument. So instead, we create the dict
+        # with "x" as the first arg, and then update with the rest.
+        # NOTE: This relies on the dict being ordered, which is true for py 3.6 and above (at least for cpython).
+        args_at_minimum = {"x": None}
+        args_at_minimum.update(self.fit_result.values_at_minimum)
         logger.debug(f"args_at_minimum: {args_at_minimum}")
 
         # Retrieve the parameters to use in calculating the fit errors
