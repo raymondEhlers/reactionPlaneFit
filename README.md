@@ -4,7 +4,7 @@
 
 Implements the reaction plane fit described in [Phys. Rev. C 93,
 044915](https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915)
-([arxiv](https://arxiv.org/abs/1509.04732)) to characterize and subtract background contributions to
+(or on the [arxiv](https://arxiv.org/abs/1509.04732)) to characterize and subtract background contributions to
 correlation functions measured in heavy ion collisions. This package implements the fit for 3 angles relative
 to the reaction plane, in-plane ($0<|\Delta\varphi|<\pi/6$), mid-plane ($\pi/6<|\Delta\varphi|<\pi/3$), and
 out-of-plane ($\pi/3<|\Delta\varphi|<\pi/2$).
@@ -16,13 +16,13 @@ out-of-plane ($\pi/3<|\Delta\varphi|<\pi/2$).
 A few prerequisites are required which unfortunately cannot be resolved solely by pip because of the packaging
 details of `probfit`.
 
-```{bash}
+```bash
 $ pip install numpy cython
 ```
 
 The package is available on [pypi](https://pypi.org/project/reactionPlaneFit) and is available via pip.
 
-```{bash}
+```bash
 $ pip install --user reaction_plane_fit
 ```
 
@@ -36,13 +36,15 @@ parameters must be specified. An example configuration is in the `config/` folde
 
 # Citations
 
-Cite the paper, this implementation, 
+Please cite the paper, as well as this implementation.
+
+TODO: Zenodo DOI
 
 # Development
 
 If developing the packaging, clone the repository and then install with
 
-```{bash}
+```bash
 $ pip install -e .[dev,tests]
 ```
 

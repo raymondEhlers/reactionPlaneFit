@@ -18,8 +18,7 @@ script:
     # Run the tests
     - pytest -l -vv --cov=reaction_plane_fit --cov-branch -m "not root" --durations=5 tests/
     # Check that the docs build successfully
-    # TODO: Implement docs
-    #- pushd docs && make html && popd
+    - pushd docs && make html && popd
 after_success:
     # Upload coverage report to codecov.
     - bash < (curl -s https://codecov.io/bash)
