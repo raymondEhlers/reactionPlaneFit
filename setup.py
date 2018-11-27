@@ -68,10 +68,7 @@ setup(
     # Packages should be installed via pip -r requirements.txt !
     install_requires=[
         "dataclasses",  # Needed for python 3.6
-        "ruamel.yaml",
         "numpy",
-        "matplotlib",
-        "seaborn",
         "uproot",  # Handles ROOT io without needing ROOT itself.
         "numdifftools",
         "iminuit",
