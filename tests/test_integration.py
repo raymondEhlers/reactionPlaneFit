@@ -12,7 +12,7 @@ time savings is worth it.
 """
 
 import numpy as np
-import os
+import pkg_resources
 import pytest
 
 from reaction_plane_fit import base
@@ -21,7 +21,7 @@ from reaction_plane_fit import example
 @pytest.fixture
 def setup_integration_tests(loggingMixin):
     """ Setup shared expected values for the fit integration tests. """
-    sample_data_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "testFiles", "sampleData.root")
+    sample_data_filename = pkg_resources.resource_filename("reaction_plane_fit.sample_data", "three_orientations.root")
 
     return sample_data_filename
 

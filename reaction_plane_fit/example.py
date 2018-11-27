@@ -9,7 +9,7 @@ Provides example for fitting only the background, or fitting the inclusive signa
 
 import argparse
 import logging
-import os
+import pkg_resources
 import uproot
 
 from reaction_plane_fit import fit
@@ -102,7 +102,8 @@ if __name__ == "__main__":  # pragma: nocover
     logging.basicConfig(level=logging.DEBUG)
     # Setup parser
     parser = argparse.ArgumentParser(description = "Example Reaction Plane Fit using signal and background dominated sample data.")
-    sample_data_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "tests", "testFiles", "sampleData.root")
+
+    sample_data_filename = pkg_resources.resource_filename("reaction_plane_fit.sample_data", "three_orientations.root")
     # Set the input filename
     parser.add_argument("-i", "--inputData", metavar = "filename",
                         type = str, default = sample_data_filename,

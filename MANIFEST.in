@@ -1,0 +1,3 @@
+include reaction_plane_fit/sample_data/three_orientations.root
+recursive-exclude reaction_plane_fit .DS_Store
+recursive-exclude reaction_plane_fit .gitignore
