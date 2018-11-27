@@ -86,7 +86,7 @@ class ComponentFitResult(FitResult):
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
-        errors (dict): Store the errors associated with the component fit function. Keys are fit.FitType,
+        errors (dict): Store the errors associated with the component fit function. Keys are ``fit.FitType``,
             while values are arrays of the errors.
     """
     errors: dict = field(default_factory = dict)

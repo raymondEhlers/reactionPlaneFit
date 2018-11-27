@@ -21,16 +21,22 @@ from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
 
-# TODO: Add signal and background limit ranges to the actual fit object.
-#rpf = ReactionPlaneFit(signal_region = (0, 0.6), background_region = (0.8, 1.2))
-
 @dataclass(frozen = True)
 class FitType:
+    """ Describes the fit parameters of a particular component.
+
+    Attributes:
+        region: Describes the region in which the data for the fit originates. It should be either "signal" or
+            "background" dominated.
+        orientation: Describe the reaction plane orientation of the data. For data which does not select or orientation,
+            it should be described as "inclusive". Otherwise, the values are up to the particular implementation. As an
+            example, for three RP orientations, they are known as "inPlane", "midPlane", and "outOfPlane".
+    """
     region: str
     orientation: str
 
 class ReactionPlaneFit(ABC):
-    """ Contains the reaction plane fit for one particular set of data and components.
+    """ Contains the reaction plane fit for one particular set of data and fit components.
 
     Attributes:
         resolution_parameters (dict): Maps resolution parameters of the form "R22" (for the R_{2,2} parameter)
@@ -206,7 +212,6 @@ class ReactionPlaneFit(ABC):
         logger.debug(f"n_fit_data_points: {n_fit_data_points}, fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
 
         # Store Minuit information for calculating the errors.
-        # TODO: Store fitarg so we can recreate the minuit object?
         self.fit_result = base.RPFitResult(
             parameters = parameters,
             fixed_parameters = fixed_parameters,
