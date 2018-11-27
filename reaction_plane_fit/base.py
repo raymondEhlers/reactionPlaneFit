@@ -5,7 +5,9 @@
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
-from dataclasses import dataclass
+from abc import ABC
+from dataclasses import dataclass, field
+import iminuit
 import logging
 import numpy as np
 from typing import Tuple
@@ -13,8 +15,31 @@ from typing import Tuple
 logger = logging.getLogger(__name__)
 
 @dataclass
-class FitResult:
-    """ Store the Fit Result.
+class FitResult(ABC):
+    """ Fit result base class.
+
+    Defined as an ABC because the derived class should be used (this class doesn't contain enough information on it's
+    own to be useful as a fit result).
+
+    Attributes:
+        parameters (list): Names of the parameters used in the fit.
+        free_parameters (list): Names of the free parameters used in the fit.
+        fixed_parameters (list): Names of the fixed parameters used in the fit.
+        values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
+            names of parameters, while values are the numerical values at convergence.
+        covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
+            with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
+            Note that fixed parameters are _not_ included in this matrix.
+    """
+    parameters: list
+    free_parameters: list
+    fixed_parameters: list
+    values_at_minimum: dict
+    covariance_matrix: dict
+
+@dataclass
+class RPFitResult(FitResult):
+    """ Store the main RP fit result and the component results.
 
     Note:
         free_parameters + fixed_parameters = parameters
@@ -23,31 +48,77 @@ class FitResult:
         parameters (list): Names of the parameters used in the fit.
         free_parameters (list): Names of the free parameters used in the fit.
         fixed_parameters (list): Names of the fixed parameters used in the fit.
-        minimul_val (float): Minimum value of the fit when it coverages. This is the chi2 value for a
-            chi2 minimization fit.
-        nDOF (int): Number of degrees of freedom.
-        args_at_minimum (list): Numerical values of parameters at the convergence.
-        values_at_minimum (dict): Keys are the names of parameters, while values are the numerical values
-            at convergence. This is somewhat redundant with ``args_at_minimum``, but both can be useful.
+        values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
+            names of parameters, while values are the numerical values at convergence.
+        covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
+            with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
+            Note that fixed parameters are _not_ included in this matrix.
         x (list): x values where the fit result should be evaluated.
         n_fit_data_points (int): Number of data points used in the fit.
-        covariance_matrix (dict): Keys are tuples with (paramNameA, paramNameB), and the values are covariance
-            between the specified parameters. Note that fixed parameters are _not_ included in this matrix.
+        minimul_val (float): Minimum value of the fit when it coverages. This is the chi2 value for a
+            chi2 minimization fit.
+        components (dict): Contains fit results for the fit components. Most of the stored information is a subset
+            of the information in this object, but it is much more convenient to have it accessible.
+        nDOF (int): Number of degrees of freedom. Calculated on request from ``n_fit_data_points`` and ``free_parameters``.
     """
-    # TODO: Fold into main fit object?
-    parameters: list
-    free_parameters: list
-    fixed_parameters: list
-    minimum_val: float
-    args_at_minimum: list
-    values_at_minimum: dict
     x: list
     n_fit_data_points: int
-    covariance_matrix: dict
+    minimum_val: float
+    components: dict = field(default_factory = dict)
 
     @property
     def nDOF(self):
         return self.n_fit_data_points - len(self.free_parameters)
+
+@dataclass
+class ComponentFitResult(FitResult):
+    """ Store fit component fit results.
+
+    It is best to construct these fit results from the main fit results and the fit corresponding fit component
+    via ``from_rp_fit_result(...)``.
+
+    Attributes:
+        parameters (list): Names of the parameters used in the fit.
+        free_parameters (list): Names of the free parameters used in the fit.
+        fixed_parameters (list): Names of the fixed parameters used in the fit.
+        values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
+            names of parameters, while values are the numerical values at convergence.
+        covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
+            with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
+            Note that fixed parameters are _not_ included in this matrix.
+        errors (dict): Store the errors associated with the component fit function. Keys are fit.FitType,
+            while values are arrays of the errors.
+    """
+    errors: dict = field(default_factory = dict)
+
+    @classmethod
+    def from_rp_fit_result(cls, fit_result: RPFitResult, component):
+        """ Extract the component fit result from the fit component and the RP fit result.
+
+        Args:
+            fit_result (RPFitResult): Fit result from the RP fit.
+            component (fit.FitComponent): Fit component for this fit result.
+        Returns:
+            ComponentFitResult: Constructed component fit result.
+        """
+        # We use the cost function because it describe will then exclude the x parameter (which is what we want)
+        parameters = iminuit.util.describe(component.cost_function)
+        # Pare down the values to only include parameters which are relevant for this component.
+        fixed_parameters = [p for p in parameters if p in fit_result.fixed_parameters]
+        free_parameters = [p for p in parameters if p not in fit_result.fixed_parameters]
+        values_at_minimum = {k: v for k, v in fit_result.values_at_minimum.items() if k in parameters}
+        covariance_matrix = {k: v for k, v in fit_result.covariance_matrix.items() if k[0] in parameters and k[1] in parameters}
+
+        return cls(
+            parameters = parameters,
+            free_parameters = free_parameters,
+            fixed_parameters = fixed_parameters,
+            values_at_minimum = values_at_minimum,
+            covariance_matrix = covariance_matrix
+        )
+
+    def calculate_errors(self):
+        pass
 
 @dataclass
 class ReactionPlaneParameter:

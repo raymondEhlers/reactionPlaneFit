@@ -139,6 +139,7 @@ class ReactionPlaneFit(ABC):
                 ``minuit`` (``iminuit.minuit``) is the Minuit object which was used to perform the fit.
         """
         logger.debug(f"Minuit args: {arguments}")
+        # TODO: Set values for the rest of the arguments!
         minuit = iminuit.Minuit(self._fit, **arguments)
 
         # Perform the fit
@@ -206,36 +207,46 @@ class ReactionPlaneFit(ABC):
 
         # Store Minuit information for calculating the errors.
         # TODO: Should this be in a separate object that can be more easily YAML storable?
-        self.fit_result = base.FitResult(
+        # TODO: Store fitarg so we can recreate the minuit object?
+        self.fit_result = base.RPFitResult(
             parameters = parameters,
             fixed_parameters = fixed_parameters,
             free_parameters = free_parameters,
-            minimum_val = minuit.fval,
-            args_at_minimum = list(minuit.args),
             values_at_minimum = dict(minuit.values),
+            covariance_matrix = minuit.covariance,
             x = x,
             n_fit_data_points = n_fit_data_points,
-            covariance_matrix = minuit.covariance,
+            minimum_val = minuit.fval,
         )
-        # TODO: Store fitarg so we can recreate the minuit object?
+        for fit_type, component in self.components.items():
+            self.fit_result.components[fit_type] = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result, component = component)
+            logger.debug(f"{fit_type}: {self.fit_result.components[fit_type].free_parameters}")
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
         # TODO: Since this is so slow, should it be moved to another call?
-        self.calculate_errors()
+        # TODO: This needs to be calculated for each component's fit function, not for the simultaenous fit!
+        for fit_type in self.components:
+            self.fit_result.components[fit_type].errors = self.calculate_errors(component_fit_type = fit_type)
 
         # TODO: Store everything, including errors.
 
         # Return true to note success.
         return True
 
-    def calculate_errors(self) -> np.ndarray:
-        """ Calculate the errors based on values from the fit. """
+    def calculate_errors(self, component_fit_type) -> np.ndarray:
+        """ Calculate the errors based on values from the fit.
+
+        Args:
+            component_fit_type: Fit type of the compnent for which we are calculating the errors.
+        Returns:
+            Array containing the calculated error values.
+        """
         # Wrapper needed to call the function because ``numdifftools`` requires that multiple arguments
         # are in a single list. The wrapper expands that list for us
         def func_wrap(x):
             # Need to expand the arguments
-            return self._fit(*x)
+            return self.components[component_fit_type].fit_function(*x)
 
         # Determine the arguments for the fit function
         #argsForFuncCall = base.GetArgsForFunc(func = self._fit, xValue = None, fitContainer = fitContainer)
@@ -244,11 +255,11 @@ class ReactionPlaneFit(ABC):
         # with "x" as the first arg, and then update with the rest.
         # NOTE: This relies on the dict being ordered, which is true for py 3.6 and above (at least for cpython).
         args_at_minimum = {"x": None}
-        args_at_minimum.update(self.fit_result.values_at_minimum)
+        args_at_minimum.update(self.fit_result.components[component_fit_type].values_at_minimum)
         logger.debug(f"args_at_minimum: {args_at_minimum}")
 
         # Retrieve the parameters to use in calculating the fit errors
-        func_args = self.fit_result.free_parameters
+        func_args = self.fit_result.components[component_fit_type].free_parameters
         logger.debug(f"func_args: {func_args}")
 
         # Compute the derivative
@@ -258,7 +269,7 @@ class ReactionPlaneFit(ABC):
         # Just using "binCenters" as a proxy
         error_vals = np.zeros(len(self.fit_result.x))
         logger.debug("len(self.fit_result.x]): {}, self.fit_result.x: {}".format(len(self.fit_result.x), self.fit_result.x))
-        logger.debug(f"Covariance matrix: {self.fit_result.covariance_matrix}")
+        logger.debug(f"Covariance matrix: {self.fit_result.components[component_fit_type].covariance_matrix}")
 
         for i, val in enumerate(self.fit_result.x):
             logger.debug(f"val: {val}")
@@ -287,7 +298,7 @@ class ReactionPlaneFit(ABC):
                     #logger.debug("Calling partial derivative for args {}".format(argsForFuncCall))
 
                     # Add error to overall error value
-                    error_val += partial_derivative[i_name_index] * partial_derivative[j_name_index] * self.fit_result.covariance_matrix[(i_name, j_name)]
+                    error_val += partial_derivative[i_name_index] * partial_derivative[j_name_index] * self.fit_result.components[component_fit_type].covariance_matrix[(i_name, j_name)]
 
             # Modify from error squared to error
             error_val = np.sqrt(error_val)

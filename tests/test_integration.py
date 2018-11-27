@@ -38,8 +38,6 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     assert fit_result.free_parameters == expected_fit_result.free_parameters
     assert fit_result.fixed_parameters == expected_fit_result.fixed_parameters
     assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
-    # Need the extra tolerance to work on other systems.
-    assert np.allclose(fit_result.args_at_minimum, expected_fit_result.args_at_minimum, rtol = 0.001)
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.values_at_minimum.keys()) == list(expected_fit_result.values_at_minimum.keys())
     # Need the extra tolerance to work on other systems.
@@ -65,16 +63,11 @@ def test_inclusive_signal_fit(setup_integration_tests):
     """
     sample_data_filename = setup_integration_tests
     # Setup the expected fit result. These values are extracted from an example fit.
-    expected_fit_result = base.FitResult(
+    expected_fit_result = base.RPFitResult(
         parameters = ["ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal", "BG", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3", "B"],
         free_parameters = ["ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "BG", "v2_t", "v2_a", "v4_t", "v4_a", "v3", "B"],
         fixed_parameters = ["signal_pedestal", "v1"],
         minimum_val = 203.69271481570132,
-        args_at_minimum = [9.535191718061213, 0.715433199661658, 0.031084277626599027,
-                           0.30018344238543426, 0.0, 24.70454068642269,
-                           0.0023768855820206214, 0.04213395205728768, 0.0020326769397844002,
-                           0.0026281123008189133, 0.0, 0.004964050654580873,
-                           74.18950515937316],
         values_at_minimum = {
             "ns_amplitude": 9.535191718061213,
             "as_amplitude": 0.715433199661658,
@@ -158,12 +151,11 @@ def test_background_fit(setup_integration_tests):
     """
     sample_data_filename = setup_integration_tests
     # Setup the expected fit result. These values are extracted from an example fit.
-    expected_fit_result = base.FitResult(
+    expected_fit_result = base.RPFitResult(
         parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3'],
         free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3'],
         fixed_parameters = ['v1'],
         minimum_val = 38.30885185866883,
-        args_at_minimum = [74.19719198362343, 4.1047425200502197e-07, 0.041902582551187284, 0.0021751980222733946, 0.002604902410456439, 0.0, 0.004738737386540792],
         values_at_minimum = {
             'B': 74.19719198362343,
             'v2_t': 4.1047425200502197e-07,
