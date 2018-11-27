@@ -30,7 +30,7 @@ jobs:
               provider: pypi
               user: rehlers
               password:
-                  secure: jGJTAlpfNsTcZJbU24/m0GjxVzoWKBhKkloaKTqpZkrymDydX5K08DZn/U1y86/8HUB6gCT9L8ecOyecmWjwKQiGYt0wF3lyCjzjwd82nZWeWunsoMkVo9hkWwlh4+7jBd3QdYGH5DpI1DHK2RDwMAN5lUUa+qGTvnZzhxR/DVJcIva9XNFOYNKD6fDr3DvWw25Dhb5xL1ojl0silPYMXu8eXmO+x7Et4bdnzeU5eFZT//IPDJp4OGn1jCy9uXCgvE7s25ScHNPzY7WbTU2L1y07VHBOSPtkT5BIB7/HAipf2ydG7XR2YGl6U3X5cb4eqS4JDh9AUFhP1kNLx1uZWChraqeB7gXCbTcl6hNGNIQ16pEbFuwLaZkbmn75EvVBFkAzM0RpDMr+zCY4Sc0uJnEYj5xX1IDvS4qtAQdr31t0POwtuuUe6S0eL/8ikzGMHuX/OqwSPqlW4vvcvhdJkMwwL5RcJ2icBxuN5mK+JdmgMRHLuSopgA0d7v4Hi3EWPtcmjZ/vcS9gfx3cNQykqHYNCWCwWUaUQgbgn+SUb4efSxvqTtQizU40q9KJRbPEf1mQNFDF8nPb8a2f006LcR9Mnsb4l69azGBCRVTKPcF/UqK+B917pqJmXNOOeNomqHiNaEJej9ADJG0WrM2CqqyGAXye2eZz+iux9V7kKXI=
+                  secure: "UqMdGZrspE7Ob/xdmYPPP8YWXbWYORVJ6npNceyE0dGFtXvo3CqlRlJkejLs2P0tmbepVy7WxADfR4OffDcOVlRdXI7pmvwcuS7OHDA4IJ/MnzDMhGm58vPzTRj7vlPr+08M2IWXt7953RHpUOVo55t8PPbUiNAss0ioUPkQayP1SvhlUNRFA/ag1jeEKd8mo1mo2y28wyMbLRH5Omm1eeCrkplu7ypsMrz//1cTjkNChN+R0e58Kcz7NbBsWlpEltieEdiPeeZIOZ1P+Fk0jdU1BDh+k/u5Wo8R5df4DWy10950KF5hQVMxbDblEXvYc1BFpSDo433SsmT/G4XFItnNa+qjBrZ3GOUe08aPgQxguF7bTK7p2eQtNYcPM4bm58biSxTUE0Cu+qGB5iqe1fHHifygLRMXljFlnkQmr9/Ul++4tknv6wXmPYbmOnfhhcQvOhZE2vBCqE4W82DV4SlFfzt153xnatQ8joIXTmHu/2ygC2CGqdY/673o9aqOQc2R+UxrIkftg1bFJToTm4XK1s0e6UTStMp56UbRRnuQiBiJzMEOfDOheTxrEPrPAyRggPZmv7+2uSF6lLRQfSC7nLpwQCPK2wedn16yHC4vahlxehCcqFsJDtZ0pt4R4MD9m0LtFY9OgKVj2Uz3Ydx5IPdCPKhqxz3gToxTWng="
               distributions: sdist bdist_wheel
               on:
                   tags: true

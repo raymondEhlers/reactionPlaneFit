@@ -6,6 +6,6 @@ Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
 - This is essentially a preview release.
 - It can perform the RP fit using background only data, including the reaction plane orientation inclusive
-  signal, or the reaction plane orientation dependent signal. Full error propagation is performed for for each
+  signal, or the reaction plane orientation dependent signal. Full error propagation is performed for each
   fit component.
 
