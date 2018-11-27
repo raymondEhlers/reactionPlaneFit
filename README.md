@@ -7,9 +7,9 @@
 Implements the reaction plane fit described in [Phys. Rev. C 93,
 044915](https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915)
 (or on the [arxiv](https://arxiv.org/abs/1509.04732)) to characterize and subtract background contributions to
-correlation functions measured in heavy ion collisions. This package implements the fit for 3 angles relative
-to the reaction plane, in-plane ($0<|\Delta\varphi|<\pi/6$), mid-plane ($\pi/6<|\Delta\varphi|<\pi/3$), and
-out-of-plane ($\pi/3<|\Delta\varphi|<\pi/2$).
+correlation functions measured in heavy ion collisions. This package implements the fit for 3 orientations
+relative to the reaction plane, in-plane (0<|&Delta;&phi;|<&pi;/6), mid-plane (&pi;/6<|&Delta;&phi;|<&pi;/3),
+and out-of-plane (&pi;/3<|&Delta;&phi;|<&pi;/2).
 
 ![Sample reaction plane fit](.github/sample.png)
 
