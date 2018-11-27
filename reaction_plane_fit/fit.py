@@ -206,7 +206,6 @@ class ReactionPlaneFit(ABC):
         logger.debug(f"n_fit_data_points: {n_fit_data_points}, fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
 
         # Store Minuit information for calculating the errors.
-        # TODO: Should this be in a separate object that can be more easily YAML storable?
         # TODO: Store fitarg so we can recreate the minuit object?
         self.fit_result = base.RPFitResult(
             parameters = parameters,
@@ -219,17 +218,13 @@ class ReactionPlaneFit(ABC):
             minimum_val = minuit.fval,
         )
         for fit_type, component in self.components.items():
-            self.fit_result.components[fit_type] = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result, component = component)
-            logger.debug(f"{fit_type}: {self.fit_result.components[fit_type].free_parameters}")
+            self.fit_result.components[fit_type] = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result,
+                                                                                              component = component)
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
-        # TODO: Since this is so slow, should it be moved to another call?
-        # TODO: This needs to be calculated for each component's fit function, not for the simultaenous fit!
         for fit_type in self.components:
             self.fit_result.components[fit_type].errors = self.calculate_errors(component_fit_type = fit_type)
-
-        # TODO: Store everything, including errors.
 
         # Return true to note success.
         return True
@@ -492,6 +487,10 @@ class FitComponent(ABC):
             "v1": 0.0, "fix_v1": True,
         }
         arguments.update(backgroundLimits)
+
+        # Set error definition depending on whether we are using log likelihood or not
+        # 0.5 should be used for negative log-likelihood, while 1 should be used for least sqaures (chi2)
+        arguments.update({"errordef": 0.5 if self.use_log_likelihood else 1.0})
 
         return arguments
 
