@@ -17,16 +17,16 @@ from reaction_plane_fit import three_orientations
 
 logger = logging.getLogger(__name__)
 
-def setupValues():
+def setup_values():
     """ Setup the required binning for tests. """
     # Use 50 bins evaluted at the bin centers
     edges = np.linspace(-1. / 2 * np.pi, 3. / 2 * np.pi, 51)
     return (edges[1:] + edges[:-1]) / 2
 
 @pytest.fixture
-def setupSignal():
+def setup_signal():
     """ Setup for testing the signal function. """
-    values = setupValues()
+    values = setup_values()
     ns_amplitude = 1
     as_amplitude = 0.5
     ns_sigma = 0.2
@@ -58,9 +58,9 @@ def setupSignal():
     return (values, test_wrapper, expected)
 
 @pytest.fixture
-def setupBackground():
+def setup_three_orientations_background():
     """ Setup for testing the background functions. """
-    values = setupValues()
+    values = setup_values()
 
     phi = 0
     c = np.pi / 6
@@ -102,9 +102,9 @@ def setupBackground():
     return (values, test_wrapper, expected)
 
 @pytest.fixture
-def setupFourier(loggingMixin):
+def setup_fourier(loggingMixin):
     """ Setup for testing the fourier series function. """
-    values = setupValues()
+    values = setup_values()
 
     BG = 10
     v2_t = 0.05
@@ -139,28 +139,28 @@ def setupFourier(loggingMixin):
 
     return (values, test_wrapper, expected)
 
-@pytest.mark.parametrize("setupFit", [
-    "setupSignal",
-    "setupBackground",
-    "setupFourier"
-], ids = ["Signal", "Background", "Fourier"])
-def testFitFunctions(loggingMixin, setupFit, request):
-    """ Test the fit functions. Each `setupFit` value refers to a different fixture. """
-    values, func, expected = request.getfixturevalue(setupFit)
+@pytest.mark.parametrize("setup_fit", [
+    "setup_signal",
+    "setup_three_orientations_background",
+    "setup_fourier"
+], ids = ["Signal", "Three orientation background", "Fourier"])
+def test_fit_functions(loggingMixin, setup_fit, request):
+    """ Test the fit functions. Each `setup_fit` value refers to a different fixture. """
+    values, func, expected = request.getfixturevalue(setup_fit)
     output = np.zeros(len(values))
     for i, val in enumerate(values):
         output[i] = func(x = val)
 
     assert np.allclose(output, expected)
 
-def testSignalArgs(loggingMixin):
+def test_signal_args(loggingMixin):
     """ Test the arguments for the signal function. """
     assert probfit.describe(functions.signal_wrapper) == ["x",
                                                           "ns_amplitude", "as_amplitude",
                                                           "ns_sigma", "as_sigma",
                                                           "signal_pedestal"]
 
-def testRPFBackgroundArgs(loggingMixin, mocker):
+def test_three_orientations_background_args(loggingMixin, mocker):
     """ Test the arguments for the RPF function. """
     phi = 0
     c = np.pi / 6
@@ -173,7 +173,7 @@ def testRPFBackgroundArgs(loggingMixin, mocker):
                                                       "v4_t", "v4_a",
                                                       "v1", "v3"]
 
-def testFourierArgs(loggingMixin):
+def test_fourier_args(loggingMixin):
     """ Test the arguments for the Fourier series function. """
     assert probfit.describe(functions.fourier) == ["x",
                                                    "BG",

@@ -33,8 +33,6 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: dict):
         component_fit_result = rp_fit.fit_result.components[fit_type]
         hist = data[fit_type]
 
-        print(f"component_fit_result args: {component_fit_result.values_at_minimum}")
-
         # Determine the values of the fit function.
         fit_values = probfit.nputil.vector_apply(component.fit_function, x, *list(component_fit_result.values_at_minimum.values()))
         print(f"fit_values: {fit_values}")
@@ -47,7 +45,7 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: dict):
 
     fig.tight_layout()
     fig.show()
-    #fig.savefig("test.png")
+    fig.savefig("test.png")
 
 def draw_residual(rp_fit):
     #import matplotlib.pyplot as plt
