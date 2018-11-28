@@ -49,7 +49,7 @@ rp_fit = three_orientations.BackgroundFit(
 # The structure of this dictionary is important to ensure that the proper data ends up in the right place.
 data = {"background": {"inPlane": ROOT.TH1.., "midPlane": ROOT.TH1..., "outOfPlane": ROOT.TH1...}}
 # Perform the actual fit.
-success = rp_fit.fit(data = data)
+success, _ = rp_fit.fit(data = data)
 # Print the fit results
 print("Fit result: {fit_result}".format(fit_result = rp_fit.fit_result))
 ```

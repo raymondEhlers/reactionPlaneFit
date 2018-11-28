@@ -82,7 +82,7 @@ class ReactionPlaneFit(ABC):
 
         return all([good_params])
 
-    def _format_input_data(self, data: dict) -> bool:
+    def _format_input_data(self, data: dict) -> dict:
         """ Convert input data into a more convenient format.
 
         By using ``FitType``, we can very easily check that all fit components have the appropriate data.
@@ -163,7 +163,8 @@ class ReactionPlaneFit(ABC):
             data (dict): Input data to be used for the fit. The keys should either be of the form ``[region][orientation]`` or
                  ``[FitType]``. The values can be uproot or ROOT 1D histograms.
         Returns:
-            bool: True if the fitting procedure was successful.
+            tuple: (fit_success, formatted_data) where fit_success is ``True`` if the fitting procedure was successful, and
+                formatted_data (dict) is the data reformatted in the preferred format for the fit.
         """
         # Validate settings.
         good_settings = self._validate_settings()
@@ -183,10 +184,11 @@ class ReactionPlaneFit(ABC):
         x = next(iter(data.values())).x
 
         # Setup the fit components.
+        fit_data = {}
         for fit_type, component in self.components.items():
-            data[fit_type] = component._setup_fit(input_hist = data[fit_type],
-                                                  resolution_parameters = self.resolution_parameters,
-                                                  reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
+            fit_data[fit_type] = component._setup_fit(input_hist = data[fit_type],
+                                                      resolution_parameters = self.resolution_parameters,
+                                                      reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
 
         # Setup the final fit.
         self._fit = probfit.SimultaneousFit(*[component.cost_function for component in self.components.values()])
@@ -208,7 +210,7 @@ class ReactionPlaneFit(ABC):
         # the data points that are used in all histograms!
         # For example, 36 data points / hist with the three orientation background fit should have
         # 18 (since near-side only) * 3 = 54 points.
-        n_fit_data_points = sum(len(hist.x) for hist in data.values())
+        n_fit_data_points = sum(len(hist.x) for hist in fit_data.values())
         logger.debug(f"n_fit_data_points: {n_fit_data_points}, fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
 
         # Store Minuit information for calculating the errors.
@@ -232,7 +234,7 @@ class ReactionPlaneFit(ABC):
             self.fit_result.components[fit_type].errors = self.calculate_errors(component_fit_type = fit_type)
 
         # Return true to note success.
-        return True
+        return (True, data)
 
     def calculate_errors(self, component_fit_type) -> np.ndarray:
         """ Calculate the errors based on values from the fit.

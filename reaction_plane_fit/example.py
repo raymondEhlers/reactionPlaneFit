@@ -10,6 +10,7 @@ Provides example for fitting only the background, or fitting the inclusive signa
 import argparse
 import logging
 import pkg_resources
+from typing import Tuple
 import uproot
 
 from reaction_plane_fit import fit
@@ -38,7 +39,7 @@ def setup_data(input_filename: str, include_signal: bool) -> dict:
 
     return data
 
-def run_fit(fit_object: fit.ReactionPlaneFit, data: dict) -> fit.ReactionPlaneFit:
+def run_fit(fit_object: fit.ReactionPlaneFit, data: dict) -> Tuple[fit.ReactionPlaneFit, dict]:
     """ Driver function for performing the fit.
 
     Note:
@@ -49,7 +50,8 @@ def run_fit(fit_object: fit.ReactionPlaneFit, data: dict) -> fit.ReactionPlaneFi
         fit_object (fit.ReactionPlaneFit): Fit object to be used.
         data (dict): Input data for the fit, labeled as defined in ``setup_data()``.
     Returns:
-        fit.ReactionPlaneFit: The Reaction Plane Fit object from the fit.
+        tuple: (rp_fit, data), where rp_fit (fit.ReactionPlaneFit) is the reaction plane fit object from the
+            fit, and data (dict) is the formated data dict used for the fit.
     """
     # Define the fit.
     rp_fit = fit_object(
@@ -60,37 +62,39 @@ def run_fit(fit_object: fit.ReactionPlaneFit, data: dict) -> fit.ReactionPlaneFi
     )
 
     # Perform the actual fit.
-    success = rp_fit.fit(data = data)
+    success, data = rp_fit.fit(data = data)
 
     if success:
         logger.info(f"Fit was successful! Fit result: {rp_fit.fit_result}")
 
-    return rp_fit
+    return rp_fit, data
 
-def run_background_fit(input_filename: str) -> fit.ReactionPlaneFit:
+def run_background_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, dict]:
     """ Run the background example fit.
 
     Args:
         input_filename (str): Path to the input data to use.
     Returns:
-        fit.ReactionPlaneFit: The Reaction Plane Fit object from the fit.
+        tuple: (rp_fit, data), where rp_fit (fit.ReactionPlaneFit) is the reaction plane fit object from the
+            fit, and data (dict) is the formated data dict used for the fit.
     """
     # Grab the input data.
     data = setup_data(input_filename, include_signal = False)
-    rp_fit = run_fit(fit_object = three_orientations.BackgroundFit, data = data)
-    return rp_fit
+    rp_fit, data = run_fit(fit_object = three_orientations.BackgroundFit, data = data)
+    return rp_fit, data
 
-def run_inclusive_signal_fit(input_filename: str) -> fit.ReactionPlaneFit:
+def run_inclusive_signal_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, dict]:
     """ Run the inclusive signal example fit.
 
     Args:
         input_filename (str): Path to the input data to use.
     Returns:
-        fit.ReactionPlaneFit: The Reaction Plane Fit object from the fit.
+        tuple: (rp_fit, data), where rp_fit (fit.ReactionPlaneFit) is the reaction plane fit object from the
+            fit, and data (dict) is the formated data dict used for the fit.
     """
     data = setup_data(input_filename, include_signal = True)
-    rp_fit = run_fit(fit_object = three_orientations.InclusiveSignalFit, data = data)
-    return rp_fit
+    rp_fit, data = run_fit(fit_object = three_orientations.InclusiveSignalFit, data = data)
+    return rp_fit, data
 
 if __name__ == "__main__":  # pragma: nocover
     """ Allow direction execution of this module.

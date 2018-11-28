@@ -138,7 +138,7 @@ def test_inclusive_signal_fit(setup_integration_tests):
     )
 
     # Run the fit
-    rp_fit = example.run_inclusive_signal_fit(input_filename = sample_data_filename)
+    rp_fit, data = example.run_inclusive_signal_fit(input_filename = sample_data_filename)
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
@@ -191,7 +191,7 @@ def test_background_fit(setup_integration_tests):
     )
 
     # Run the fit
-    rp_fit = example.run_background_fit(input_filename = sample_data_filename)
+    rp_fit, data = example.run_background_fit(input_filename = sample_data_filename)
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
