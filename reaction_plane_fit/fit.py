@@ -200,6 +200,7 @@ class ReactionPlaneFit(ABC):
         # Check if fit is considered valid
         if good_fit is False:
             raise RuntimeError("Fit is not valid!")
+        # TODO: Check covariance matrix accuracy. It appears that it is not included in the migrad_ok status check.
 
         # Calculate chi2/ndf (or really, min function value/ndf)
         # NDF = number of points used in the fit minus the number of free parameters.

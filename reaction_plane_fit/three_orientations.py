@@ -8,6 +8,7 @@
 import logging
 import numpy as np
 from numpy import sin, cos
+from typing import Dict
 
 from reaction_plane_fit import fit
 from reaction_plane_fit import functions
@@ -120,7 +121,7 @@ class SignalFit(ReactionPlaneFit):
                                                          resolution_parameters = self.resolution_parameters,
                                                          use_log_likelihood = self.use_log_likelihood)
 
-def background(x: float, phi: float, c: float, resolution_parameters: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
+def background(x: float, phi: float, c: float, resolution_parameters: Dict[str, float], B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
     """ The background function is of the form specified in the RPF paper.
 
     Resolution parameters implemented include R{2,2} through R{8,2}, which denotes the resolution of an order

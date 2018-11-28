@@ -15,6 +15,7 @@ import uproot
 
 from reaction_plane_fit import fit
 from reaction_plane_fit import three_orientations
+from reaction_plane_fit import plot
 
 logger = logging.getLogger(__name__)
 
@@ -123,5 +124,7 @@ if __name__ == "__main__":  # pragma: nocover
     func = run_inclusive_signal_fit
     if args.backgroundOnly:
         func = run_background_fit
-    func(input_filename = args.inputData)
+    rp_fit, data = func(input_filename = args.inputData)
+
+    plot.draw_fit(rp_fit = rp_fit, data = data)
 
