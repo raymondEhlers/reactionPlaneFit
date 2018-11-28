@@ -304,6 +304,20 @@ class ReactionPlaneFit(ABC):
 
         return error_vals
 
+    def evaluate_fit_component(self, fit_component: FitType, x: np.ndarray) -> np.ndarray:
+        """ Helper function to evaluate a fit component at a set of values.
+
+        This could arguably is better suited to go in the fit component, but we need the fit function, so it's more
+        convenient to be in the main reaction plane fit object.
+
+        Args:
+            fit_component: Fit component to evaluate.
+            x: x values where the fit component will be evaluted.
+        Returns:
+            Function values at the given x values.
+        """
+        return probfit.nputil.vector_apply(self.components[fit_component].fit_function, x, *list(self.fit_result.components[fit_component].values_at_minimum.values()))
+
 class FitComponent(ABC):
     """ A component of the fit.
 

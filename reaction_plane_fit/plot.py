@@ -5,8 +5,6 @@
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
-import probfit
-
 from reaction_plane_fit import fit
 
 # TODO: Implement these basic plots.
@@ -34,14 +32,19 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: dict):
         hist = data[fit_type]
 
         # Determine the values of the fit function.
-        fit_values = probfit.nputil.vector_apply(component.fit_function, x, *list(component_fit_result.values_at_minimum.values()))
-        print(f"fit_values: {fit_values}")
+        fit_values = rp_fit.evaluate_fit_component(fit_component = fit_type, x = x)
         # Plot the fit
         plot = ax.plot(x, fit_values)
         # Plot the fit errors
         ax.fill_between(x, fit_values - component_fit_result.errors, fit_values + component_fit_result.errors, facecolor = plot[0].get_color(), alpha = 0.8)
         # Plot the data
         ax.errorbar(x, hist.y, yerr = hist.errors, marker = "o")
+
+    # Add chi2/ndf
+    text = r"$\chi^{2}$/NDF = %(chi2).1f/%(ndf)i = %(chi2_over_ndf).3f" % {"chi2": rp_fit.fit_result.minimum_val, "ndf": rp_fit.fit_result.nDOF, "chi2_over_ndf": rp_fit.fit_result.minimum_val / rp_fit.fit_result.nDOF}
+    ax.text(0.5, 0.9, text,
+            horizontalalignment='center', verticalalignment='center', multialignment="left",
+            transform = ax.transAxes)
 
     fig.tight_layout()
     fig.show()
