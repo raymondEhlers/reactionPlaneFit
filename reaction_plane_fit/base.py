@@ -28,7 +28,7 @@ class FitResult(ABC):
         values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
             names of parameters, while values are the numerical values at convergence.
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
-            with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
+            with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
     """
     parameters: list
@@ -51,7 +51,7 @@ class RPFitResult(FitResult):
         values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
             names of parameters, while values are the numerical values at convergence.
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
-            with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
+            with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
         x (list): x values where the fit result should be evaluated.
         n_fit_data_points (int): Number of data points used in the fit.
@@ -84,7 +84,7 @@ class ComponentFitResult(FitResult):
         values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
             names of parameters, while values are the numerical values at convergence.
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
-            with (paramNameA, paramNameB), and the values are covariance between the specified parameters.
+            with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
         errors (dict): Store the errors associated with the component fit function. Keys are ``fit.FitType``,
             while values are arrays of the errors.
@@ -106,8 +106,14 @@ class ComponentFitResult(FitResult):
         # Pare down the values to only include parameters which are relevant for this component.
         fixed_parameters = [p for p in parameters if p in fit_result.fixed_parameters]
         free_parameters = [p for p in parameters if p not in fit_result.fixed_parameters]
-        values_at_minimum = {k: v for k, v in fit_result.values_at_minimum.items() if k in parameters}
-        covariance_matrix = {k: v for k, v in fit_result.covariance_matrix.items() if k[0] in parameters and k[1] in parameters}
+        # Need to carefully grab the available values corresponding to the parameters or free_parameters, respectively.
+        # NOTE: We cannot just iterate over the dicts themselves and check if the keys are in parameters because
+        #       the parameters are deduplicated, and thus the order can be wrong. In particular, for signal fits,
+        #       B of the background fit ends up at the end of the dict because all of the other parameters are already
+        #       defined for the signal fit. This approach won't have a problem with this, because we retrieve the values
+        #       in the order of the parameters of the current fit component.
+        values_at_minimum = {p: fit_result.values_at_minimum[p] for p in parameters}
+        covariance_matrix = {(a, b): fit_result.covariance_matrix[(a, b)] for a in free_parameters for b in free_parameters}
 
         return cls(
             parameters = parameters,
@@ -216,7 +222,6 @@ class Histogram:
         """
         # "values" is a proxy for if we have an uproot hist.
         logger.debug(f"{hist}, {type(hist)}")
-        logger.debug(f"hasattr: {hasattr(hist, 'values')}")
         if hasattr(hist, "values"):
             (x, y, errors) = cls._from_uproot(hist)
         else:
