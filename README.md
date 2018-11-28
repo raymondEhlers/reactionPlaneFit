@@ -1,5 +1,6 @@
 # Reaction plane fit
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1599239.svg)](https://doi.org/10.5281/zenodo.1599239)
 [![Documentation Status](https://readthedocs.org/projects/reactionplanefit/badge/?version=latest)](https://reactionplanefit.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.com/raymondEhlers/reactionPlaneFit.svg?branch=master)](https://travis-ci.com/raymondEhlers/reactionPlaneFit)
 [![codecov](https://codecov.io/gh/raymondEhlers/reactionPlaneFit/branch/master/graph/badge.svg)](https://codecov.io/gh/raymondEhlers/reactionPlaneFit)
@@ -62,13 +63,7 @@ $ python -m reaction_plane_fit.example [-b] [-i dataFilename]
 ```
 
 If fit data is not specified, it will use some sample data. For further information, including all possible
-fit function combinations, please see the [full documentation](https://reactionplanefit.readthedocs.io/en/latest/?badge=latest).
-
-# Citations
-
-Please cite the paper, as well as this implementation.
-
-TODO: Zenodo DOI
+fit function combinations, please see the [full documentation](https://reactionplanefit.readthedocs.io/en/latest/).
 
 # Development
 
@@ -81,6 +76,21 @@ $ pip install -e .[dev,tests]
 Note that python 3.6 and above is required because this package uses `dataclasses` (which has a python 3.6
 backport), and it relies on dictionaries being ordered (which is true for `cpython` 3.6 and is required for
 python 3.7 in general).
+
+# Citations
+
+Please cite the paper (Phys. Rev. C 93, 044915), as well as this implementation:
+
+```
+@misc{raymond_ehlers_2018_1599240,
+  author       = {Raymond Ehlers},
+  title        = {reactionPlaneFit - RPF implementation},
+  month        = nov,
+  year         = 2018,
+  doi          = {10.5281/zenodo.1599239},
+  url          = {https://doi.org/10.5281/zenodo.1599239}
+}
+```
 
 # Acknowledgments
 
