@@ -23,7 +23,7 @@ resolved solely by pip because of the packaging details of `probfit`.
 $ pip install numpy cython
 ```
 
-The package is available on [pypi](https://pypi.org/project/reaction_plane_fit) and is available via pip.
+The package is available on [PyPI](https://pypi.org/project/reaction_plane_fit) and is available via pip.
 
 ```bash
 $ pip install --user reaction_plane_fit
@@ -31,7 +31,7 @@ $ pip install --user reaction_plane_fit
 
 This assumes installation for only the current user. 
 
-## Usage
+# Usage
 
 Performing a fit with this package only requires a few lines of code. Below is sufficient to define and run a
 fit with some sample values:
@@ -77,12 +77,12 @@ Note that python 3.6 and above is required because this package uses `dataclasse
 backport), and it relies on dictionaries being ordered (which is true for `cpython` 3.6 and is required for
 python 3.7 in general).
 
-# Citations
+# Citation
 
 Please cite the paper (Phys. Rev. C 93, 044915), as well as this implementation:
 
 ```
-@misc{raymond_ehlers_2018_1599240,
+@misc{raymond_ehlers_2018_1599239,
   author       = {Raymond Ehlers},
   title        = {reactionPlaneFit - RPF implementation},
   month        = nov,
