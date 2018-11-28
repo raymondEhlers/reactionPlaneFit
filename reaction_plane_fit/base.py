@@ -123,9 +123,6 @@ class ComponentFitResult(FitResult):
             covariance_matrix = covariance_matrix
         )
 
-    def calculate_errors(self):
-        pass
-
 @dataclass
 class ReactionPlaneParameter:
     """ Parameters that defined a reaction plane.
