@@ -30,7 +30,7 @@ def setup_data(input_filename: str, include_signal: bool) -> dict:
     Returns:
         dict: Containing the input data.
     """
-    data = {"signal": {}, "background": {}}
+    data: dict = {"signal": {}, "background": {}}
     with uproot.open(input_filename) as f:
         if include_signal:
             data["signal"]["inclusive"] = f["signalDominated_inclusive"]

@@ -49,18 +49,19 @@ class ReactionPlaneFit(ABC):
             as the absolute value (ex: (0.8, 1.2)).
     """
     # RP orientations (including inclusive). Should be overridden by the derived class.
-    _rp_orientations = []
+    _rp_orientations: list = []
+    reaction_plane_parameters: dict = {}
 
     def __init__(self, resolution_parameters: dict, use_log_likelihood: bool, signal_region = None, background_region = None):
         self.resolution_parameters = resolution_parameters
         self.use_log_likelihood = use_log_likelihood
-        self.components = {}
+        self.components: dict = {}
         self.regions = {"signal": signal_region, "background": background_region}
 
         # Contains the simultaneous fit to all of the components.
         self._fit = None
         # Contains the fit results
-        self.fit_result = None
+        self.fit_result: base.RPFitResult = None
 
     @property
     def rp_orientations(self) -> list:
@@ -128,7 +129,7 @@ class ReactionPlaneFit(ABC):
         Returns:
             dict: Parameter values and limits in a dictionary suitable to be used as Minuit args.
         """
-        arguments = {}
+        arguments: dict = {}
         for component in self.components.values():
             arguments.update(component.determine_parameters_limits())
 
@@ -156,15 +157,15 @@ class ReactionPlaneFit(ABC):
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: dict) -> bool:
+    def fit(self, data: dict) -> Tuple[bool, dict]:
         """ Perform the actual fit.
 
         Args:
             data (dict): Input data to be used for the fit. The keys should either be of the form ``[region][orientation]`` or
                  ``[FitType]``. The values can be uproot or ROOT 1D histograms.
         Returns:
-            tuple: (fit_success, formatted_data) where fit_success is ``True`` if the fitting procedure was successful, and
-                formatted_data (dict) is the data reformatted in the preferred format for the fit.
+            tuple: (fit_success, formatted_data) where fit_success (bool) is ``True`` if the fitting procedure was successful,
+                and formatted_data (dict) is the data reformatted in the preferred format for the fit.
         """
         # Validate settings.
         good_settings = self._validate_settings()
