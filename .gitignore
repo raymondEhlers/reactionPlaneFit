@@ -47,3 +47,6 @@ notes.md
 # Generate coverage reports from testing
 .coverage
 htmlcov/
+
+# mypy
+.mypy_cache/

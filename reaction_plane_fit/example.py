@@ -104,7 +104,7 @@ if __name__ == "__main__":  # pragma: nocover
     histograms must be as specified in ``setup_data(...)``.
     """
     # Setup logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     # Setup parser
     parser = argparse.ArgumentParser(description = "Example Reaction Plane Fit using signal and background dominated sample data.")
 

@@ -92,8 +92,9 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: dict):
             ax.legend(loc = "lower center")
 
     fig.tight_layout()
-    fig.show()
-    fig.savefig("test.png")
+    fig.savefig("example.png")
+
+    return fig, axes
 
 def draw_residual(rp_fit):
     #import matplotlib.pyplot as plt
