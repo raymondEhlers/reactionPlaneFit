@@ -6,8 +6,6 @@
 Welcome to the Reaction Plane Fit documentation!
 ================================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
    :hidden:
