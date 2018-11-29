@@ -146,7 +146,6 @@ class ReactionPlaneFit(ABC):
                 ``minuit`` (``iminuit.minuit``) is the Minuit object which was used to perform the fit.
         """
         logger.debug(f"Minuit args: {arguments}")
-        # TODO: Set values for the rest of the arguments!
         minuit = iminuit.Minuit(self._fit, **arguments)
 
         # Perform the fit
@@ -543,7 +542,8 @@ class SignalFitComponent(FitComponent):
         self.fit_function = functions.determine_signal_dominated_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
-            reaction_plane_parameter = reaction_plane_parameter
+            reaction_plane_parameter = reaction_plane_parameter,
+            rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
 
 class BackgroundFitComponent(FitComponent):
@@ -565,6 +565,7 @@ class BackgroundFitComponent(FitComponent):
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
+            rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
 
     def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
