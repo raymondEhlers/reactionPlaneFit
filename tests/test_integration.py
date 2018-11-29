@@ -17,6 +17,7 @@ import pytest
 
 from reaction_plane_fit import base
 from reaction_plane_fit import example
+from reaction_plane_fit import plot
 
 @pytest.fixture
 def setup_integration_tests(loggingMixin):
@@ -56,6 +57,7 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     return True
 
 @pytest.mark.slow
+@pytest.mark.mpl_image_compare(tolerance = 10)
 def test_inclusive_signal_fit(setup_integration_tests):
     """ Integration test for the inclusive signal fit.
 
@@ -158,7 +160,14 @@ def test_inclusive_signal_fit(setup_integration_tests):
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
 
+    # Draw and check the resulting image. It is checked by returning the figure.
+    # We skip the residual plot because it is hard to compare multiple images from in the same test.
+    # Instead, we get around this by comparing the residual in test_background_fit(...)
+    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, filename = None)
+    return fig
+
 @pytest.mark.slow
+@pytest.mark.mpl_image_compare(tolerance = 10)
 def test_background_fit(setup_integration_tests):
     """ Integration test for the background fit.
 
@@ -213,4 +222,10 @@ def test_background_fit(setup_integration_tests):
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
+
+    # Draw and check the resulting image. It is checked by returning the figure.
+    # We skip the fit plot because it is hard to compare multiple images from in the same test.
+    # Instead, we get around this by comparing the fit in test_inclusive_signal_fit(...)
+    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = None)
+    return fig
 

@@ -92,7 +92,8 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str, y_label: str, 
             ax.legend(loc = "lower center")
 
     fig.tight_layout()
-    fig.savefig(filename)
+    if filename:
+        fig.savefig(filename)
 
     return fig, axes
 

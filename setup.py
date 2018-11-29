@@ -84,6 +84,8 @@ setup(
             "pytest-cov",
             "pytest-mock",
             "codecov",
+            # For comparing to reference images
+            "pytest-mpl",
         ],
         "docs": [
             "sphinx",
