@@ -268,7 +268,7 @@ class ReactionPlaneFit(ABC):
         error_vals = np.zeros(len(self.fit_result.x))
 
         for i, val in enumerate(self.fit_result.x):
-            logger.debug(f"val: {val}")
+            #logger.debug(f"val: {val}")
             # Add in x for the function call
             args_at_minimum["x"] = val
 
@@ -467,11 +467,15 @@ class FitComponent(ABC):
             # Signal default parameters
             # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
             #       is correct.
-            ns_sigma_init = 0.07
-            as_sigma_init = 0.2
-            sigma_lower_limit = 0.025
-            sigma_upper_limit = 0.35
-            signalLimits = {
+            ns_amplitude = 10
+            as_amplitude = 1
+            ns_sigma_init = 0.15
+            as_sigma_init = 0.3
+            sigma_lower_limit = 0.02
+            sigma_upper_limit = 0.7
+            signal_limits = {
+                "ns_amplitude": ns_amplitude, "limit_ns_amplitude": (0, 1000), "error_ns_amplitude": 0.1 * ns_amplitude,
+                "as_amplitude": as_amplitude, "limit_as_amplitude": (0, 1000), "error_as_amplitude": 0.1 * as_amplitude,
                 "ns_sigma": ns_sigma_init,
                 "limit_ns_sigma": (sigma_lower_limit, sigma_upper_limit), "error_ns_sigma": 0.1 * ns_sigma_init,
                 "as_sigma": as_sigma_init,
@@ -481,12 +485,22 @@ class FitComponent(ABC):
 
             if self.rp_orientation != "inclusive":
                 # Add the reaction plane prefix so the arguments don't conflict.
-                signalLimits = iminuit.util.fitarg_rename(signalLimits, lambda name: self.rp_orientation + "_" + name)
+                signal_limits = iminuit.util.fitarg_rename(signal_limits, lambda name: self.rp_orientation + "_" + name)
 
             # Add in the signal limits regardless of RP orientation
-            arguments.update(signalLimits)
+            arguments.update(signal_limits)
 
-        # Background arguments
+            # Background label related to the fourier series (and this is labeled as "BG")
+            background_label = "BG"
+        else:
+            # Background limits related to the RP background (and thus is labeled as "B")
+            background_label = "B"
+
+        # Now update the actual background limits
+        background_limits = {f"{background_label}": 10, f"limit_{background_label}": (0, 1000), f"error_{background_label}": 1}
+        arguments.update(background_limits)
+
+        # Background function arguments
         # These should consistently be defined regardless of the fit definition.
         # Note that if the arguments already exist, they made be updated to the same value. However, this shouldn't
         # cause any problems of have any effect.
