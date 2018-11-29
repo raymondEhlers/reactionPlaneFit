@@ -126,5 +126,7 @@ if __name__ == "__main__":  # pragma: nocover
         func = run_background_fit
     rp_fit, data = func(input_filename = args.inputData)
 
-    plot.draw_fit(rp_fit = rp_fit, data = data)
+    # Draw the plots so that they will be saved out.
+    plot.draw_fit(rp_fit = rp_fit, data = data, filename = "example_fit.png")
+    plot.draw_residual(rp_fit = rp_fit, data = data, filename = "example_residual.png")
 
