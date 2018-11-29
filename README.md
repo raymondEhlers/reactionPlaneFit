@@ -12,7 +12,7 @@ correlation functions measured in heavy ion collisions. This package implements 
 relative to the reaction plane, in-plane (0<|&Delta;&phi;|<&pi;/6), mid-plane (&pi;/6<|&Delta;&phi;|<&pi;/3),
 and out-of-plane (&pi;/3<|&Delta;&phi;|<&pi;/2).
 
-![Sample reaction plane fit](.github/sample.png)
+![Sample reaction plane fit](https://github.com/raymondEhlers/reactionPlaneFit/raw/master/docs/images/sampleSignalInclusiveRPF.png)
 
 ## Installation
 
