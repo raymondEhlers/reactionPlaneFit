@@ -5,12 +5,13 @@
 [![Build Status](https://travis-ci.com/raymondEhlers/reactionPlaneFit.svg?branch=master)](https://travis-ci.com/raymondEhlers/reactionPlaneFit)
 [![codecov](https://codecov.io/gh/raymondEhlers/reactionPlaneFit/branch/master/graph/badge.svg)](https://codecov.io/gh/raymondEhlers/reactionPlaneFit)
 
-Implements the reaction plane fit described in [Phys. Rev. C 93,
-044915](https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915)
-(or on the [arxiv](https://arxiv.org/abs/1509.04732)) to characterize and subtract background contributions to
-correlation functions measured in heavy ion collisions. This package implements the fit for 3 orientations
-relative to the reaction plane, in-plane (0<|&Delta;&phi;|<&pi;/6), mid-plane (&pi;/6<|&Delta;&phi;|<&pi;/3),
-and out-of-plane (&pi;/3<|&Delta;&phi;|<&pi;/2).
+Implements the reaction plane (RP) fit described in [Phys. Rev. C 93,
+044915](https://journals.aps.org/prc/abstract/10.1103/PhysRevC.93.044915) (or on the
+[arxiv](https://arxiv.org/abs/1509.04732)) to characterize and subtract background contributions to
+correlation functions measured in heavy ion collisions. It allows for fits to the background dominated region,
+as well as the option of fitting the RP inclusive signal dominated region or the RP dependent signal dominated
+region. This package implements the fit for three orientations relative to the RP, with the possibility of
+straightforward extension to other sets of orientations.
 
 ![Sample reaction plane fit](https://github.com/raymondEhlers/reactionPlaneFit/raw/master/docs/images/sampleSignalInclusiveRPF.png)
 
@@ -47,6 +48,7 @@ rp_fit = three_orientations.BackgroundFit(
 )
 # Load or otherwise provide the relevant histograms here.
 # The structure of this dictionary is important to ensure that the proper data ends up in the right place.
+# Note that the data must already be projected into the background or signal dominated regions.
 data = {"background": {"inPlane": ROOT.TH1.., "midPlane": ROOT.TH1..., "outOfPlane": ROOT.TH1...}}
 # Perform the actual fit.
 success, _ = rp_fit.fit(data = data)
@@ -64,6 +66,27 @@ $ python -m reaction_plane_fit.example [-b] [-i dataFilename]
 
 If fit data is not specified, it will use some sample data. For further information, including all possible
 fit function combinations, please see the [full documentation](https://reactionplanefit.readthedocs.io/en/latest/).
+
+# Fits implemented
+
+There are three possible types of fits:
+
+- Background dominated region only: This fits only regions on the near-side at large dEta which are dominated
+  by background contributions. Called `BackgroundFit` in each set of orientations implementation.
+- Inclusive signal region: This fits to the RP inclusive signal dominated region, as well as fitting the RP
+  dependent background dominated regions. Called `InclusiveSignalFit` in each set of orientations implementation.
+- RP dependent signal region: This fits to the RP dependent signal dominated region, as well as fitting the RP
+  dependent background dominated regions. Called `SignalFit` in each set of orientations implementation.
+
+## Three orientation (in-, mid-, and out-of-plane)
+
+This package implements the fit for three orientations relative to the reaction plane:
+
+- in-plane (0<|&Delta;&phi;|<&pi;/6)
+- mid-plane (&pi;/6<|&Delta;&phi;|<&pi;/3)
+- and out-of-plane (&pi;/3<|&Delta;&phi;|<&pi;/2)
+
+These fits are implemented in the `reaction_plane_fit.three_orientations` module.
 
 # Development
 
