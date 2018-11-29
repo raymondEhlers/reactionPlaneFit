@@ -14,6 +14,10 @@ from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
+class FitFailed(Exception):
+    """ Raised if the fit failed. The message will include further details. """
+    pass
+
 @dataclass
 class FitResult(ABC):
     """ Fit result base class.

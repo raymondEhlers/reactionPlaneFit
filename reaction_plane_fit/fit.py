@@ -199,8 +199,11 @@ class ReactionPlaneFit(ABC):
         (good_fit, minuit) = self._run_fit(arguments = arguments)
         # Check if fit is considered valid
         if good_fit is False:
-            raise RuntimeError("Fit is not valid!")
-        # TODO: Check covariance matrix accuracy. It appears that it is not included in the migrad_ok status check.
+            raise base.FitFailed("Minimization failed! The fit is invalid!")
+        # Check covariance matrix accuracy. We need to check it explictily because It appears that it is not
+        # included in the migrad_ok status check.
+        if not minuit.matrix_accurate:
+            raise base.FitFailed("Corvairance matrix is not accurate!")
 
         # Calculate chi2/ndf (or really, min function value/ndf)
         # NDF = number of points used in the fit minus the number of free parameters.
