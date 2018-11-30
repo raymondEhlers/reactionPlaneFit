@@ -16,7 +16,7 @@ script:
     # Check code quality
     - flake8 .
     # Run the tests
-    - pytest -l -vv --cov=reaction_plane_fit --cov-branch -m "not root" --durations=5 tests/
+    - pytest -l -vv --cov=reaction_plane_fit --cov-branch -m "not root" --durations=5 --mpl tests/
     # Check that the docs build successfully
     - pushd docs && make html && popd
 after_success:
