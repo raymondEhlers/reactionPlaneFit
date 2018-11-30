@@ -396,7 +396,6 @@ class FitComponent(ABC):
 
         #hist = base.Histogram.from_existing_hist(hist = input_hist)
         limited_hist = self.set_data_limits(hist = input_hist)
-        # TODO: Scale histogram by nEvents if necessary
 
         # Determine the cost function
         self.cost_function = self._cost_function(hist = limited_hist)

@@ -2,6 +2,12 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.1] - 30 November 2018
+
+### Fixed
+
+- Resolved a tagging problem related to a rebase.
+
 ## [1.0] - 30 November 2018
 
 ### Added
