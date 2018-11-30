@@ -33,7 +33,7 @@ def setupHistogramConversion():
     """
     expected = base.Histogram(x = np.arange(1, 11) - 0.5,
                               y = np.array([0, 0, 0, 2, 0, 0, 0, 0, 3, 0]),
-                              errors = np.array([0, 0, 0, np.sqrt(4), 0, 0, 0, 0, np.sqrt(3), 0]))
+                              errors_squared = np.array([0, 0, 0, 4, 0, 0, 0, 0, 3, 0]))
 
     histName = "rootHist"
     filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "testFiles", "convertHist.root")

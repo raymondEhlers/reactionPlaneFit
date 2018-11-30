@@ -148,10 +148,15 @@ class Histogram:
         x (np.ndarray): The bin centers.
         y (np.ndarray): The bin value.
         errors (np.ndarray): The bin errors.
+        errors_squared (np.ndarray): The bin sum weight squared errors.
     """
     x: np.ndarray
     y: np.ndarray
-    errors: np.ndarray
+    errors_squared: np.ndarray
+
+    @property
+    def errors(self) -> np.ndarray:
+        return np.sqrt(self.errors_squared)
 
     @staticmethod
     def _from_uproot(hist) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -165,7 +170,7 @@ class Histogram:
             hist (uproot.hist.TH1*): Input histogram.
         Returns:
             tuple: (x, y, errors) where x is the bin centers, y is the bin values, and
-                errors are the bin errors.
+                errors are the sumw2 bin errors.
         """
         # This excluces underflow and overflow
         (y, edges) = hist.numpy()
@@ -179,7 +184,7 @@ class Histogram:
         # Also retrieve errors from sumw2.
         # If more sophistication is needed, we can modify this to follow the approach to
         # calculating bin errors from TH1::GetBinError()
-        errors = np.sqrt(hist.variances)
+        errors = hist.variances
 
         return (x, y, errors)
 
@@ -192,19 +197,20 @@ class Histogram:
             size.
 
         Args:
-            hist (ROOT.TH1):
+            hist (ROOT.TH1): Input histogram.
         Returns:
             tuple: (x, y, errors) where x is the bin centers, y is the bin values, and
-                errors are the bin errors.
+                errors are the sumw2 bin errors.
         """
-        # Handle traditional ROOT hists
         xAxis = hist.GetXaxis()
         # Don't include overflow
         xBins = range(1, xAxis.GetNbins() + 1)
-        # NOTE: The bin error is stored with the hist, not the axis.
         x = np.array([xAxis.GetBinCenter(i) for i in xBins])
+        # NOTE: The y value and bin error are stored with the hist, not the axis.
         y = np.array([hist.GetBinContent(i) for i in xBins])
-        errors = np.array([hist.GetBinError(i) for i in xBins])
+        errors = np.array(hist.GetSumw2())
+        # Exclude the under/overflow binsov
+        errors = errors[1:-1]
 
         return (x, y, errors)
 
@@ -224,10 +230,10 @@ class Histogram:
         # "values" is a proxy for if we have an uproot hist.
         logger.debug(f"{hist}, {type(hist)}")
         if hasattr(hist, "values"):
-            (x, y, errors) = cls._from_uproot(hist)
+            (x, y, errors_squared) = cls._from_uproot(hist)
         else:
             # Handle traditional ROOT hists
-            (x, y, errors) = cls._from_th1(hist)
+            (x, y, errors_squared) = cls._from_th1(hist)
 
-        return cls(x = x, y = y, errors = errors)
+        return cls(x = x, y = y, errors_squared = errors_squared)
 

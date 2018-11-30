@@ -417,7 +417,11 @@ class FitComponent(ABC):
             the data that is given, which is definitely not what we want. Instead,
             use the unbinned functions (as defined by ``probfit``).
 
+        Note:
+            Either specify the hist or the (x, y, errors) tuple.
+
         Args:
+            hist (base.Histogram): Input histogram.
             x (np.ndarray): The x values associated with an input histogram.
             y (np.ndarray): The y values associated with an input histogram.
             errors (np.ndarray): The errors associated with an input histogram.
@@ -430,7 +434,7 @@ class FitComponent(ABC):
             if not x or not y or not errors:
                 raise ValueError("Must provide x, y, and errors arrays.")
             # Then format them so they can be used.
-            hist = base.Histogram(x = x, y = y, errors = errors)
+            hist = base.Histogram(x = x, y = y, errors_squared = errors * errors)
         else:
             # These shouldn't be set if we're using a histogram.
             if x or y or errors:
@@ -583,7 +587,7 @@ class BackgroundFitComponent(FitComponent):
         ns_range = int(len(hist.x) / 2.0)
         x = hist.x[:ns_range]
         y = hist.y[:ns_range]
-        errors = hist.errors[:ns_range]
+        errors_squared = hist.errors_squared[:ns_range]
 
         # Return a data limits histogram
-        return base.Histogram(x = x, y = y, errors = errors)
+        return base.Histogram(x = x, y = y, errors_squared = errors_squared)
