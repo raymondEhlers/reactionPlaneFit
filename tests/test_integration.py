@@ -16,6 +16,7 @@ import pkg_resources
 import pytest
 
 from reaction_plane_fit import base
+from reaction_plane_fit import fit
 from reaction_plane_fit import example
 from reaction_plane_fit import plot
 
@@ -38,20 +39,27 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     assert fit_result.parameters == expected_fit_result.parameters
     assert fit_result.free_parameters == expected_fit_result.free_parameters
     assert fit_result.fixed_parameters == expected_fit_result.fixed_parameters
-    assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.values_at_minimum.keys()) == list(expected_fit_result.values_at_minimum.keys())
     # Need the extra tolerance to work on other systems.
     assert np.allclose(list(fit_result.values_at_minimum.values()), list(expected_fit_result.values_at_minimum.values()), rtol = 0.001)
-    assert np.allclose(fit_result.x, expected_fit_result.x)
-    assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.covariance_matrix.keys()) == list(expected_fit_result.covariance_matrix.keys())
     # Need the extra tolerance to work on other systems.
     assert np.allclose(list(fit_result.covariance_matrix.values()), list(expected_fit_result.covariance_matrix.values()), rtol = 0.001)
 
-    # Calculated values
-    assert fit_result.nDOF == expected_fit_result.nDOF
+    # Check particular base class attributes
+    # Check the main fit only attributes.
+    if isinstance(fit_result, base.RPFitResult):
+        assert np.allclose(fit_result.x, expected_fit_result.x)
+        assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
+        assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
+
+        # Calculated values
+        assert fit_result.nDOF == expected_fit_result.nDOF
+    # Check the component fit only attributes
+    if isinstance(fit_result, base.ComponentFitResult):
+        assert np.allclose(fit_result.errors, expected_fit_result.errors)
 
     # If all assertions passed, then return True to indicate the success.
     return True
@@ -153,12 +161,85 @@ def test_inclusive_signal_fit(setup_integration_tests):
         n_fit_data_points = 90,
         minimum_val = 82.97071829310454,
     )
+    expected_signal_parameters = ['ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma', 'signal_pedestal', 'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
+    expected_signal_free_parameters = ['ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma', 'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
+    expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
+    expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
+    expected_components = {
+        fit.FitType(region='signal', orientation='inclusive'): base.ComponentFitResult(
+            parameters = expected_signal_parameters,
+            free_parameters = expected_signal_free_parameters,
+            fixed_parameters = ['signal_pedestal', 'v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_signal_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_signal_free_parameters for k2 in expected_signal_free_parameters},
+            errors = np.array([
+                0.04659353, 0.05320476, 0.06173382, 0.06129561, 0.05044053,
+                0.05628865, 0.10358349, 0.09225062, 0.13088703, 0.13088703,
+                0.09225063, 0.10358349, 0.05628864, 0.05044054, 0.06129673,
+                0.06173997, 0.05318416, 0.04603239, 0.05215069, 0.0630976 ,  # noqa: E203
+                0.06490267, 0.0595903 , 0.06622332, 0.07684584, 0.06925706,  # noqa: E203
+                0.07379214, 0.10335831, 0.10335831, 0.07379214, 0.06925706,
+                0.07684584, 0.06622332, 0.0595903 , 0.06490267, 0.0630976 ,  # noqa: E203
+                0.05215069]),
+        ),
+        fit.FitType(region='background', orientation='inPlane'): base.ComponentFitResult(
+            parameters = expected_background_parameters,
+            free_parameters=expected_background_free_parameters,
+            fixed_parameters=['v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
+            errors = np.array([
+                0.22600626, 0.20236964, 0.1792622 , 0.17417331, 0.17607922,  # noqa: E203
+                0.17589761, 0.1895709 , 0.22364286, 0.25277766, 0.25277766,  # noqa: E203
+                0.22364286, 0.1895709 , 0.17589761, 0.17607922, 0.17417331,  # noqa: E203
+                0.1792622 , 0.20236964, 0.22600626, 0.2282912 , 0.20927409,  # noqa: E203
+                0.18976985, 0.18483703, 0.18363486, 0.17856864, 0.18720743,
+                0.21845047, 0.24672188, 0.24672188, 0.21845047, 0.18720743,
+                0.17856864, 0.18363486, 0.18483703, 0.18976985, 0.20927409,
+                0.2282912])
+        ),
+        fit.FitType(region='background', orientation='midPlane'): base.ComponentFitResult(
+            parameters = expected_background_parameters,
+            free_parameters = expected_background_free_parameters,
+            fixed_parameters = ['v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
+            errors = np.array([
+                0.235723  , 0.18639393, 0.16976855, 0.22061279, 0.24931356,  # noqa: E203
+                0.21663034, 0.16738339, 0.19307235, 0.24641435, 0.24641435,
+                0.19307235, 0.16738339, 0.21663034, 0.24931356, 0.22061279,
+                0.16976855, 0.18639393, 0.235723  , 0.23774675, 0.19306969,  # noqa: E203
+                0.1791784 , 0.22759284, 0.25377834, 0.21855863, 0.16472916,  # noqa: E203
+                0.18638008, 0.23902805, 0.23902805, 0.18638008, 0.16472916,
+                0.21855863, 0.25377834, 0.22759284, 0.1791784 , 0.19306969,  # noqa: E203
+                0.23774675])
+        ),
+        fit.FitType(region='background', orientation='outOfPlane'): base.ComponentFitResult(
+            parameters = expected_background_parameters,
+            free_parameters = expected_background_free_parameters,
+            fixed_parameters = ['v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
+            errors = np.array([
+                0.24979395, 0.2269838 , 0.20247939, 0.19254136, 0.18836174,  # noqa: E203
+                0.18163514, 0.1881116 , 0.21693021, 0.24380993, 0.24380993,  # noqa: E203
+                0.21693021, 0.1881116 , 0.18163514, 0.18836174, 0.19254136,  # noqa: E203
+                0.20247939, 0.2269838 , 0.24979395, 0.25079664, 0.23018009,  # noqa: E203
+                0.20785398, 0.19878404, 0.19344469, 0.18368386, 0.18606088,
+                0.2120099 , 0.23782647, 0.23782647, 0.2120099 , 0.18606088,  # noqa: E203
+                0.18368386, 0.19344469, 0.19878404, 0.20785398, 0.23018009,
+                0.25079664])
+        ),
+    }
 
     # Run the fit
     rp_fit, data = example.run_inclusive_signal_fit(input_filename = sample_data_filename)
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
+    # Check the components
+    for fit_type, fit_component in rp_fit.fit_result.components.items():
+        assert compare_fit_result_to_expected(fit_result = fit_component, expected_fit_result = expected_components[fit_type]) is True
 
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the residual plot because it is hard to compare multiple images from in the same test.
@@ -216,12 +297,67 @@ def test_background_fit(setup_integration_tests):
         n_fit_data_points = 54,
         minimum_val = 38.308756460200534,
     )
+    expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
+    expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
+    expected_components = {
+        fit.FitType(region='background', orientation='inPlane'): base.ComponentFitResult(
+            parameters = expected_background_parameters,
+            free_parameters=expected_background_free_parameters,
+            fixed_parameters=['v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
+            errors = np.array([
+                0.2093359 , 0.19255153, 0.18174519, 0.17607629, 0.16211076,  # noqa: E203
+                0.14768848, 0.17124385, 0.22832949, 0.27169606, 0.27169606,
+                0.22832949, 0.17124385, 0.14768848, 0.16211076, 0.17607629,
+                0.18174519, 0.19255153, 0.2093359 , 0.22090577, 0.22490269,  # noqa: E203
+                0.22619674, 0.22037282, 0.19623391, 0.16124127, 0.15950035,
+                0.20546865, 0.2466069 , 0.2466069 , 0.20546865, 0.15950035,  # noqa: E203
+                0.16124127, 0.19623391, 0.22037282, 0.22619674, 0.22490269,
+                0.22090577])
+        ),
+        fit.FitType(region='background', orientation='midPlane'): base.ComponentFitResult(
+            parameters = expected_background_parameters,
+            free_parameters = expected_background_free_parameters,
+            fixed_parameters = ['v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
+            errors = np.array([
+                0.23699861, 0.19647139, 0.19316462, 0.23845882, 0.25528958,
+                0.21538816, 0.17786381, 0.22716874, 0.29022977, 0.29022977,
+                0.22716874, 0.17786381, 0.21538816, 0.25528958, 0.23845882,
+                0.19316462, 0.19647139, 0.23699861, 0.24705662, 0.22716873,
+                0.23335852, 0.27103529, 0.27778609, 0.22547584, 0.16444424,
+                0.19647136, 0.25702783, 0.25702783, 0.19647136, 0.16444424,
+                0.22547584, 0.27778609, 0.27103529, 0.23335852, 0.22716873,
+                0.24705662])
+        ),
+        fit.FitType(region='background', orientation='outOfPlane'): base.ComponentFitResult(
+            parameters = expected_background_parameters,
+            free_parameters = expected_background_free_parameters,
+            fixed_parameters = ['v1'],
+            values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
+            errors = np.array([
+                0.22106564, 0.20550612, 0.19201483, 0.18118305, 0.16215477,
+                0.14395781, 0.16678903, 0.22492152, 0.2689348 , 0.2689348 ,  # noqa: E203
+                0.22492152, 0.16678903, 0.14395781, 0.16215477, 0.18118305,
+                0.19201483, 0.20550612, 0.22106564, 0.22880924, 0.22835903,
+                0.22663356, 0.22011445, 0.19626572, 0.15946394, 0.15152662,
+                0.19257799, 0.23184201, 0.23184201, 0.19257799, 0.15152662,
+                0.15946394, 0.19626572, 0.22011445, 0.22663356, 0.22835903,
+                0.22880924])
+        ),
+    }
 
     # Run the fit
     rp_fit, data = example.run_background_fit(input_filename = sample_data_filename)
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
+    # Check the components
+    for fit_type, fit_component in rp_fit.fit_result.components.items():
+        assert compare_fit_result_to_expected(fit_result = fit_component, expected_fit_result = expected_components[fit_type]) is True
 
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the fit plot because it is hard to compare multiple images from in the same test.
