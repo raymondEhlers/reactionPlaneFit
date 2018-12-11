@@ -97,7 +97,8 @@ setup(
         ],
         "dev": [
             "flake8",
-            "flake8-colors"
+            "flake8-colors",
+            "mypy",
         ]
     }
 )
