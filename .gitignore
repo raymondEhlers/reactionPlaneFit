@@ -43,6 +43,7 @@ notes.md
 .env/
 .env3/
 .py3.7/
+.rpf/
 
 # Generate coverage reports from testing
 .coverage

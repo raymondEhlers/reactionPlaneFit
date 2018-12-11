@@ -23,6 +23,5 @@ Although the documentation is generated via `autodoc`, the base files generated 
 
 ## Building on Read The Docs (RTD)
 
-RTD doesn't support `ROOT` and we can't install `flask-zodb` due to the python 3 compatible package not being
-available on PyPI. Since we can't install these packages, we instead mock up their modules. These mocks are
-defined in `conf.py`. This way, we can build the docs even though the packages aren't installed!
+RTD doesn't support `ROOT`. Since we can't install it, we instead mock up the module. These mocks are defined
+in `conf.py`. This way, we can build the docs even though ROOT isn't installed!

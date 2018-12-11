@@ -12,7 +12,6 @@ install:
     - pip install --upgrade numpy cython
     - pip install --upgrade -e .[tests,dev,docs]
 script:
-    # Since we ran the tests above, we don't need to run them here.
     # Check code quality
     - flake8 .
     # Run the tests
