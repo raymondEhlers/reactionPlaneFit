@@ -2,6 +2,19 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1] - 11 December 2018
+
+### Added
+
+- Test the `FitComponentResult` objects in the integration tests. See: `dcb21966`.
+- Updated documentation.
+- `mypy` to the dev requirements. Although not run in the CI (because not all of the identified issues are
+  actually issues), it is good to have available and run from time to time. See: `bdc216a7`.
+
+### Changed
+
+- Refactored `Histogram` class to pachyderm, where it was renamed `Histogram1D`. See: `923c3847`.
+
 ## [1.0.1] - 30 November 2018
 
 ### Fixed
