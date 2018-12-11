@@ -14,6 +14,7 @@ import time
 import iminuit
 import numdifftools as nd
 import numpy as np
+from pachyderm import histogram
 import probfit
 
 from reaction_plane_fit import base
@@ -102,7 +103,7 @@ class ReactionPlaneFit(ABC):
                     del data[region]
 
         # Convert the data to Histogram objects.
-        data = {fit_type: base.Histogram.from_existing_hist(input_hist) for fit_type, input_hist in data.items()}
+        data = {fit_type: histogram.Histogram1D.from_existing_hist(input_hist) for fit_type, input_hist in data.items()}
         logger.debug(f"{data}")
 
         return data
@@ -377,24 +378,24 @@ class FitComponent(ABC):
     def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
 
-    def _setup_fit(self, input_hist: base.Histogram, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> base.Histogram:
+    def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
         """ Setup the fit using information from the input hist.
 
         Args:
-            input_hist (base.Histogram): The histogram to be fit by this function.
+            input_hist (histogram.Histogram1D): The histogram to be fit by this function.
             resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
                 the R_{2,2} parameter) to the value. Expects "R22" - "R82"
             reaction_plane_parameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
                 reaction plane.
         Returns:
-            base.Histogram: The data limited histogram (to be used for determining the number of data points used
+            histogram.Histogram1D: The data limited histogram (to be used for determining the number of data points used
                 in the fit). Note that the fit is fully setup at this point.
         """
         # Setup the fit itself.
         self.determine_fit_function(resolution_parameters = resolution_parameters,
                                     reaction_plane_parameter = reaction_plane_parameter)
 
-        #hist = base.Histogram.from_existing_hist(hist = input_hist)
+        #hist = histogram.Histogram1D.from_existing_hist(hist = input_hist)
         limited_hist = self.set_data_limits(hist = input_hist)
 
         # Determine the cost function
@@ -402,11 +403,11 @@ class FitComponent(ABC):
 
         return limited_hist
 
-    def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
+    def set_data_limits(self, hist: histogram.Histogram1D) -> histogram.Histogram1D:
         """ Extract the data from the histogram. """
         return hist
 
-    def _cost_function(self, hist: Optional[base.Histogram] = None, x: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors: Optional[np.ndarray] = None):
+    def _cost_function(self, hist: Optional[histogram.Histogram1D] = None, x: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors: Optional[np.ndarray] = None):
         """ Define the cost function.
 
         Called when setting up a fit object.
@@ -420,7 +421,7 @@ class FitComponent(ABC):
             Either specify the hist or the (x, y, errors) tuple.
 
         Args:
-            hist (base.Histogram): Input histogram.
+            hist (histogram.Histogram1D): Input histogram.
             x (np.ndarray): The x values associated with an input histogram.
             y (np.ndarray): The y values associated with an input histogram.
             errors (np.ndarray): The errors associated with an input histogram.
@@ -433,7 +434,7 @@ class FitComponent(ABC):
             if not x or not y or not errors:
                 raise ValueError("Must provide x, y, and errors arrays.")
             # Then format them so they can be used.
-            hist = base.Histogram(x = x, y = y, errors_squared = errors * errors)
+            hist = histogram.Histogram1D(x = x, y = y, errors_squared = errors * errors)
         else:
             # These shouldn't be set if we're using a histogram.
             if x or y or errors:
@@ -571,16 +572,16 @@ class BackgroundFitComponent(FitComponent):
             rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
 
-    def set_data_limits(self, hist: base.Histogram) -> base.Histogram:
+    def set_data_limits(self, hist: histogram.Histogram1D) -> histogram.Histogram1D:
         """ Set the limits of the fit to only use near-side data (ie dPhi < pi/2)
 
         Only the near-side will be used for the fit to avoid the signal at large
         dPhi on the away-side.
 
         Args:
-            hist (base.Histogram): The input data.
+            hist (histogram.Histogram1D): The input data.
         Returns:
-            base.Histogram: The data limited to the near-side.
+            histogram.Histogram1D: The data limited to the near-side.
         """
         # Use only near-side data (ie dPhi < pi/2)
         ns_range = int(len(hist.x) / 2.0)
@@ -589,4 +590,4 @@ class BackgroundFitComponent(FitComponent):
         errors_squared = hist.errors_squared[:ns_range]
 
         # Return a data limits histogram
-        return base.Histogram(x = x, y = y, errors_squared = errors_squared)
+        return histogram.Histogram1D(x = x, y = y, errors_squared = errors_squared)

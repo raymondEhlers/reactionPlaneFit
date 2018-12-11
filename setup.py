@@ -73,6 +73,7 @@ setup(
         "numdifftools",
         "iminuit",
         "probfit",
+        "pachyderm",
     ],
 
     # Include additional files
