@@ -10,7 +10,7 @@ Provides example for fitting only the background, or fitting the inclusive signa
 import argparse
 import logging
 import pkg_resources
-from typing import Tuple
+from typing import Tuple, Type
 import uproot
 
 from reaction_plane_fit import fit
@@ -40,7 +40,7 @@ def setup_data(input_filename: str, include_signal: bool) -> dict:
 
     return data
 
-def run_fit(fit_object: fit.ReactionPlaneFit, data: dict) -> Tuple[fit.ReactionPlaneFit, dict]:
+def run_fit(fit_object: Type[fit.ReactionPlaneFit], data: dict) -> Tuple[fit.ReactionPlaneFit, dict]:
     """ Driver function for performing the fit.
 
     Note:

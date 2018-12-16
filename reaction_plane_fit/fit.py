@@ -8,7 +8,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import logging
-from typing import Tuple, Optional
+from typing import Callable, Optional, Tuple
 import time
 
 import iminuit
@@ -44,10 +44,12 @@ class ReactionPlaneFit(ABC):
             to the value. Expects "R22" - "R82" (even RP only).
         use_log_likelihood (bool): If true, use log likelihood cost function. Often used when statistics are
             limited. Default: False
-        signal_region (tuple): Min and max extraction range for the signal dominated region. Should be provided as the
-            absolute value (ex: (0., 0.6)).
-        background_region (tuple): Min and max extraction range for the background dominated region. Should be provided
-            as the absolute value (ex: (0.8, 1.2)).
+        signal_region (tuple): Min and max extraction range for the signal dominated region. Should be
+            provided as the absolute value (ex: (0., 0.6)).
+        background_region (tuple): Min and max extraction range for the background dominated region. Should
+            be provided as the absolute value (ex: (0.8, 1.2)).
+        fit_result (base.RPFitResult): Result of the RP fit.
+        _fit (Callable): Fit function for the RP fit.
     """
     # RP orientations (including inclusive). Should be overridden by the derived class.
     _rp_orientations: list = []
@@ -60,9 +62,9 @@ class ReactionPlaneFit(ABC):
         self.regions = {"signal": signal_region, "background": background_region}
 
         # Contains the simultaneous fit to all of the components.
-        self._fit = None
+        self._fit = Callable[..., float]
         # Contains the fit results
-        self.fit_result: base.RPFitResult = None
+        self.fit_result: base.RPFitResult
 
     @property
     def rp_orientations(self) -> list:
@@ -345,7 +347,7 @@ class FitComponent(ABC):
         # Additional values
         # Will be determine in each subclass
         # Called last to ensure that all variables are available.
-        self.fit_function = None
+        self.fit_function: Callable[..., float]
         # Fit cost function
         self.cost_function = None
 
