@@ -67,7 +67,7 @@ setup(
     # This is usually the minimal set of the required packages.
     # Packages should be installed via pip -r requirements.txt !
     install_requires=[
-        "dataclasses",  # Needed for python 3.6
+        "dataclasses;python_version<'3.7'",
         "numpy",
         "uproot",  # Handles ROOT io without needing ROOT itself.
         "numdifftools",
