@@ -96,6 +96,7 @@ setup(
             "sphinx_markdown_tables",
         ],
         "dev": [
+            "pre-commit",
             "flake8",
             "flake8-colors",
             "mypy",
