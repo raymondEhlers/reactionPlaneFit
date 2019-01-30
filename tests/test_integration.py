@@ -182,7 +182,7 @@ def test_inclusive_signal_fit(setup_integration_tests):
                 0.07684584, 0.06622332, 0.0595903 , 0.06490267, 0.0630976 ,  # noqa: E203
                 0.05215069]),
         ),
-        fit.FitType(region='background', orientation='inPlane'): base.ComponentFitResult(
+        fit.FitType(region='background', orientation='in_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters=expected_background_free_parameters,
             fixed_parameters=['v1'],
@@ -198,7 +198,7 @@ def test_inclusive_signal_fit(setup_integration_tests):
                 0.17856864, 0.18363486, 0.18483703, 0.18976985, 0.20927409,
                 0.2282912])
         ),
-        fit.FitType(region='background', orientation='midPlane'): base.ComponentFitResult(
+        fit.FitType(region='background', orientation='mid_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -214,7 +214,7 @@ def test_inclusive_signal_fit(setup_integration_tests):
                 0.21855863, 0.25377834, 0.22759284, 0.1791784 , 0.19306969,  # noqa: E203
                 0.23774675])
         ),
-        fit.FitType(region='background', orientation='outOfPlane'): base.ComponentFitResult(
+        fit.FitType(region='background', orientation='out_of_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -300,7 +300,7 @@ def test_background_fit(setup_integration_tests):
     expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
     expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
     expected_components = {
-        fit.FitType(region='background', orientation='inPlane'): base.ComponentFitResult(
+        fit.FitType(region='background', orientation='in_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters=expected_background_free_parameters,
             fixed_parameters=['v1'],
@@ -316,7 +316,7 @@ def test_background_fit(setup_integration_tests):
                 0.16124127, 0.19623391, 0.22037282, 0.22619674, 0.22490269,
                 0.22090577])
         ),
-        fit.FitType(region='background', orientation='midPlane'): base.ComponentFitResult(
+        fit.FitType(region='background', orientation='mid_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -332,7 +332,7 @@ def test_background_fit(setup_integration_tests):
                 0.22547584, 0.27778609, 0.27103529, 0.23335852, 0.22716873,
                 0.24705662])
         ),
-        fit.FitType(region='background', orientation='outOfPlane'): base.ComponentFitResult(
+        fit.FitType(region='background', orientation='out_of_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],

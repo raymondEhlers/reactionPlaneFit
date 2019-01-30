@@ -35,7 +35,7 @@ class FitType:
             "background" dominated.
         orientation: Describe the reaction plane orientation of the data. For data which does not select or orientation,
             it should be described as "inclusive". Otherwise, the values are up to the particular implementation. As an
-            example, for three RP orientations, they are known as "inPlane", "midPlane", and "outOfPlane".
+            example, for three RP orientations, they are known as "in_plane", "mid_plane", and "out_of_plane".
     """
     region: str
     orientation: str
@@ -103,8 +103,8 @@ class ReactionPlaneFit(ABC):
                 if region in data:
                     for rp_orientation in data[region]:
                         # Restruct the data within the same dict.
-                        # For example, ["background"]["inPlane"] -> [FitType(region = "background",
-                        # orientation = "inPlane")]
+                        # For example, ["background"]["in_plane"] -> [FitType(region = "background",
+                        # orientation = "in_plane")]
                         data[FitType(region = region, orientation = rp_orientation)] = data[region][rp_orientation]
                     # Cleanup the previous dict structure
                     del data[region]

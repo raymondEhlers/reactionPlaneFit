@@ -50,7 +50,7 @@ rp_fit = three_orientations.BackgroundFit(
 # Load or otherwise provide the relevant histograms here.
 # The structure of this dictionary is important to ensure that the proper data ends up in the right place.
 # Note that the data must already be projected into the background or signal dominated regions.
-data = {"background": {"inPlane": ROOT.TH1.., "midPlane": ROOT.TH1..., "outOfPlane": ROOT.TH1...}}
+data = {"background": {"in_plane": ROOT.TH1.., "mid_plane": ROOT.TH1..., "out_of_plane": ROOT.TH1...}}
 # Perform the actual fit.
 success, _ = rp_fit.fit(data = data)
 # Print the fit results

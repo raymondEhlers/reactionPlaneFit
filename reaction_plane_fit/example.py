@@ -36,7 +36,7 @@ def setup_data(input_filename: str, include_signal: bool) -> Data:
     with uproot.open(input_filename) as f:
         if include_signal:
             data["signal"]["inclusive"] = f["signalDominated_inclusive"]
-        for rp in ["inPlane", "midPlane", "outOfPlane"]:
+        for rp in ["in_plane", "mid_plane", "out_of_plane"]:
             data["background"][rp] = f[f"backgroundDominated_{rp}"]
 
     return data

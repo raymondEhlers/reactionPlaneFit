@@ -88,7 +88,7 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str, y_label: str, 
                 transform = ax.transAxes)
 
         # Add legend on mid-plane panel
-        if fit_type.orientation == "midPlane":
+        if fit_type.orientation == "mid_plane":
             ax.legend(loc = "lower center")
 
     fig.tight_layout()

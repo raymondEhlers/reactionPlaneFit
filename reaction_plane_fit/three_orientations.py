@@ -39,18 +39,18 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
     """ Base class for reaction plane fit for 3 reaction plane orientations.
 
     """
-    _rp_orientations = ["inPlane", "midPlane", "outOfPlane", "inclusive"]
+    _rp_orientations = ["in_plane", "mid_plane", "out_of_plane", "inclusive"]
     reaction_plane_parameters = {
-        "inPlane": base.ReactionPlaneParameter(orientation = "inPlane",
-                                               phiS = 0,
-                                               c = np.pi / 6.),
+        "in_plane": base.ReactionPlaneParameter(orientation = "in_plane",
+                                                phiS = 0,
+                                                c = np.pi / 6.),
         # NOTE: This c value is halved in the fit to account for the four non-continuous regions
-        "midPlane": base.ReactionPlaneParameter(orientation = "midPlane",
-                                                phiS = np.pi / 4.,
-                                                c = np.pi / 12.),
-        "outOfPlane": base.ReactionPlaneParameter(orientation = "outOfPlane",
-                                                  phiS = np.pi / 2.,
-                                                  c = np.pi / 6.),
+        "mid_plane": base.ReactionPlaneParameter(orientation = "mid_plane",
+                                                 phiS = np.pi / 4.,
+                                                 c = np.pi / 12.),
+        "out_of_plane": base.ReactionPlaneParameter(orientation = "out_of_plane",
+                                                    phiS = np.pi / 2.,
+                                                    c = np.pi / 6.),
         # This is invalid and will be ignored!
         # However, it is helpful for it to be defined in this dict for lookup purposes.
         "inclusive": None,
