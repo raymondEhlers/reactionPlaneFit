@@ -102,7 +102,7 @@ def setup_three_orientations_background():
     return (values, test_wrapper, expected)
 
 @pytest.fixture
-def setup_fourier(loggingMixin):
+def setup_fourier(logging_mixin):
     """ Setup for testing the fourier series function. """
     values = setup_values()
 
@@ -144,7 +144,7 @@ def setup_fourier(loggingMixin):
     "setup_three_orientations_background",
     "setup_fourier"
 ], ids = ["Signal", "Three orientation background", "Fourier"])
-def test_fit_functions(loggingMixin, setup_fit, request):
+def test_fit_functions(logging_mixin, setup_fit, request):
     """ Test the fit functions. Each `setup_fit` value refers to a different fixture. """
     values, func, expected = request.getfixturevalue(setup_fit)
     output = np.zeros(len(values))
@@ -153,14 +153,14 @@ def test_fit_functions(loggingMixin, setup_fit, request):
 
     assert np.allclose(output, expected)
 
-def test_signal_args(loggingMixin):
+def test_signal_args(logging_mixin):
     """ Test the arguments for the signal function. """
     assert probfit.describe(functions.signal_wrapper) == ["x",
                                                           "ns_amplitude", "as_amplitude",
                                                           "ns_sigma", "as_sigma",
                                                           "signal_pedestal"]
 
-def test_three_orientations_background_args(loggingMixin, mocker):
+def test_three_orientations_background_args(logging_mixin, mocker):
     """ Test the arguments for the RPF function. """
     phi = 0
     c = np.pi / 6
@@ -173,7 +173,7 @@ def test_three_orientations_background_args(loggingMixin, mocker):
                                                       "v4_t", "v4_a",
                                                       "v1", "v3"]
 
-def test_fourier_args(loggingMixin):
+def test_fourier_args(logging_mixin):
     """ Test the arguments for the Fourier series function. """
     assert probfit.describe(functions.fourier) == ["x",
                                                    "BG",

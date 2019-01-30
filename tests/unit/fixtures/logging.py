@@ -13,7 +13,7 @@ import logging
 loggingLevel = logging.DEBUG
 
 @pytest.fixture
-def loggingMixin(caplog):
+def logging_mixin(caplog):
     """ Logging mixin to capture logging messages from modules.
 
     It logs at the debug level, which is probably most useful for when a test fails.

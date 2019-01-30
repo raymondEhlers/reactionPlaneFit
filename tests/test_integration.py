@@ -21,7 +21,7 @@ from reaction_plane_fit import example
 from reaction_plane_fit import plot
 
 @pytest.fixture
-def setup_integration_tests(loggingMixin):
+def setup_integration_tests(logging_mixin):
     """ Setup shared expected values for the fit integration tests. """
     sample_data_filename = pkg_resources.resource_filename("reaction_plane_fit.sample_data", "three_orientations.root")
 
