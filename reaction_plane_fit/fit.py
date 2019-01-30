@@ -603,9 +603,10 @@ class BackgroundFitComponent(FitComponent):
         """
         # Use only near-side data (ie dPhi < pi/2)
         ns_range = int(len(hist.x) / 2.0)
-        x = hist.x[:ns_range]
+        # + 1 because we need to include the ending bin edge.
+        bin_edges = hist.bin_edges[:ns_range + 1]
         y = hist.y[:ns_range]
         errors_squared = hist.errors_squared[:ns_range]
 
         # Return a data limits histogram
-        return histogram.Histogram1D(x = x, y = y, errors_squared = errors_squared)
+        return histogram.Histogram1D(bin_edges = bin_edges, y = y, errors_squared = errors_squared)
