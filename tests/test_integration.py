@@ -42,16 +42,16 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.values_at_minimum.keys()) == list(expected_fit_result.values_at_minimum.keys())
     # Need the extra tolerance to work on other systems.
-    assert np.allclose(list(fit_result.values_at_minimum.values()), list(expected_fit_result.values_at_minimum.values()), rtol = 0.001)
+    np.testing.assert_allclose(list(fit_result.values_at_minimum.values()), list(expected_fit_result.values_at_minimum.values()), atol = 1e-5, rtol = 0)
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.covariance_matrix.keys()) == list(expected_fit_result.covariance_matrix.keys())
     # Need the extra tolerance to work on other systems.
-    assert np.allclose(list(fit_result.covariance_matrix.values()), list(expected_fit_result.covariance_matrix.values()), rtol = 0.001)
+    np.testing.assert_allclose(list(fit_result.covariance_matrix.values()), list(expected_fit_result.covariance_matrix.values()), atol = 1e-5, rtol = 0)
 
     # Check particular base class attributes
     # Check the main fit only attributes.
     if isinstance(fit_result, base.RPFitResult):
-        assert np.allclose(fit_result.x, expected_fit_result.x)
+        np.testing.assert_allclose(fit_result.x, expected_fit_result.x, atol = 1e-5, rtol = 0)
         assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
         assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
 
@@ -59,13 +59,13 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
         assert fit_result.nDOF == expected_fit_result.nDOF
     # Check the component fit only attributes
     if isinstance(fit_result, base.ComponentFitResult):
-        assert np.allclose(fit_result.errors, expected_fit_result.errors)
+        np.testing.assert_allclose(fit_result.errors, expected_fit_result.errors, atol = 1e-4, rtol = 0)
 
     # If all assertions passed, then return True to indicate the success.
     return True
 
 @pytest.mark.slow
-@pytest.mark.mpl_image_compare(tolerance = 10)
+@pytest.mark.mpl_image_compare(tolerance = 5)
 def test_inclusive_signal_fit(setup_integration_tests):
     """ Integration test for the inclusive signal fit.
 
@@ -248,7 +248,7 @@ def test_inclusive_signal_fit(setup_integration_tests):
     return fig
 
 @pytest.mark.slow
-@pytest.mark.mpl_image_compare(tolerance = 10)
+@pytest.mark.mpl_image_compare(tolerance = 5)
 def test_background_fit(setup_integration_tests):
     """ Integration test for the background fit.
 
