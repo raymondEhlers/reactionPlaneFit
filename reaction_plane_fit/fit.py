@@ -8,19 +8,23 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import logging
-from typing import Callable, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple, Union
 import time
 
 import iminuit
 import numdifftools as nd
 import numpy as np
 from pachyderm import histogram
+from pachyderm.typing_helpers import Hist
 import probfit
 
 from reaction_plane_fit import base
 from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
+
+# Type helpers
+Data = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
 
 @dataclass(frozen = True)
 class FitType:
@@ -99,7 +103,8 @@ class ReactionPlaneFit(ABC):
                 if region in data:
                     for rp_orientation in data[region]:
                         # Restruct the data within the same dict.
-                        # For example, ["background"]["inPlane"] -> [FitType(region = "background", orientation = "inPlane")]
+                        # For example, ["background"]["inPlane"] -> [FitType(region = "background",
+                        # orientation = "inPlane")]
                         data[FitType(region = region, orientation = rp_orientation)] = data[region][rp_orientation]
                     # Cleanup the previous dict structure
                     del data[region]
@@ -155,19 +160,20 @@ class ReactionPlaneFit(ABC):
         minuit.migrad()
         # Just in case (doesn't hurt anything, but may help in a few cases).
         minuit.hesse()
+        # TODO: Check if minos and hesse errors are similar. They should be.
         # Plot the correlation matrix
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: dict) -> Tuple[bool, dict]:
+    def fit(self, data: Data) -> Tuple[bool, Data]:
         """ Perform the actual fit.
 
         Args:
-            data (dict): Input data to be used for the fit. The keys should either be of the form ``[region][orientation]`` or
-                 ``[FitType]``. The values can be uproot or ROOT 1D histograms.
+            data (dict): Input data to be used for the fit. The keys should either be of the form
+                ``[region][orientation]`` or ``[FitType]``. The values can be uproot or ROOT 1D histograms.
         Returns:
-            tuple: (fit_success, formatted_data) where fit_success (bool) is ``True`` if the fitting procedure was successful,
-                and formatted_data (dict) is the data reformatted in the preferred format for the fit.
+            tuple: (fit_success, formatted_data) where fit_success (bool) is ``True`` if the fitting procedure was
+                successful, and formatted_data (dict) is the data reformatted in the preferred format for the fit.
         """
         # Validate settings.
         good_settings = self._validate_settings()
@@ -180,11 +186,17 @@ class ReactionPlaneFit(ABC):
         data = self._format_input_data(data)
         good_data = self._validate_data(data)
         if not good_data:
-            raise ValueError(f"Insufficient data provided for the fit components. Component keys: {self.components.keys()}, Data keys: {data.keys()}")
+            raise ValueError(
+                f"Insufficient data provided for the fit components. Component keys: {self.components.keys()},"
+                f" Data keys: {data.keys()}"
+            )
 
         # Extract the x locations from where the fit should be evaluated.
         # Must be set before setting up the fit, which can limit the histogram x.
-        x = next(iter(data.values())).x
+        data_temp = next(iter(data.values()))
+        # Help out mypy
+        assert isinstance(data_temp, histogram.Histogram1D)
+        x = data_temp.x
 
         # Setup the fit components.
         fit_data = {}
@@ -218,7 +230,10 @@ class ReactionPlaneFit(ABC):
         # For example, 36 data points / hist with the three orientation background fit should have
         # 18 (since near-side only) * 3 = 54 points.
         n_fit_data_points = sum(len(hist.x) for hist in fit_data.values())
-        logger.debug(f"n_fit_data_points: {n_fit_data_points}, fixed_parameters: {fixed_parameters}, parameters: {parameters}, free_parameters: {free_parameters}")
+        logger.debug(
+            f"n_fit_data_points: {n_fit_data_points}, fixed_parameters: {fixed_parameters},"
+            f" parameters: {parameters}, free_parameters: {free_parameters}"
+        )
 
         # Store Minuit information for calculating the errors.
         self.fit_result = base.RPFitResult(
@@ -470,6 +485,7 @@ class FitComponent(ABC):
         Returns:
             Dictionary of the function arguments which specifies their
         """
+        # TODO: Make these user settable.
         arguments = {}
         if self.region == "signal":
             # Signal default parameters

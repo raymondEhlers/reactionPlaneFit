@@ -14,12 +14,13 @@ from typing import Tuple, Type
 import uproot
 
 from reaction_plane_fit import fit
+from reaction_plane_fit.fit import Data
 from reaction_plane_fit import three_orientations
 from reaction_plane_fit import plot
 
 logger = logging.getLogger(__name__)
 
-def setup_data(input_filename: str, include_signal: bool) -> dict:
+def setup_data(input_filename: str, include_signal: bool) -> Data:
     """ Setup the example input data.
 
     Read the data using uproot so we can avoid an explicit dependency on ROOT. Histograms
@@ -40,7 +41,7 @@ def setup_data(input_filename: str, include_signal: bool) -> dict:
 
     return data
 
-def run_fit(fit_object: Type[fit.ReactionPlaneFit], data: dict) -> Tuple[fit.ReactionPlaneFit, dict]:
+def run_fit(fit_object: Type[fit.ReactionPlaneFit], data: Data) -> Tuple[fit.ReactionPlaneFit, Data]:
     """ Driver function for performing the fit.
 
     Note:
@@ -70,7 +71,7 @@ def run_fit(fit_object: Type[fit.ReactionPlaneFit], data: dict) -> Tuple[fit.Rea
 
     return rp_fit, data
 
-def run_background_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, dict]:
+def run_background_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, Data]:
     """ Run the background example fit.
 
     Args:
@@ -84,7 +85,7 @@ def run_background_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, dict]
     rp_fit, data = run_fit(fit_object = three_orientations.BackgroundFit, data = data)
     return rp_fit, data
 
-def run_inclusive_signal_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, dict]:
+def run_inclusive_signal_fit(input_filename: str) -> Tuple[fit.ReactionPlaneFit, Data]:
     """ Run the inclusive signal example fit.
 
     Args:
