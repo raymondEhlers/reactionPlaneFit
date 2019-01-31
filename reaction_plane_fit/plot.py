@@ -6,39 +6,20 @@
 """
 
 import numpy as np
-from re import finditer
 from typing import Callable
 
 from reaction_plane_fit import fit
 
-def camel_case_split(string: str) -> list:
-    """ Helper function to split camel case into the constituent letters
-
-    See: https://stackoverflow.com/a/29920015
-
-    Args:
-        string: Camel case string to be split.
-    Returns:
-        String split on each word.
-    """
-    matches = finditer(".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)", string)
-    return [m.group(0) for m in matches]
-
-def format_rp_labels(string: str) -> str:
+def format_rp_labels(rp_label: str) -> str:
     """ Helper function for formatting the RP label.
 
     Args:
-        string: Camel case string to be split.
+        rp_label: Reaction plane orientation label to be formated.
     Returns:
         Properly formatted RP label.
     """
-    # Split string
-    strings = camel_case_split(string)
-    # Capitalize first word, and then lower case all of the rest.
-    strings = [strings[0].capitalize()] + strings[1:]
-    strings = strings[:1] + [s.lower() for s in strings[1:]]
-    # Finally, join with dashes.
-    return "-".join(strings)
+    # Replace "_" with "-"
+    return rp_label.replace("_", "-").capitalize()
 
 def draw(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str, y_label: str, draw_func: Callable[..., np.ndarray]):
     """ Main RP fit drawing function.
