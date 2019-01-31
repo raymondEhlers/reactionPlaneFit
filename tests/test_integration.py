@@ -233,7 +233,12 @@ def test_inclusive_signal_fit(setup_integration_tests):
     }
 
     # Run the fit
-    rp_fit, data = example.run_inclusive_signal_fit(input_filename = sample_data_filename)
+    # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
+    #       one to test the logic of how they are set.
+    rp_fit, data = example.run_inclusive_signal_fit(
+        input_filename = sample_data_filename,
+        user_arguments = {"v2_t": 0.02},
+    )
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
@@ -351,7 +356,12 @@ def test_background_fit(setup_integration_tests):
     }
 
     # Run the fit
-    rp_fit, data = example.run_background_fit(input_filename = sample_data_filename)
+    # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
+    #       one to test the logic of how they are set.
+    rp_fit, data = example.run_background_fit(
+        input_filename = sample_data_filename,
+        user_arguments = {"v2_t": 0.02},
+    )
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True

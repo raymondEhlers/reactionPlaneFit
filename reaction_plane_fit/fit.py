@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Type helpers
 Data = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
+FitArguments = Dict[str, Union[bool, float, Tuple[float, float], Tuple[int, int]]]
 
 @dataclass(frozen = True)
 class FitType:
@@ -147,28 +148,40 @@ class ReactionPlaneFit(ABC):
 
         return good_data
 
-    def _determine_component_parameter_limits(self) -> dict:
+    def _determine_component_parameter_limits(self, user_arguments: FitArguments) -> FitArguments:
         """ Determine the seed values, limits, and step sizes of parameters defined in the components.
 
         Note:
             These values should be specified with the proper names such that they will be recognized by Minuit.
 
         Args:
-            None.
+            user_arguments: User arguments to override the arguments to the fit.
         Returns:
             dict: Parameter values and limits in a dictionary suitable to be used as Minuit args.
         """
-        arguments: dict = {}
+        arguments: FitArguments = {}
         for component in self.components.values():
             arguments.update(component.determine_parameters_limits())
 
+        # Handle the user arguments
+        # First, ensure that all user passed arguments are already in the argument keys. If not, the user probably
+        # passed the wrong argument unintentionally.
+        for k, v in user_arguments.items():
+            if k not in arguments:
+                raise ValueError(
+                    f"User argument {k} (with value {v}) is not present the fit arguments."
+                    f" Possible arguments: {arguments}"
+                )
+        # Now, we actually assign the user arguments. We assign them last so we can overwrite any default arguments
+        arguments.update(user_arguments)
+
         return arguments
 
-    def _run_fit(self, arguments: dict) -> Tuple[bool, iminuit.Minuit]:
+    def _run_fit(self, arguments: FitArguments) -> Tuple[bool, iminuit.Minuit]:
         """ Make the proper calls to ``iminuit`` to run the fit.
 
         Args:
-            arguments (dict): Arguments for the ``minuit`` object based on seed values and limits specified in
+            arguments: Arguments for the ``minuit`` object based on seed values and limits specified in
                 the fit components.
         Returns:
             tuple: (fitOkay, minuit) where fitOkay (bool) is ``True`` if the fit is okay, and
@@ -188,17 +201,20 @@ class ReactionPlaneFit(ABC):
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: Data) -> Tuple[bool, Data]:
+    def fit(self, data: Data, user_arguments: FitArguments = None) -> Tuple[bool, Data]:
         """ Perform the actual fit.
 
         Args:
-            data (dict): Input data to be used for the fit. The keys should either be of the form
+            data: Input data to be used for the fit. The keys should either be of the form
                 ``[region][orientation]`` or ``[FitType]``. The values can be uproot or ROOT 1D histograms.
+            user_arguments: User arguments to override the arguments to the fit. Default: None.
         Returns:
             tuple: (fit_success, formatted_data) where fit_success (bool) is ``True`` if the fitting procedure was
                 successful, and formatted_data (dict) is the data reformatted in the preferred format for the fit.
         """
         # Validate settings.
+        if user_arguments is None:
+            user_arguments = {}
         good_settings = self._validate_settings()
         if not good_settings:
             raise ValueError("Invalid settings! Please check the inputs.")
@@ -230,7 +246,7 @@ class ReactionPlaneFit(ABC):
 
         # Setup the final fit.
         self._fit = probfit.SimultaneousFit(*[component.cost_function for component in self.components.values()])
-        arguments = self._determine_component_parameter_limits()
+        arguments = self._determine_component_parameter_limits(user_arguments = user_arguments)
 
         # Perform the actual fit
         (good_fit, minuit) = self._run_fit(arguments = arguments)
@@ -504,19 +520,19 @@ class FitComponent(ABC):
         # so that it is clear that it is being assigned.
         return cost_function
 
-    def determine_parameters_limits(self) -> dict:
+    def determine_parameters_limits(self) -> FitArguments:
         """ Determine the parameter seed values, limits, step sizes for the component.
 
         Note:
-            These values should be specified with the proper names such that they will be recognized by Minuit.
+            These values should be specified with the proper names so that they will be recognized by Minuit.
+            This is the users' responsbility.
 
         Args:
-            None
+            None.
         Returns:
             Dictionary of the function arguments which specifies their
         """
-        # TODO: Make these user settable.
-        arguments = {}
+        arguments: FitArguments = {}
         if self.region == "signal":
             # Signal default parameters
             # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
@@ -527,7 +543,7 @@ class FitComponent(ABC):
             as_sigma_init = 0.3
             sigma_lower_limit = 0.02
             sigma_upper_limit = 0.7
-            signal_limits = {
+            signal_limits: FitArguments = {
                 "ns_amplitude": ns_amplitude, "limit_ns_amplitude": (0, 1000), "error_ns_amplitude": 0.1 * ns_amplitude,
                 "as_amplitude": as_amplitude, "limit_as_amplitude": (0, 1000), "error_as_amplitude": 0.1 * as_amplitude,
                 "ns_sigma": ns_sigma_init,
@@ -551,8 +567,12 @@ class FitComponent(ABC):
             background_label = "B"
 
         # Now update the actual background limits
-        background_limits = {f"{background_label}": 10, f"limit_{background_label}": (0, 1000), f"error_{background_label}": 1}
-        arguments.update(background_limits)
+        signal_background_parameter_limits: FitArguments = {
+            f"{background_label}": 10,
+            f"limit_{background_label}": (0, 1000),
+            f"error_{background_label}": 1
+        }
+        arguments.update(signal_background_parameter_limits)
 
         # Background function arguments
         # These should consistently be defined regardless of the fit definition.
@@ -560,7 +580,7 @@ class FitComponent(ABC):
         # cause any problems of have any effect.
         # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
         #       is correct.
-        backgroundLimits = {
+        background_limits: FitArguments = {
             "v2_t": 0.02, "limit_v2_t": (0, 0.50), "error_v2_t": 0.001,
             "v2_a": 0.02, "limit_v2_a": (0, 0.50), "error_v2_a": 0.001,
             "v4_t": 0.01, "limit_v4_t": (0, 0.50), "error_v4_t": 0.001,
@@ -568,7 +588,7 @@ class FitComponent(ABC):
             "v3": 0.0, "limit_v3": (-0.1, 0.5), "error_v3": 0.001,
             "v1": 0.0, "fix_v1": True,
         }
-        arguments.update(backgroundLimits)
+        arguments.update(background_limits)
 
         # Set error definition depending on whether we are using log likelihood or not
         # 0.5 should be used for negative log-likelihood, while 1 should be used for least sqaures (chi2)
