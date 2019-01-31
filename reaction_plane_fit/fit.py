@@ -43,15 +43,31 @@ class FitType:
 class ReactionPlaneFit(ABC):
     """ Contains the reaction plane fit for one particular set of data and fit components.
 
+    Args:
+        resolution_parameters (dict): Maps resolution parameters of the form "R22" (for the R_{2,2} parameter)
+            to the value. Expects "R22" - "R82" (even RP only).
+        use_log_likelihood (bool): If true, use log likelihood cost function. Often used when statistics are
+            limited. Default: False
+        signal_region: Min and max extraction range for the signal dominated region. Should be
+            provided as the absolute value (ex: (0., 0.6)).
+        background_region: Min and max extraction range for the background dominated region. Should
+            be provided as the absolute value (ex: (0.8, 1.2)).
+        use_minos: Calculate the errors using Minos in addition to Hesse.
+
     Attributes:
         resolution_parameters (dict): Maps resolution parameters of the form "R22" (for the R_{2,2} parameter)
             to the value. Expects "R22" - "R82" (even RP only).
         use_log_likelihood (bool): If true, use log likelihood cost function. Often used when statistics are
             limited. Default: False
-        signal_region (tuple): Min and max extraction range for the signal dominated region. Should be
+        signal_region: Min and max extraction range for the signal dominated region. Should be
             provided as the absolute value (ex: (0., 0.6)).
-        background_region (tuple): Min and max extraction range for the background dominated region. Should
+        background_region: Min and max extraction range for the background dominated region. Should
             be provided as the absolute value (ex: (0.8, 1.2)).
+        use_minos: Calculate the errors using Minos in addition to Hesse. It will give a better error estimate, but
+            it will be much slower. Errors will be printed but not stored because we don't store the errors directly
+            (rather, we store the covariance matrix, which one cannot extract from Minos). By printing out the values,
+            the use can check that the Hesse and Minos errors are similar, which will indicate that the function is
+            well approximated by a hyperparabola at the minima (and thus Hesse errors are okay to be used).
         fit_result (base.RPFitResult): Result of the RP fit.
         _fit (Callable): Fit function for the RP fit.
     """
@@ -59,11 +75,16 @@ class ReactionPlaneFit(ABC):
     _rp_orientations: list = []
     reaction_plane_parameters: dict = {}
 
-    def __init__(self, resolution_parameters: dict, use_log_likelihood: bool, signal_region = None, background_region = None):
+    def __init__(self, resolution_parameters: Dict[str, float],
+                 use_log_likelihood: bool,
+                 signal_region: Tuple[float, float] = None,
+                 background_region: Tuple[float, float] = None,
+                 use_minos: bool = False):
         self.resolution_parameters = resolution_parameters
         self.use_log_likelihood = use_log_likelihood
         self.components: dict = {}
         self.regions = {"signal": signal_region, "background": background_region}
+        self.use_minos = use_minos
 
         # Contains the simultaneous fit to all of the components.
         self._fit = Callable[..., float]
@@ -160,7 +181,9 @@ class ReactionPlaneFit(ABC):
         minuit.migrad()
         # Just in case (doesn't hurt anything, but may help in a few cases).
         minuit.hesse()
-        # TODO: Check if minos and hesse errors are similar. They should be.
+        # Run minos if requested.
+        if self.use_minos:
+            minuit.minos()
         # Plot the correlation matrix
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
@@ -310,10 +333,17 @@ class ReactionPlaneFit(ABC):
                     # Determine the error value
                     i_name_index = list_of_args_for_func_call.index(args_at_minimum[i_name])
                     j_name_index = list_of_args_for_func_call.index(args_at_minimum[j_name])
-                    #logger.debug("Calculating error for i_name: {}, i_name_index: {} j_name: {}, j_name_index: {}".format(i_name, i_name_index, j_name, j_name_index))
+                    #logger.debug(
+                    #    f"Calculating error for i_name: {i_name}, i_name_index: {i_name_index}"
+                    #    f" j_name: {j_name}, j_name_index: {j_name_index}"
+                    #)
 
                     # Add error to overall error value
-                    error_val += partial_derivative_result[i_name_index] * partial_derivative_result[j_name_index] * self.fit_result.components[component_fit_type].covariance_matrix[(i_name, j_name)]
+                    error_val += (
+                        partial_derivative_result[i_name_index]
+                        * partial_derivative_result[j_name_index]
+                        * self.fit_result.components[component_fit_type].covariance_matrix[(i_name, j_name)]
+                    )
 
             # Modify from error squared to error
             error_val = np.sqrt(error_val)

@@ -89,6 +89,14 @@ This package implements the fit for three orientations relative to the reaction 
 
 These fits are implemented in the `reaction_plane_fit.three_orientations` module.
 
+# Notes on fitting
+
+This package makes it possible to use Minos rather than Hesse errors. Minos errors can be calculated when
+Hesse errors become inaccurate (when the function around the minima is not approximately a hyperparabola),
+but they can take much longer to calculate and cannot be described via a covariance matrix (which makes error
+propagation much more difficult). If the Hesse and Minos errors are similar, then the function is well
+approximately by a hyperparabola and you can safely use Hesse errors. For more, see the iminuit tutorials.
+
 # Development
 
 If developing the packaging, clone the repository and then install with
