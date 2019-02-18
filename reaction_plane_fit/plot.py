@@ -6,22 +6,28 @@
 """
 
 import numpy as np
-from typing import Callable
+from typing import Any, Callable, Tuple
 
 from reaction_plane_fit import fit
+from reaction_plane_fit.fit import Data
+
+# Typing helpers
+# This is a tuple of the matplotlib figure and axes. However, we only specify Any here
+# because we don't want an explicit package dependency on matplotlib.
+DrawResult = Tuple[Any, Any]
 
 def format_rp_labels(rp_label: str) -> str:
     """ Helper function for formatting the RP label.
 
     Args:
-        rp_label: Reaction plane orientation label to be formated.
+        rp_label: Reaction plane orientation label to be formatted.
     Returns:
         Properly formatted RP label.
     """
     # Replace "_" with "-"
     return rp_label.replace("_", "-").capitalize()
 
-def draw(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str, y_label: str, draw_func: Callable[..., np.ndarray]):
+def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, draw_func: Callable[..., np.ndarray]) -> DrawResult:
     """ Main RP fit drawing function.
 
     It takes a callable to do the actual extraction of the relevant data and the plotting. This way, we can avoid repeating
@@ -78,7 +84,7 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str, y_label: str, 
 
     return fig, axes
 
-def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax):
+def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax) -> None:
     """ Determine and draw the fit and data on a given axis.
 
     Args:
@@ -101,20 +107,21 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.nda
     # Plot the data
     ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o")
 
-def draw_fit(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str):
+def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawResult:
     """ Main entry point to draw the fit and the data together.
 
     Args:
         rp_fit: The reaction plane fit object.
         data: Data used to perform the fit.
-        filename: Location where the file should be saved.
+        filename: Location where the file should be saved. Set to empty string to avoid printing (for example, if
+            you want to handle it externally).
     Returns:
         plt.figure.Figure, np.ndarray[matplotlib.axes._subplots.AxesSubplot]: Matplotlib figure onto which everything has
             been drawn, as well as the axes used for drawing.
     """
     return draw(rp_fit = rp_fit, data = data, filename = filename, draw_func = fit_draw_func, y_label = r"dN/d$\Delta\varphi$")
 
-def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax):
+def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax) -> None:
     """ Calculate and draw the residual for a given component on a given axis.
 
     Args:
@@ -137,7 +144,7 @@ def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: n
     # Selected the value by looking at the data.
     ax.set_ylim(bottom = -0.1, top = 0.1)
 
-def draw_residual(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str):
+def draw_residual(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawResult:
     """ Main entry point to draw the residual of the fit.
 
     Residual is defined as (data-fit)/fit.
@@ -145,7 +152,8 @@ def draw_residual(rp_fit: fit.ReactionPlaneFit, data: dict, filename: str):
     Args:
         rp_fit: The reaction plane fit object.
         data: Data used to perform the fit.
-        filename: Location where the file should be saved.
+        filename: Location where the file should be saved. Set to empty string to avoid printing (for example, if
+            you want to handle it externally).
     Returns:
         plt.figure.Figure, np.ndarray[matplotlib.axes._subplots.AxesSubplot]: Matplotlib figure onto which everything has
             been drawn, as well as the axes used for drawing.
