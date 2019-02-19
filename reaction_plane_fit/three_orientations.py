@@ -16,7 +16,7 @@ from reaction_plane_fit import base
 
 logger = logging.getLogger(__name__)
 
-# Define the the relevant fit components for this set of RP orientation.
+# Define the relevant fit components for this set of RP orientation.
 class SignalFitComponent(fit.SignalFitComponent):
     def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
@@ -59,7 +59,7 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
 class BackgroundFit(ReactionPlaneFit):
     """ RPF for background region in 3 reaction plane orientations.
 
-    This is a simple helper class to define the necessary fit component. Contains fit compnents for
+    This is a simple helper class to define the necessary fit component. Contains fit components for
     3 background RP orientations.
 
     Args:

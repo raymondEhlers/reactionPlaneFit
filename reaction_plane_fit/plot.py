@@ -14,7 +14,9 @@ from reaction_plane_fit.fit import Data
 # Typing helpers
 # This is a tuple of the matplotlib figure and axes. However, we only specify Any here
 # because we don't want an explicit package dependency on matplotlib.
-DrawResult = Tuple[Any, Any]
+Axes = Any
+Figure = Any
+DrawResult = Tuple[Figure, Axes]
 
 def format_rp_labels(rp_label: str) -> str:
     """ Helper function for formatting the RP label.
@@ -84,7 +86,7 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
 
     return fig, axes
 
-def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax) -> None:
+def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
     """ Determine and draw the fit and data on a given axis.
 
     Args:
@@ -105,7 +107,7 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.nda
     errors = rp_fit.fit_result.components[fit_type].errors
     ax.fill_between(x, fit_values - errors, fit_values + errors, facecolor = plot[0].get_color(), alpha = 0.8)
     # Plot the data
-    ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o")
+    ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o", linestyle = "")
 
 def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawResult:
     """ Main entry point to draw the fit and the data together.
@@ -121,7 +123,7 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawRes
     """
     return draw(rp_fit = rp_fit, data = data, filename = filename, draw_func = fit_draw_func, y_label = r"dN/d$\Delta\varphi$")
 
-def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax) -> None:
+def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
     """ Calculate and draw the residual for a given component on a given axis.
 
     Args:
