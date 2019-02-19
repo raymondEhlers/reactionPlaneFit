@@ -169,7 +169,7 @@ class ReactionPlaneFit(ABC):
         for k, v in user_arguments.items():
             if k not in arguments:
                 raise ValueError(
-                    f"User argument {k} (with value {v}) is not present the fit arguments."
+                    f"User argument {k} (with value {v}) is not present in the fit arguments."
                     f" Possible arguments: {arguments}"
                 )
         # Now, we actually assign the user arguments. We assign them last so we can overwrite any default arguments
