@@ -9,6 +9,7 @@ from abc import ABC
 from dataclasses import dataclass, field
 import iminuit
 import logging
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -88,10 +89,10 @@ class ComponentFitResult(FitResult):
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
-        errors (dict): Store the errors associated with the component fit function. Keys are ``fit.FitType``,
+        errors: Store the errors associated with the component fit function. Keys are ``fit.FitType``,
             while values are arrays of the errors.
     """
-    errors: dict = field(default_factory = dict)
+    errors: np.array
 
     @classmethod
     def from_rp_fit_result(cls, fit_result: RPFitResult, component):
@@ -122,7 +123,9 @@ class ComponentFitResult(FitResult):
             free_parameters = free_parameters,
             fixed_parameters = fixed_parameters,
             values_at_minimum = values_at_minimum,
-            covariance_matrix = covariance_matrix
+            covariance_matrix = covariance_matrix,
+            # This will be determine and set later.
+            errors = np.array([]),
         )
 
 @dataclass
