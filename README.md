@@ -68,6 +68,39 @@ $ python -m reaction_plane_fit.example [-b] [-i dataFilename]
 If fit data is not specified, it will use some sample data. For further information, including all possible
 fit function combinations, please see the [full documentation](https://reactionplanefit.readthedocs.io/en/latest/).
 
+## But I don't like python!
+
+You might not be so happy about using Python. That's okay - we can work around this using ROOT, although it
+will be much more painful than using python directly. To do so, it should look something like (the code below
+is **untested**, so it may need some minor modifications):
+
+```c++
+// Setup the input data.
+std::map<std::string, std::map<std::string, TH1*>> inputData;
+inputData["background"]["in_plane"] = my_in_plane_hist;
+// Fill in the rest of your input data.
+...
+// Setup the fit objects.
+TPython::Exec("from reaction_plane_fit import three_orientations");
+TPython::Exec("rp_fit = three_orientations.BackgroundFit("
+    "resolution_parameters = {'R22': 0.6, 'R42': 0.3, 'R62': 0.1, 'R82': 0.1},"
+    "use_log_likelihood = False,"
+    "signal_region = (0, 0.6),"
+    "background_region = (0.8, 1.2),)"
+);
+// Perform the actual fit.
+TPython::Exec("success, _ = rp_fit.fit(data = data)");
+// Print the fit results.
+TPython::Exec("print('Fit result: {fit_result}'.format(fit_result = rp_fit.fit_result))")
+// Access values back in c++.
+int chi_2 = double(TPython::Eval("rp_fit.fit_result.minimum_val"))
+// It will require some attention to extract all of the relevant values.
+// You can extract a number of types (see TPyResult), but it doens't appear that you can extract complex objects.
+// So this could still be a somewhat painful process.
+```
+
+(Don't forgot that we're calling Minuit underneath, so this package should be fast enough for this fit).
+
 # Fits implemented
 
 There are three possible types of fits:
