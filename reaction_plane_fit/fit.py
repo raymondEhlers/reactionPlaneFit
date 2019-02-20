@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Type helpers
 Data = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
 FitArguments = Dict[str, Union[bool, float, Tuple[float, float], Tuple[int, int]]]
+ResolutionParameters = Dict[str, float]
 
 @dataclass(frozen = True)
 class FitType:
@@ -76,7 +77,7 @@ class ReactionPlaneFit(ABC):
     _rp_orientations: list = []
     reaction_plane_parameters: dict = {}
 
-    def __init__(self, resolution_parameters: Dict[str, float],
+    def __init__(self, resolution_parameters: ResolutionParameters,
                  use_log_likelihood: bool,
                  signal_region: Tuple[float, float] = None,
                  background_region: Tuple[float, float] = None,
@@ -401,7 +402,7 @@ class FitComponent(ABC):
         fit_function (function): Function of the component.
         cost_function (probfit.costFunc): Cost function associated with the fit component.
     """
-    def __init__(self, fit_type: FitType, resolution_parameters: dict, use_log_likelihood: bool = False) -> None:
+    def __init__(self, fit_type: FitType, resolution_parameters: ResolutionParameters, use_log_likelihood: bool = False) -> None:
         self.fit_type = fit_type
         self.use_log_likelihood = use_log_likelihood
 
@@ -438,10 +439,10 @@ class FitComponent(ABC):
         return self.fit_type.region
 
     @abstractmethod
-    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
 
-    def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
+    def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
         """ Setup the fit using information from the input hist.
 
         Args:
@@ -610,7 +611,7 @@ class SignalFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "signal", orientation = rp_orientation), **kwargs)
 
-    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
@@ -632,7 +633,7 @@ class BackgroundFitComponent(FitComponent):
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
         super().__init__(FitType(region = "background", orientation = rp_orientation), **kwargs)
 
-    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_background_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
