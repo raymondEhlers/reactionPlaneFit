@@ -8,6 +8,8 @@
 import numpy as np
 from typing import Any, Callable, Tuple
 
+from pachyderm import histogram
+
 from reaction_plane_fit import fit
 from reaction_plane_fit.fit import Data
 
@@ -135,12 +137,25 @@ def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: n
     Returns:
         None. The current axis is modified.
     """
-    # Note: Residual = data - fit /fit, not just data-fit
-    fit_values = rp_fit.evaluate_fit_component(fit_component = fit_type, x = x)
-    residual = (hist.y - fit_values) / fit_values
+    # NOTE: Residual = data - fit / fit, not just data-fit
+    # We create a histogram to represent the fit so that we can take advantage
+    # of the error propagation in the Histogram1D object.
+    fit_hist = histogram.Histogram1D(
+        # Bin edges must be the same
+        bin_edges = hist.bin_edges,
+        y = rp_fit.evaluate_fit_component(fit_component = fit_type, x = x),
+        errors_squared = rp_fit.fit_result.components[fit_type].errors ** 2,
+    )
+    # NOTE: Residual = data - fit / fit, not just data-fit
+    residual = (hist - fit_hist) / fit_hist
 
     # Plot the main values
-    ax.plot(x, residual, label = "Residual")
+    plot = ax.plot(x, residual.y, label = "Residual")
+    # Plot the fit errors
+    ax.fill_between(
+        x, residual.y - residual.errors, residual.y + residual.errors,
+        facecolor = plot[0].get_color(), alpha = 0.9,
+    )
 
     # Set the y-axis limit to be symmetric
     # Selected the value by looking at the data.
