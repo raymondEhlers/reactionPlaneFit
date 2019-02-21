@@ -17,6 +17,20 @@ class FitFailed(Exception):
     """ Raised if the fit failed. The message will include further details. """
     pass
 
+@dataclass(frozen = True)
+class FitType:
+    """ Describes the fit parameters of a particular component.
+
+    Attributes:
+        region: Describes the region in which the data for the fit originates. It should be either "signal" or
+            "background" dominated.
+        orientation: Describe the reaction plane orientation of the data. For data which does not select or orientation,
+            it should be described as "inclusive". Otherwise, the values are up to the particular implementation. As an
+            example, for three RP orientations, they are known as "in_plane", "mid_plane", and "out_of_plane".
+    """
+    region: str
+    orientation: str
+
 @dataclass
 class FitResult(ABC):
     """ Fit result base class.

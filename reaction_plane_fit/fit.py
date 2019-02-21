@@ -6,7 +6,6 @@
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import logging
 from typing import Callable, Dict, Optional, Tuple, Union
 import time
@@ -27,20 +26,6 @@ logger = logging.getLogger(__name__)
 Data = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
 FitArguments = Dict[str, Union[bool, float, Tuple[float, float], Tuple[int, int]]]
 ResolutionParameters = Dict[str, float]
-
-@dataclass(frozen = True)
-class FitType:
-    """ Describes the fit parameters of a particular component.
-
-    Attributes:
-        region: Describes the region in which the data for the fit originates. It should be either "signal" or
-            "background" dominated.
-        orientation: Describe the reaction plane orientation of the data. For data which does not select or orientation,
-            it should be described as "inclusive". Otherwise, the values are up to the particular implementation. As an
-            example, for three RP orientations, they are known as "in_plane", "mid_plane", and "out_of_plane".
-    """
-    region: str
-    orientation: str
 
 class ReactionPlaneFit(ABC):
     """ Contains the reaction plane fit for one particular set of data and fit components.
@@ -84,7 +69,7 @@ class ReactionPlaneFit(ABC):
                  use_minos: bool = False):
         self.resolution_parameters = resolution_parameters
         self.use_log_likelihood = use_log_likelihood
-        self.components: dict = {}
+        self.components: Dict[base.FitType, FitComponent] = {}
         self.regions = {"signal": signal_region, "background": background_region}
         self.use_minos = use_minos
 
@@ -371,7 +356,7 @@ class ReactionPlaneFit(ABC):
 
         return error_vals
 
-    def evaluate_fit_component(self, fit_component: FitType, x: np.ndarray) -> np.ndarray:
+    def evaluate_fit_component(self, fit_component: base.FitType, x: np.ndarray) -> np.ndarray:
         """ Helper function to evaluate a fit component at a set of values.
 
         This could arguably is better suited to go in the fit component, but we need the fit function, so it's more
@@ -389,8 +374,7 @@ class FitComponent(ABC):
     """ A component of the fit.
 
     Args:
-        region (str): Region in which the fit component is applied.
-        rp_orientation (str): The reaction plane orientation of the fit.
+        fit_type (FitType): Type (region and orientation) of the fit component.
         resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
             the R_{2,2} parameter) to the value. Expects "R22" - "R82"
         use_log_likelihood (bool): If true, use log likelihood cost function. Often used
@@ -402,7 +386,7 @@ class FitComponent(ABC):
         fit_function (function): Function of the component.
         cost_function (probfit.costFunc): Cost function associated with the fit component.
     """
-    def __init__(self, fit_type: FitType, resolution_parameters: ResolutionParameters, use_log_likelihood: bool = False) -> None:
+    def __init__(self, fit_type: base.FitType, resolution_parameters: ResolutionParameters, use_log_likelihood: bool = False) -> None:
         self.fit_type = fit_type
         self.use_log_likelihood = use_log_likelihood
 
@@ -428,7 +412,7 @@ class FitComponent(ABC):
             region = self.fit_type.region
         if not orientation:
             orientation = self.fit_type.orientation
-        self.fit_type = FitType(region = region, orientation = orientation)
+        self.fit_type = base.FitType(region = region, orientation = orientation)
 
     @property
     def rp_orientation(self) -> str:
@@ -609,7 +593,7 @@ class SignalFitComponent(FitComponent):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
-        super().__init__(FitType(region = "signal", orientation = rp_orientation), **kwargs)
+        super().__init__(base.FitType(region = "signal", orientation = rp_orientation), **kwargs)
 
     def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
@@ -631,7 +615,7 @@ class BackgroundFitComponent(FitComponent):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
-        super().__init__(FitType(region = "background", orientation = rp_orientation), **kwargs)
+        super().__init__(base.FitType(region = "background", orientation = rp_orientation), **kwargs)
 
     def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_background_fit_function(

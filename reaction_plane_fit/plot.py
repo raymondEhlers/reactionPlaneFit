@@ -10,6 +10,7 @@ from typing import Any, Callable, Tuple
 
 from pachyderm import histogram
 
+from reaction_plane_fit import base
 from reaction_plane_fit import fit
 from reaction_plane_fit.fit import Data
 
@@ -88,7 +89,7 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
 
     return fig, axes
 
-def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
+def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
     """ Determine and draw the fit and data on a given axis.
 
     Args:
@@ -125,7 +126,7 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawRes
     """
     return draw(rp_fit = rp_fit, data = data, filename = filename, draw_func = fit_draw_func, y_label = r"dN/d$\Delta\varphi$")
 
-def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: fit.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
+def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
     """ Calculate and draw the residual for a given component on a given axis.
 
     Args:

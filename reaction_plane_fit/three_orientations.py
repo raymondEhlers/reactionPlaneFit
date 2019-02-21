@@ -10,15 +10,15 @@ import numpy as np
 from numpy import sin, cos
 from typing import Dict
 
+from reaction_plane_fit import base
 from reaction_plane_fit import fit
 from reaction_plane_fit import functions
-from reaction_plane_fit import base
 
 logger = logging.getLogger(__name__)
 
 # Define the relevant fit components for this set of RP orientation.
 class SignalFitComponent(fit.SignalFitComponent):
-    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
@@ -27,7 +27,7 @@ class SignalFitComponent(fit.SignalFitComponent):
         )
 
 class BackgroundFitComponent(fit.BackgroundFitComponent):
-    def determine_fit_function(self, resolution_parameters: dict, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_background_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
@@ -71,7 +71,7 @@ class BackgroundFit(ReactionPlaneFit):
 
         # Setup the fit components
         for orientation in self.rp_orientations:
-            fit_type = fit.FitType(region = "background", orientation = orientation)
+            fit_type = base.FitType(region = "background", orientation = orientation)
             self.components[fit_type] = BackgroundFitComponent(rp_orientation = fit_type.orientation,
                                                                resolution_parameters = self.resolution_parameters,
                                                                use_log_likelihood = self.use_log_likelihood)
@@ -90,12 +90,12 @@ class InclusiveSignalFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        fit_type = fit.FitType(region = "signal", orientation = "inclusive")
+        fit_type = base.FitType(region = "signal", orientation = "inclusive")
         self.components[fit_type] = SignalFitComponent(rp_orientation = fit_type.orientation,
                                                        resolution_parameters = self.resolution_parameters,
                                                        use_log_likelihood = self.use_log_likelihood)
         for orientation in self.rp_orientations:
-            fit_type = fit.FitType(region = "background", orientation = orientation)
+            fit_type = base.FitType(region = "background", orientation = orientation)
             self.components[fit_type] = BackgroundFitComponent(rp_orientation = fit_type.orientation,
                                                                resolution_parameters = self.resolution_parameters,
                                                                use_log_likelihood = self.use_log_likelihood)
@@ -116,7 +116,7 @@ class SignalFit(ReactionPlaneFit):
         # Setup the fit components
         for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
             for orientation in self.rp_orientations:
-                fit_type = fit.FitType(region = region, orientation = orientation)
+                fit_type = base.FitType(region = region, orientation = orientation)
                 self.components[fit_type] = fitComponent(rp_orientation = fit_type.orientation,
                                                          resolution_parameters = self.resolution_parameters,
                                                          use_log_likelihood = self.use_log_likelihood)
