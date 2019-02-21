@@ -378,19 +378,18 @@ class ReactionPlaneFit(ABC):
 
         return error_vals
 
-    def evaluate_fit_component(self, fit_component: base.FitType, x: np.ndarray) -> np.ndarray:
+    def evaluate_fit_component(self, fit_type: base.FitType, x: np.ndarray) -> np.ndarray:
         """ Helper function to evaluate a fit component at a set of values.
 
-        This could arguably is better suited to go in the fit component, but we need the fit function, so it's more
-        convenient to be in the main reaction plane fit object.
+        This is just a wrapper for evaluating it via the fit component.
 
         Args:
-            fit_component: Fit component to evaluate.
+            fit_type: Fit component to evaluate.
             x: x values where the fit component will be evaluted.
         Returns:
             Function values at the given x values.
         """
-        return probfit.nputil.vector_apply(self.components[fit_component].fit_function, x, *list(self.fit_result.components[fit_component].values_at_minimum.values()))
+        return self.components[fit_type].evaluate_fit(x)
 
 class FitComponent(ABC):
     """ A component of the fit.
@@ -439,6 +438,16 @@ class FitComponent(ABC):
             orientation = self.fit_type.orientation
         self.fit_type = base.FitType(region = region, orientation = orientation)
 
+    def evaluate_fit(self, x: np.ndarray) -> np.ndarray:
+        """ Evaluate the fit component.
+
+        Args:
+            x: x values where the fit component will be evaluted.
+        Returns:
+            Function values at the given x values.
+        """
+        return probfit.nputil.vector_apply(self.fit_function, x, *list(self.fit_result.values_at_minimum.values()))
+
     @property
     def rp_orientation(self) -> str:
         return self.fit_type.orientation
@@ -450,6 +459,7 @@ class FitComponent(ABC):
     @abstractmethod
     def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
+        ...
 
     def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
         """ Setup the fit using information from the input hist.

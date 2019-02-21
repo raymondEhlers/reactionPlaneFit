@@ -102,7 +102,7 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.nd
         None. The current axis is modified.
     """
     # Determine the values of the fit function.
-    fit_values = rp_fit.evaluate_fit_component(fit_component = fit_type, x = x)
+    fit_values = rp_fit.evaluate_fit_component(fit_type = fit_type, x = x)
 
     # Plot the main values
     plot = ax.plot(x, fit_values, label = "Fit")
@@ -144,8 +144,8 @@ def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: 
     fit_hist = histogram.Histogram1D(
         # Bin edges must be the same
         bin_edges = hist.bin_edges,
-        y = rp_fit.evaluate_fit_component(fit_component = fit_type, x = x),
-        errors_squared = rp_fit.fit_result.components[fit_type].errors ** 2,
+        y = rp_fit.evaluate_fit_component(fit_type = fit_type, x = x),
+        errors_squared = rp_fit.components[fit_type].fit_result.errors ** 2,
     )
     # NOTE: Residual = data - fit / fit, not just data-fit
     residual = (hist - fit_hist) / fit_hist
