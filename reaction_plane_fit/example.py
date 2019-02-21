@@ -14,14 +14,14 @@ from typing import Tuple, Type
 import uproot
 
 from reaction_plane_fit import fit
-from reaction_plane_fit.fit import Data
+from reaction_plane_fit.fit import Data, InputData
 from reaction_plane_fit.fit import FitArguments
 from reaction_plane_fit import three_orientations
 from reaction_plane_fit import plot
 
 logger = logging.getLogger(__name__)
 
-def setup_data(input_filename: str, include_signal: bool) -> Data:
+def setup_data(input_filename: str, include_signal: bool) -> InputData:
     """ Setup the example input data.
 
     Read the data using uproot so we can avoid an explicit dependency on ROOT. Histograms
@@ -43,7 +43,7 @@ def setup_data(input_filename: str, include_signal: bool) -> Data:
     return data
 
 def run_fit(fit_object: Type[fit.ReactionPlaneFit],
-            data: Data,
+            input_data: InputData,
             user_arguments: FitArguments) -> Tuple[fit.ReactionPlaneFit, Data]:
     """ Driver function for performing the fit.
 
@@ -68,7 +68,7 @@ def run_fit(fit_object: Type[fit.ReactionPlaneFit],
     )
 
     # Perform the actual fit.
-    success, data = rp_fit.fit(data = data, user_arguments = user_arguments)
+    success, data = rp_fit.fit(data = input_data, user_arguments = user_arguments)
 
     if success:
         logger.info(f"Fit was successful! Fit result: {rp_fit.fit_result}")
@@ -86,9 +86,9 @@ def run_background_fit(input_filename: str, user_arguments: FitArguments) -> Tup
             fit, and data (dict) is the formated data dict used for the fit.
     """
     # Grab the input data.
-    data = setup_data(input_filename, include_signal = False)
+    input_data = setup_data(input_filename, include_signal = False)
     rp_fit, data = run_fit(fit_object = three_orientations.BackgroundFit,
-                           data = data, user_arguments = user_arguments)
+                           input_data = input_data, user_arguments = user_arguments)
     return rp_fit, data
 
 def run_inclusive_signal_fit(input_filename: str, user_arguments: FitArguments) -> Tuple[fit.ReactionPlaneFit, Data]:
@@ -101,9 +101,9 @@ def run_inclusive_signal_fit(input_filename: str, user_arguments: FitArguments) 
         tuple: (rp_fit, data), where rp_fit (fit.ReactionPlaneFit) is the reaction plane fit object from the
             fit, and data (dict) is the formated data dict used for the fit.
     """
-    data = setup_data(input_filename, include_signal = True)
+    input_data = setup_data(input_filename, include_signal = True)
     rp_fit, data = run_fit(fit_object = three_orientations.InclusiveSignalFit,
-                           data = data, user_arguments = user_arguments)
+                           input_data = input_data, user_arguments = user_arguments)
     return rp_fit, data
 
 if __name__ == "__main__":  # pragma: nocover

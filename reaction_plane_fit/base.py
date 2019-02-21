@@ -77,7 +77,7 @@ class RPFitResult(FitResult):
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
-        x (list): x values where the fit result should be evaluated.
+        x: x values where the fit result should be evaluated.
         n_fit_data_points (int): Number of data points used in the fit.
         minimul_val (float): Minimum value of the fit when it coverages. This is the chi2 value for a
             chi2 minimization fit.
@@ -85,10 +85,10 @@ class RPFitResult(FitResult):
             of the information in this object, but it is much more convenient to have it accessible.
         nDOF (int): Number of degrees of freedom. Calculated on request from ``n_fit_data_points`` and ``free_parameters``.
     """
-    x: list
+    x: np.array
     n_fit_data_points: int
     minimum_val: float
-    components: dict = field(default_factory = dict)
+    components: Dict[FitType, "ComponentFitResult"] = field(default_factory = dict)
 
     @property
     def nDOF(self):
@@ -110,18 +110,17 @@ class ComponentFitResult(FitResult):
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
-        errors: Store the errors associated with the component fit function. Keys are ``fit.FitType``,
-            while values are arrays of the errors.
+        errors: Store the errors associated with the component fit function.
     """
-    errors: np.array
+    errors: np.ndarray
 
     @classmethod
-    def from_rp_fit_result(cls, fit_result: RPFitResult, component):
+    def from_rp_fit_result(cls, fit_result: RPFitResult, component: "fit.FitComponent"):
         """ Extract the component fit result from the fit component and the RP fit result.
 
         Args:
-            fit_result (RPFitResult): Fit result from the RP fit.
-            component (fit.FitComponent): Fit component for this fit result.
+            fit_result: Fit result from the RP fit.
+            component: Fit component for this fit result.
         Returns:
             ComponentFitResult: Constructed component fit result.
         """

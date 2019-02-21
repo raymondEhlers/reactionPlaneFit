@@ -7,7 +7,7 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import cast, Callable, Dict, Optional, Tuple, Union
 import time
 
 import iminuit
@@ -23,7 +23,8 @@ from reaction_plane_fit import functions
 logger = logging.getLogger(__name__)
 
 # Type helpers
-Data = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
+InputData = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
+Data = Dict[base.FitType, histogram.Histogram1D]
 FitArguments = Dict[str, Union[bool, float, Tuple[float, float], Tuple[int, int]]]
 ResolutionParameters = Dict[str, float]
 
@@ -98,30 +99,44 @@ class ReactionPlaneFit(ABC):
 
         return all([good_params])
 
-    def _format_input_data(self, data: dict) -> dict:
+    def _format_input_data(self, data: Union[InputData, Data]) -> Data:
         """ Convert input data into a more convenient format.
 
         By using ``FitType``, we can very easily check that all fit components have the appropriate data.
+
+        Args:
+            data: Input data to be formatted.
+        Returns:
+            Properly formatted data, with ``FitType`` keys and histograms as values.
         """
         # Check if it's already properly formatted.
-        properly_formatted = all(isinstance(k, FitType) for k in data.keys())
+        formatted_data: Data = {}
+        properly_formatted = all(isinstance(k, base.FitType) for k in data.keys())
         if not properly_formatted:
             # Convert the string keys to ``FitType`` keys.
+            # Help out mypy
+            data = cast(InputData, data)
             for region in ["signal", "background"]:
                 if region in data:
                     for rp_orientation in data[region]:
-                        # Restruct the data within the same dict.
+                        # Convert the key for storing the data.
                         # For example, ["background"]["in_plane"] -> [FitType(region = "background",
                         # orientation = "in_plane")]
-                        data[FitType(region = region, orientation = rp_orientation)] = data[region][rp_orientation]
-                    # Cleanup the previous dict structure
-                    del data[region]
+                        hist = data[region][rp_orientation]
+                        formatted_data[base.FitType(region = region, orientation = rp_orientation)] = hist
+        else:
+            # Help out mypy
+            data = cast(Data, data)
+            formatted_data = data
 
         # Convert the data to Histogram objects.
-        data = {fit_type: histogram.Histogram1D.from_existing_hist(input_hist) for fit_type, input_hist in data.items()}
-        logger.debug(f"{data}")
+        formatted_data = {
+            fit_type: histogram.Histogram1D.from_existing_hist(input_hist)
+            for fit_type, input_hist in formatted_data.items()
+        }
+        logger.debug(f"{formatted_data}")
 
-        return data
+        return formatted_data
 
     def _validate_data(self, data: dict) -> bool:
         """ Validate that the provided data is sufficient for the defined components.
@@ -178,16 +193,21 @@ class ReactionPlaneFit(ABC):
 
         # Perform the fit
         minuit.migrad()
-        # Just in case (doesn't hurt anything, but may help in a few cases).
-        minuit.hesse()
         # Run minos if requested.
         if self.use_minos:
+            logger.info("Running MINOS. This may take a minute...")
             minuit.minos()
+        # TEMP
+        #minuit.print_matrix()
+        #minuit.print_param()
+        # ENDTEMP
+        # Just in case (doesn't hurt anything, but may help in a few cases).
+        minuit.hesse()
         # Plot the correlation matrix
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: Data, user_arguments: FitArguments = None) -> Tuple[bool, Data]:
+    def fit(self, data: Union[InputData, Data], user_arguments: FitArguments = None) -> Tuple[bool, Data]:
         """ Perform the actual fit.
 
         Args:
@@ -208,8 +228,8 @@ class ReactionPlaneFit(ABC):
         # Setup and validate data.
         if not data:
             raise ValueError("Must pass data to be fitted!")
-        data = self._format_input_data(data)
-        good_data = self._validate_data(data)
+        formatted_data = self._format_input_data(data)
+        good_data = self._validate_data(formatted_data)
         if not good_data:
             raise ValueError(
                 f"Insufficient data provided for the fit components. Component keys: {self.components.keys()},"
@@ -218,15 +238,15 @@ class ReactionPlaneFit(ABC):
 
         # Extract the x locations from where the fit should be evaluated.
         # Must be set before setting up the fit, which can limit the histogram x.
-        data_temp = next(iter(data.values()))
+        data_temp = next(iter(formatted_data.values()))
         # Help out mypy
         assert isinstance(data_temp, histogram.Histogram1D)
         x = data_temp.x
 
         # Setup the fit components.
-        fit_data = {}
+        fit_data: Data = {}
         for fit_type, component in self.components.items():
-            fit_data[fit_type] = component._setup_fit(input_hist = data[fit_type],
+            fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type],
                                                       resolution_parameters = self.resolution_parameters,
                                                       reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
 
@@ -282,9 +302,9 @@ class ReactionPlaneFit(ABC):
             self.fit_result.components[fit_type].errors = self.calculate_errors(component_fit_type = fit_type)
 
         # Return true to note success.
-        return (True, data)
+        return (True, formatted_data)
 
-    def calculate_errors(self, component_fit_type) -> np.ndarray:
+    def calculate_errors(self, component_fit_type: base.FitType) -> np.array:
         """ Calculate the errors based on values from the fit.
 
         Args:
@@ -302,8 +322,9 @@ class ReactionPlaneFit(ABC):
 
         # Determine the arguments for the fit function
         # Cannot use just values_at_minimum because x must be the first argument. So instead, we create the dict
-        # with "x" as the first arg, and then update with the rest.
-        args_at_minimum = {"x": None}
+        # with "x" as the first arg, and then update with the rest. We set it here to a very large float to be
+        # clear that it will be set later.
+        args_at_minimum = {"x": -1000000.0}
         args_at_minimum.update(self.fit_result.components[component_fit_type].values_at_minimum)
         logger.debug(f"args_at_minimum: {args_at_minimum}")
         # Retrieve the parameters to use in calculating the fit errors
