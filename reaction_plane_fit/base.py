@@ -10,6 +10,10 @@ from dataclasses import dataclass, field
 import iminuit
 import logging
 import numpy as np
+from typing import Dict, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from reaction_plane_fit import fit
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +48,8 @@ class FitResult(ABC):
         fixed_parameters (list): Names of the fixed parameters used in the fit.
         values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
             names of parameters, while values are the numerical values at convergence.
+        errors_on_parameters (dict): Contains the values of the errors associated with the parameters
+            determined via the fit.
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
@@ -51,8 +57,9 @@ class FitResult(ABC):
     parameters: list
     free_parameters: list
     fixed_parameters: list
-    values_at_minimum: dict
-    covariance_matrix: dict
+    values_at_minimum: Dict[str, float]
+    errors_on_parameters: Dict[str, float]
+    covariance_matrix: Dict[Tuple[str, str], float]
 
 @dataclass
 class RPFitResult(FitResult):
@@ -130,13 +137,17 @@ class ComponentFitResult(FitResult):
         #       defined for the signal fit. This approach won't have a problem with this, because we retrieve the values
         #       in the order of the parameters of the current fit component.
         values_at_minimum = {p: fit_result.values_at_minimum[p] for p in parameters}
-        covariance_matrix = {(a, b): fit_result.covariance_matrix[(a, b)] for a in free_parameters for b in free_parameters}
+        errors_on_parameters = {p: fit_result.errors_on_parameters[p] for p in parameters}
+        covariance_matrix = {
+            (a, b): fit_result.covariance_matrix[(a, b)] for a in free_parameters for b in free_parameters
+        }
 
         return cls(
             parameters = parameters,
             free_parameters = free_parameters,
             fixed_parameters = fixed_parameters,
             values_at_minimum = values_at_minimum,
+            errors_on_parameters = errors_on_parameters,
             covariance_matrix = covariance_matrix,
             # This will be determine and set later.
             errors = np.array([]),

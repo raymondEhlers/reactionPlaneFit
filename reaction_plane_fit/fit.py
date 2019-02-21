@@ -266,6 +266,7 @@ class ReactionPlaneFit(ABC):
             fixed_parameters = fixed_parameters,
             free_parameters = free_parameters,
             values_at_minimum = dict(minuit.values),
+            errors_on_parameters = dict(minuit.errors),
             covariance_matrix = minuit.covariance,
             x = x,
             n_fit_data_points = n_fit_data_points,

@@ -16,7 +16,6 @@ import pkg_resources
 import pytest
 
 from reaction_plane_fit import base
-from reaction_plane_fit import fit
 from reaction_plane_fit import example
 from reaction_plane_fit import plot
 
@@ -42,11 +41,27 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.values_at_minimum.keys()) == list(expected_fit_result.values_at_minimum.keys())
     # Need the extra tolerance to work on other systems.
-    np.testing.assert_allclose(list(fit_result.values_at_minimum.values()), list(expected_fit_result.values_at_minimum.values()), atol = 1e-5, rtol = 0)
+    np.testing.assert_allclose(
+        list(fit_result.values_at_minimum.values()),
+        list(expected_fit_result.values_at_minimum.values()),
+        atol = 1e-5, rtol = 0
+    )
+    # Need to compare separately the keys and values so we can use np.allclose() for the values
+    assert list(fit_result.errors_on_parameters.keys()) == list(expected_fit_result.errors_on_parameters.keys())
+    # Need the extra tolerance to work on other systems.
+    np.testing.assert_allclose(
+        list(fit_result.errors_on_parameters.values()),
+        list(expected_fit_result.errors_on_parameters.values()),
+        atol = 1e-5, rtol = 0
+    )
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.covariance_matrix.keys()) == list(expected_fit_result.covariance_matrix.keys())
     # Need the extra tolerance to work on other systems.
-    np.testing.assert_allclose(list(fit_result.covariance_matrix.values()), list(expected_fit_result.covariance_matrix.values()), atol = 1e-5, rtol = 0)
+    np.testing.assert_allclose(
+        list(fit_result.covariance_matrix.values()),
+        list(expected_fit_result.covariance_matrix.values()),
+        atol = 1e-5, rtol = 0
+    )
 
     # Check particular base class attributes
     # Check the main fit only attributes.
@@ -75,8 +90,14 @@ def test_inclusive_signal_fit(setup_integration_tests):
     # Setup the expected fit result. These values are extracted from an example fit.
     # NOTE: They are not calculated independently, so there are most like regression tests.
     expected_fit_result = base.RPFitResult(
-        parameters = ["ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal", "BG", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3", "B"],
-        free_parameters = ["ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "BG", "v2_t", "v2_a", "v4_t", "v4_a", "v3", "B"],
+        parameters = [
+            "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal", "BG",
+            "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3", "B"
+        ],
+        free_parameters = [
+            "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "BG",
+            "v2_t", "v2_a", "v4_t", "v4_a", "v3", "B"
+        ],
         fixed_parameters = ["signal_pedestal", "v1"],
         values_at_minimum = {
             'ns_amplitude': 1.7933561625700922, 'as_amplitude': 1.0001072229610664,
@@ -86,6 +107,15 @@ def test_inclusive_signal_fit(setup_integration_tests):
             'v4_t': 0.0021469295947451894, 'v4_a': 0.002584005026287889,
             'v1': 0.0, 'v3': 0.0016802003999212695,
             'B': 74.09951310294166
+        },
+        errors_on_parameters = {
+            'ns_amplitude': 0.12839073902939924, 'as_amplitude': 0.1601590707638878,
+            'ns_sigma': 0.01756754811099917, 'as_sigma': 0.0771999164701046,
+            'signal_pedestal': 1.0, 'BG': 0.04915769800151182,
+            'v2_t': 0.09027663461261039, 'v2_a': 0.0039482883973311345,
+            'v4_t': 0.003222254298287666, 'v4_a': 0.004554445381827463,
+            'v1': 1.0, 'v3': 0.001172204666172523,
+            'B': 0.28291657094270306
         },
         covariance_matrix = {
             ('ns_amplitude', 'ns_amplitude'): 0.016484487745377686, ('ns_amplitude', 'as_amplitude'): 0.00937777016042199,
@@ -161,16 +191,23 @@ def test_inclusive_signal_fit(setup_integration_tests):
         n_fit_data_points = 90,
         minimum_val = 82.97071829310454,
     )
-    expected_signal_parameters = ['ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma', 'signal_pedestal', 'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
-    expected_signal_free_parameters = ['ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma', 'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
+    expected_signal_parameters = [
+        'ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma', 'signal_pedestal',
+        'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3'
+    ]
+    expected_signal_free_parameters = [
+        'ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma',
+        'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3'
+    ]
     expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
     expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
     expected_components = {
-        fit.FitType(region='signal', orientation='inclusive'): base.ComponentFitResult(
+        base.FitType(region='signal', orientation='inclusive'): base.ComponentFitResult(
             parameters = expected_signal_parameters,
             free_parameters = expected_signal_free_parameters,
             fixed_parameters = ['signal_pedestal', 'v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_signal_parameters},
+            errors_on_parameters = {k: expected_fit_result.errors_on_parameters[k] for k in expected_signal_parameters},
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_signal_free_parameters for k2 in expected_signal_free_parameters},
             errors = np.array([
                 0.04659353, 0.05320476, 0.06173382, 0.06129561, 0.05044053,
@@ -182,11 +219,14 @@ def test_inclusive_signal_fit(setup_integration_tests):
                 0.07684584, 0.06622332, 0.0595903 , 0.06490267, 0.0630976 ,  # noqa: E203
                 0.05215069]),
         ),
-        fit.FitType(region='background', orientation='in_plane'): base.ComponentFitResult(
+        base.FitType(region='background', orientation='in_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters=expected_background_free_parameters,
             fixed_parameters=['v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
             errors = np.array([
                 0.22600626, 0.20236964, 0.1792622 , 0.17417331, 0.17607922,  # noqa: E203
@@ -198,11 +238,14 @@ def test_inclusive_signal_fit(setup_integration_tests):
                 0.17856864, 0.18363486, 0.18483703, 0.18976985, 0.20927409,
                 0.2282912])
         ),
-        fit.FitType(region='background', orientation='mid_plane'): base.ComponentFitResult(
+        base.FitType(region='background', orientation='mid_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
             errors = np.array([
                 0.235723  , 0.18639393, 0.16976855, 0.22061279, 0.24931356,  # noqa: E203
@@ -214,11 +257,14 @@ def test_inclusive_signal_fit(setup_integration_tests):
                 0.21855863, 0.25377834, 0.22759284, 0.1791784 , 0.19306969,  # noqa: E203
                 0.23774675])
         ),
-        fit.FitType(region='background', orientation='out_of_plane'): base.ComponentFitResult(
+        base.FitType(region='background', orientation='out_of_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
             errors = np.array([
                 0.24979395, 0.2269838 , 0.20247939, 0.19254136, 0.18836174,  # noqa: E203
@@ -271,6 +317,12 @@ def test_background_fit(setup_integration_tests):
             'v4_t': 0.002154202588079246, 'v4_a': 0.0026027686260190197,
             'v1': 0.0, 'v3': 0.004734080067730018
         },
+        errors_on_parameters = {
+            'B': 0.2940144452610056,
+            'v2_t': 0.01945621214508514, 'v2_a': 0.003946265121221856,
+            'v4_t': 0.003220126599587231, 'v4_a': 0.004544297895328175,
+            'v1': 1.0, 'v3': 0.0027982058671116375
+        },
         covariance_matrix = {
             ('B', 'B'): 0.08644453056066083, ('B', 'v2_t'): -1.4931622683135787e-07,
             ('B', 'v2_a'): -1.2408212424081687e-05, ('B', 'v4_t'): -1.8803445595574103e-06,
@@ -305,11 +357,14 @@ def test_background_fit(setup_integration_tests):
     expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
     expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
     expected_components = {
-        fit.FitType(region='background', orientation='in_plane'): base.ComponentFitResult(
+        base.FitType(region='background', orientation='in_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters=expected_background_free_parameters,
             fixed_parameters=['v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
             errors = np.array([
                 0.2093359 , 0.19255153, 0.18174519, 0.17607629, 0.16211076,  # noqa: E203
@@ -321,11 +376,14 @@ def test_background_fit(setup_integration_tests):
                 0.16124127, 0.19623391, 0.22037282, 0.22619674, 0.22490269,
                 0.22090577])
         ),
-        fit.FitType(region='background', orientation='mid_plane'): base.ComponentFitResult(
+        base.FitType(region='background', orientation='mid_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
             errors = np.array([
                 0.23699861, 0.19647139, 0.19316462, 0.23845882, 0.25528958,
@@ -337,11 +395,14 @@ def test_background_fit(setup_integration_tests):
                 0.22547584, 0.27778609, 0.27103529, 0.23335852, 0.22716873,
                 0.24705662])
         ),
-        fit.FitType(region='background', orientation='out_of_plane'): base.ComponentFitResult(
+        base.FitType(region='background', orientation='out_of_plane'): base.ComponentFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_background_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
             errors = np.array([
                 0.22106564, 0.20550612, 0.19201483, 0.18118305, 0.16215477,
@@ -364,10 +425,12 @@ def test_background_fit(setup_integration_tests):
     )
 
     # Check the result
-    assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
+    assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
+                                          expected_fit_result = expected_fit_result) is True
     # Check the components
     for fit_type, fit_component in rp_fit.fit_result.components.items():
-        assert compare_fit_result_to_expected(fit_result = fit_component, expected_fit_result = expected_components[fit_type]) is True
+        assert compare_fit_result_to_expected(fit_result = fit_component,
+                                              expected_fit_result = expected_components[fit_type]) is True
 
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the fit plot because it is hard to compare multiple images from in the same test.
