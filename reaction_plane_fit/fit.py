@@ -293,13 +293,13 @@ class ReactionPlaneFit(ABC):
             minimum_val = minuit.fval,
         )
         for fit_type, component in self.components.items():
-            self.fit_result.components[fit_type] = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result,
+            self.components[fit_type].fit_result = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result,
                                                                                               component = component)
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
         for fit_type in self.components:
-            self.fit_result.components[fit_type].errors = self.calculate_errors(component_fit_type = fit_type)
+            self.components[fit_type].fit_result.errors = self.calculate_errors(component_fit_type = fit_type)
 
         # Return true to note success.
         return (True, formatted_data)
@@ -325,10 +325,10 @@ class ReactionPlaneFit(ABC):
         # with "x" as the first arg, and then update with the rest. We set it here to a very large float to be
         # clear that it will be set later.
         args_at_minimum = {"x": -1000000.0}
-        args_at_minimum.update(self.fit_result.components[component_fit_type].values_at_minimum)
+        args_at_minimum.update(self.components[component_fit_type].fit_result.values_at_minimum)
         logger.debug(f"args_at_minimum: {args_at_minimum}")
         # Retrieve the parameters to use in calculating the fit errors
-        free_parameters = self.fit_result.components[component_fit_type].free_parameters
+        free_parameters = self.components[component_fit_type].fit_result.free_parameters
         logger.debug(f"free_parameters: {free_parameters}")
 
         # To store the errors for each point
@@ -366,7 +366,7 @@ class ReactionPlaneFit(ABC):
                     error_val += (
                         partial_derivative_result[i_name_index]
                         * partial_derivative_result[j_name_index]
-                        * self.fit_result.components[component_fit_type].covariance_matrix[(i_name, j_name)]
+                        * self.components[component_fit_type].fit_result.covariance_matrix[(i_name, j_name)]
                     )
 
             # Modify from error squared to error
@@ -418,6 +418,9 @@ class FitComponent(ABC):
         self.fit_function: Callable[..., float]
         # Fit cost function
         self.cost_function = None
+
+        # Result
+        self.fit_result: base.ComponentFitResult
 
     def set_fit_type(self, region: Optional[str] = None, orientation: Optional[str] = None):
         """ Update the fit type.

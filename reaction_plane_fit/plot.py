@@ -107,7 +107,7 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.nd
     # Plot the main values
     plot = ax.plot(x, fit_values, label = "Fit")
     # Plot the fit errors
-    errors = rp_fit.fit_result.components[fit_type].errors
+    errors = rp_fit.components[fit_type].fit_result.errors
     ax.fill_between(x, fit_values - errors, fit_values + errors, facecolor = plot[0].get_color(), alpha = 0.8)
     # Plot the data
     ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o", linestyle = "")
