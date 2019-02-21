@@ -6,7 +6,7 @@
 """
 
 from abc import ABC
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import iminuit
 import logging
 import numpy as np
@@ -81,14 +81,11 @@ class RPFitResult(FitResult):
         n_fit_data_points (int): Number of data points used in the fit.
         minimul_val (float): Minimum value of the fit when it coverages. This is the chi2 value for a
             chi2 minimization fit.
-        components (dict): Contains fit results for the fit components. Most of the stored information is a subset
-            of the information in this object, but it is much more convenient to have it accessible.
         nDOF (int): Number of degrees of freedom. Calculated on request from ``n_fit_data_points`` and ``free_parameters``.
     """
     x: np.array
     n_fit_data_points: int
     minimum_val: float
-    components: Dict[FitType, "ComponentFitResult"] = field(default_factory = dict)
 
     @property
     def nDOF(self):
