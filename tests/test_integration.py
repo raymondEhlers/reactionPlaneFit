@@ -289,8 +289,8 @@ def test_inclusive_signal_fit(setup_integration_tests):
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
     # Check the components
-    for fit_type, fit_component in rp_fit.fit_result.components.items():
-        assert compare_fit_result_to_expected(fit_result = fit_component, expected_fit_result = expected_components[fit_type]) is True
+    for fit_type, fit_component in rp_fit.components.items():
+        assert compare_fit_result_to_expected(fit_result = fit_component.fit_result, expected_fit_result = expected_components[fit_type]) is True
 
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the residual plot because it is hard to compare multiple images from in the same test.
@@ -428,8 +428,8 @@ def test_background_fit(setup_integration_tests):
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
                                           expected_fit_result = expected_fit_result) is True
     # Check the components
-    for fit_type, fit_component in rp_fit.fit_result.components.items():
-        assert compare_fit_result_to_expected(fit_result = fit_component,
+    for fit_type, fit_component in rp_fit.components.items():
+        assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
                                               expected_fit_result = expected_components[fit_type]) is True
 
     # Draw and check the resulting image. It is checked by returning the figure.

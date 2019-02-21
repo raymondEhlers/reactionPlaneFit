@@ -293,13 +293,13 @@ class ReactionPlaneFit(ABC):
             minimum_val = minuit.fval,
         )
         for fit_type, component in self.components.items():
-            self.fit_result.components[fit_type] = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result,
+            self.components[fit_type].fit_result = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result,
                                                                                               component = component)
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
         for fit_type in self.components:
-            self.fit_result.components[fit_type].errors = self.calculate_errors(component_fit_type = fit_type)
+            self.components[fit_type].fit_result.errors = self.calculate_errors(component_fit_type = fit_type)
 
         # Return true to note success.
         return (True, formatted_data)
@@ -325,10 +325,10 @@ class ReactionPlaneFit(ABC):
         # with "x" as the first arg, and then update with the rest. We set it here to a very large float to be
         # clear that it will be set later.
         args_at_minimum = {"x": -1000000.0}
-        args_at_minimum.update(self.fit_result.components[component_fit_type].values_at_minimum)
+        args_at_minimum.update(self.components[component_fit_type].fit_result.values_at_minimum)
         logger.debug(f"args_at_minimum: {args_at_minimum}")
         # Retrieve the parameters to use in calculating the fit errors
-        free_parameters = self.fit_result.components[component_fit_type].free_parameters
+        free_parameters = self.components[component_fit_type].fit_result.free_parameters
         logger.debug(f"free_parameters: {free_parameters}")
 
         # To store the errors for each point
@@ -366,7 +366,7 @@ class ReactionPlaneFit(ABC):
                     error_val += (
                         partial_derivative_result[i_name_index]
                         * partial_derivative_result[j_name_index]
-                        * self.fit_result.components[component_fit_type].covariance_matrix[(i_name, j_name)]
+                        * self.components[component_fit_type].fit_result.covariance_matrix[(i_name, j_name)]
                     )
 
             # Modify from error squared to error
@@ -378,19 +378,18 @@ class ReactionPlaneFit(ABC):
 
         return error_vals
 
-    def evaluate_fit_component(self, fit_component: base.FitType, x: np.ndarray) -> np.ndarray:
+    def evaluate_fit_component(self, fit_type: base.FitType, x: np.ndarray) -> np.ndarray:
         """ Helper function to evaluate a fit component at a set of values.
 
-        This could arguably is better suited to go in the fit component, but we need the fit function, so it's more
-        convenient to be in the main reaction plane fit object.
+        This is just a wrapper for evaluating it via the fit component.
 
         Args:
-            fit_component: Fit component to evaluate.
+            fit_type: Fit component to evaluate.
             x: x values where the fit component will be evaluted.
         Returns:
             Function values at the given x values.
         """
-        return probfit.nputil.vector_apply(self.components[fit_component].fit_function, x, *list(self.fit_result.components[fit_component].values_at_minimum.values()))
+        return self.components[fit_type].evaluate_fit(x)
 
 class FitComponent(ABC):
     """ A component of the fit.
@@ -419,6 +418,9 @@ class FitComponent(ABC):
         # Fit cost function
         self.cost_function = None
 
+        # Result
+        self.fit_result: base.ComponentFitResult
+
     def set_fit_type(self, region: Optional[str] = None, orientation: Optional[str] = None):
         """ Update the fit type.
 
@@ -436,6 +438,16 @@ class FitComponent(ABC):
             orientation = self.fit_type.orientation
         self.fit_type = base.FitType(region = region, orientation = orientation)
 
+    def evaluate_fit(self, x: np.ndarray) -> np.ndarray:
+        """ Evaluate the fit component.
+
+        Args:
+            x: x values where the fit component will be evaluted.
+        Returns:
+            Function values at the given x values.
+        """
+        return probfit.nputil.vector_apply(self.fit_function, x, *list(self.fit_result.values_at_minimum.values()))
+
     @property
     def rp_orientation(self) -> str:
         return self.fit_type.orientation
@@ -447,6 +459,7 @@ class FitComponent(ABC):
     @abstractmethod
     def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         """ Use the class parameters to determine the fit function and store it. """
+        ...
 
     def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
         """ Setup the fit using information from the input hist.
