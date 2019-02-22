@@ -425,7 +425,7 @@ class FitComponent(ABC):
         """ Extract the data from the histogram. """
         return hist
 
-    def _cost_function(self, hist: Optional[histogram.Histogram1D] = None, x: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors: Optional[np.ndarray] = None):
+    def _cost_function(self, hist: Optional[histogram.Histogram1D] = None, bin_edges: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors_squared: Optional[np.ndarray] = None):
         """ Define the cost function.
 
         Called when setting up a fit object.
@@ -436,27 +436,29 @@ class FitComponent(ABC):
             use the unbinned functions (as defined by ``probfit``).
 
         Note:
-            Either specify the hist or the (x, y, errors) tuple.
+            Either specify the hist or the (bin_edges, y, errors_squared) tuple.
 
         Args:
-            hist (histogram.Histogram1D): Input histogram.
-            x (np.ndarray): The x values associated with an input histogram.
-            y (np.ndarray): The y values associated with an input histogram.
-            errors (np.ndarray): The errors associated with an input histogram.
+            hist: Input histogram.
+            bin_edges: The bin edges associated with an input histogram.
+            y: The y values associated with an input histogram.
+            errors_squared: The errors associated with an input histogram.
         Returns:
             probfit.costFunc: The defined cost function.
         """
         # Argument validation and properly format individual array is necessary.
         if not hist:
             # Validate the individual arguments
-            if not x or not y or not errors:
-                raise ValueError("Must provide x, y, and errors arrays.")
+            if not bin_edges or not y or not errors_squared:
+                raise ValueError("Must provide bin_edges, y, and errors_squared arrays.")
             # Then format them so they can be used.
-            hist = histogram.Histogram1D(x = x, y = y, errors_squared = errors * errors)
+            hist = histogram.Histogram1D(bin_edges = bin_edges, y = y, errors_squared = errors_squared)
         else:
             # These shouldn't be set if we're using a histogram.
-            if x or y or errors:
-                raise ValueError("Provided histogram, and x, y, or errors. Must provide only the histogram!")
+            if bin_edges or y or errors_squared:
+                raise ValueError(
+                    "Provided histogram, and bin_edges, y, or errors_squared. Must provide only the histogram!"
+                )
 
         if self.use_log_likelihood:
             logger.debug(f"Using log likelihood for {self.fit_type}, {self.rp_orientation}, {self.region}")
