@@ -2,6 +2,53 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [2.0] - 22 February 2019
+
+Note the API changes introduced by moving the fit results to the components!
+
+### Added
+
+- Store errors on fit parameters. See: `fbb9bd36cf7f4b010377cb1c1d27cb5d09ccf57d`.
+- Evaluate the background function of a component. For a background fit component, this is the same as the fit
+  function, while for a signal fit component, this will describe only the background contributions. See:
+  `8836a38cbdb44f6db1508a23f295ff4872433938`.
+- Preliminary instructions on running the fit via c++. They are not yet tested. See:
+  `8f6d57ca160e9500b4fa5c2747faa9e4b23c5a12`.
+
+### Changed
+
+- Moved component fit results into the fit components. See: `a08c42a483d51ba5c599986ae8f5cdec6a4505f0` and
+  `51ef75007d2a765bd03bf01958517d3109140067`.
+- Moved fit evaluation into the fit component. This was enabled by moving the fit results into the fit
+  components. See: `e3c13956b80ad31b7232f46fe0784b0179462175`.
+- Moved `FitType` to the `base` module so that it is more easily accessible. See:
+  `f3513c9f3d01d51c46e6b776fad005c32864001d`.
+- Moved error calculation to fit component. See: `674c8cf0f3bff1ebe95a8d5b76a7c2917d3169b7`.
+- Refactor error calculation to allow it to calculate errors for both the fit and background functions (or any
+  other function). See: `674c8cf0f3bff1ebe95a8d5b76a7c2917d3169b7`.
+- Improved example plot styling. See: `eb9fe16bd19e1e0106a822ee7e6a31f8a9be7e51` (included with a few other
+  minor changes).
+- Determine and plot errors on residual. See: `74b7f14b34b37b3563dcebc1031730a9343b5252`.
+- Large improvements to typing information and documentation in a variety of commits.
+
+### Fixed
+
+- Background fit example legend placement was accidentally moved. See:
+  `1869eb0650c9b26157c6fed103e80e5ad78f7f08`.
+- Baseline test images, which started failing after a number of small aesthetic changes. See:
+  `795d9d228a5cde6d5477dfd1c697efcabec7547c` and `33f9dd83f5918ba5f5eabd86b78759df1197a9ac`.
+- Failing tests due to floating point variations in calculating parameter errors. The comparison tolerances
+  had to be loosened. See: `e668599966df447e99de7c145ad6c97ce7d2d814` and
+  `f2729a4c5ed517b25fd99019f71ccabf65bd2ac5`.
+- Indicate that the package is typed. The typing information is already there - it just didn't know it
+  propagate it when running `mypy` on other packages. See: `b113e40be09705fdc3f4cce1a6ea7bbcaa14442a`.
+- Updated call to the old `pachyderm.Histogram1D` API. See: `f23f31473b77203e3c2d5cf9d2617c4f3f53a6db`.
+
+### Removed
+
+- `evaluate_fit_component(...)` from the `ReactionPlaneFit` object. It is unnecessary given the API changes.
+  See `5e2048eb1bace3d34dd428aea79b7ca002e61156`.
+
 ## [1.2] - 30 January 2019
 
 ### Added
