@@ -64,7 +64,7 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
         hist = data[fit_type]
 
         # Draw the data according to the given function
-        draw_func(rp_fit = rp_fit, fit_type = fit_type, x = x, hist = hist, ax = ax)
+        draw_func(fit_type = fit_type, component = component, x = x, hist = hist, ax = ax)
 
         # Add axis labels
         ax.set_xlabel(r"$\Delta\varphi$")
@@ -93,12 +93,12 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
 
     return fig, axes
 
-def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
+def fit_draw_func(component: fit.FitComponent, fit_type: base.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
     """ Determine and draw the fit and data on a given axis.
 
     Args:
-        rp_fit: The reaction plane fit object.
         fit_type: The type of the fit component that should be plotted.
+        component: RP fit component.
         x: x values where the points should be plotted.
         hist: Histogram data for the given fit component.
         ax: matplotlib axis where the information should be plotted.
@@ -106,12 +106,12 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.nd
         None. The current axis is modified.
     """
     # Determine the values of the fit function.
-    fit_values = rp_fit.evaluate_fit_component(fit_type = fit_type, x = x)
+    fit_values = component.evaluate_fit(x = x)
 
     # Plot the main values
     plot = ax.plot(x, fit_values, label = "Fit")
     # Plot the fit errors
-    errors = rp_fit.components[fit_type].fit_result.errors
+    errors = component.fit_result.errors
     ax.fill_between(x, fit_values - errors, fit_values + errors, facecolor = plot[0].get_color(), alpha = 0.8)
     # Plot the data
     ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o", linestyle = "")
@@ -119,7 +119,7 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.nd
     # Also plot the background only function if relevant.
     # We plot it last so that the colors are consistent throughout all axes.
     if fit_type.region == "signal":
-        ax.plot(x, rp_fit.components[fit_type].evaluate_background(x), label = "Bkg. component")
+        ax.plot(x, component.evaluate_background(x), label = "Bkg. component")
 
 def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawResult:
     """ Main entry point to draw the fit and the data together.
@@ -135,12 +135,12 @@ def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawRes
     """
     return draw(rp_fit = rp_fit, data = data, filename = filename, draw_func = fit_draw_func, y_label = r"dN/d$\Delta\varphi$")
 
-def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
+def residual_draw_func(component: fit.FitComponent, fit_type: base.FitType, x: np.ndarray, hist: np.ndarray, ax: Axes) -> None:
     """ Calculate and draw the residual for a given component on a given axis.
 
     Args:
-        rp_fit: The reaction plane fit object.
         fit_type: The type of the fit component that should be plotted.
+        component: RP fit component.
         x: x values where the points should be plotted.
         hist: Histogram data for the given fit component.
         ax: matplotlib axis where the information should be plotted.
@@ -153,8 +153,8 @@ def residual_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: 
     fit_hist = histogram.Histogram1D(
         # Bin edges must be the same
         bin_edges = hist.bin_edges,
-        y = rp_fit.evaluate_fit_component(fit_type = fit_type, x = x),
-        errors_squared = rp_fit.components[fit_type].fit_result.errors ** 2,
+        y = component.evaluate_fit(x = x),
+        errors_squared = component.fit_result.errors ** 2,
     )
     # NOTE: Residual = data - fit / fit, not just data-fit
     residual = (hist - fit_hist) / fit_hist

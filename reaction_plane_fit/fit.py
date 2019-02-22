@@ -378,19 +378,6 @@ class ReactionPlaneFit(ABC):
 
         return error_vals
 
-    def evaluate_fit_component(self, fit_type: base.FitType, x: np.ndarray) -> np.ndarray:
-        """ Helper function to evaluate a fit component at a set of values.
-
-        This is just a wrapper for evaluating it via the fit component.
-
-        Args:
-            fit_type: Fit component to evaluate.
-            x: x values where the fit component will be evaluted.
-        Returns:
-            Function values at the given x values.
-        """
-        return self.components[fit_type].evaluate_fit(x)
-
 class FitComponent(ABC):
     """ A component of the fit.
 
