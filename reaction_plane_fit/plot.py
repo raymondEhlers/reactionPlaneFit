@@ -79,9 +79,13 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
                 horizontalalignment="center", verticalalignment="top", multialignment="left",
                 transform = ax.transAxes)
 
-        # Add legend on mid-plane panel
-        if fit_type.orientation == "mid_plane":
-            ax.legend(loc = "lower center")
+    # Add the legend on the inclusive signal axis if it exists.
+    # Otherwise, put in on the index 2 axis (which should be mid-pane)
+    legend_axis_index = 2
+    if len(axes) == 4:
+        legend_axis_index = 0
+    # Add legend on mid-plane panel
+    axes[legend_axis_index].legend(loc = "lower center")
 
     fig.tight_layout()
     if filename:
@@ -111,6 +115,11 @@ def fit_draw_func(rp_fit: fit.ReactionPlaneFit, fit_type: base.FitType, x: np.nd
     ax.fill_between(x, fit_values - errors, fit_values + errors, facecolor = plot[0].get_color(), alpha = 0.8)
     # Plot the data
     ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o", linestyle = "")
+
+    # Also plot the background only function if relevant.
+    # We plot it last so that the colors are consistent throughout all axes.
+    if fit_type.region == "signal":
+        ax.plot(x, rp_fit.components[fit_type].evaluate_background(x), label = "Bkg. component")
 
 def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawResult:
     """ Main entry point to draw the fit and the data together.

@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Define the relevant fit components for this set of RP orientation.
 class SignalFitComponent(fit.SignalFitComponent):
+    """ Signal fit component for three RP orientations. """
     def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
             rp_orientation = self.rp_orientation,
@@ -25,8 +26,15 @@ class SignalFitComponent(fit.SignalFitComponent):
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
         )
+        self.background_function = functions.determine_background_fit_function(
+            rp_orientation = self.rp_orientation,
+            resolution_parameters = resolution_parameters,
+            reaction_plane_parameter = reaction_plane_parameter,
+            rp_background_function = background,
+        )
 
 class BackgroundFitComponent(fit.BackgroundFitComponent):
+    """ Background fit component for three RP orientations. """
     def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_background_fit_function(
             rp_orientation = self.rp_orientation,
@@ -34,10 +42,15 @@ class BackgroundFitComponent(fit.BackgroundFitComponent):
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
         )
+        # This is identical to the fit function.
+        self.background_function = self.fit_function
 
 class ReactionPlaneFit(fit.ReactionPlaneFit):
     """ Base class for reaction plane fit for 3 reaction plane orientations.
 
+    Attributes:
+        _rp_orientations: List of the reaction plane orientations.
+        reaction_plane_parameter: Reaction plane parameters, including the orientation, center, and width.
     """
     _rp_orientations = ["in_plane", "mid_plane", "out_of_plane", "inclusive"]
     reaction_plane_parameters = {

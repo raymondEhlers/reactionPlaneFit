@@ -417,6 +417,9 @@ class FitComponent(ABC):
         self.fit_function: Callable[..., float]
         # Fit cost function
         self.cost_function = None
+        # Background function. This describes the background of the component. In the case that the component
+        # is fit to the background, this is identical to the fit function.
+        self.background_function: Callable[..., float]
 
         # Result
         self.fit_result: base.ComponentFitResult
@@ -448,6 +451,25 @@ class FitComponent(ABC):
         """
         return probfit.nputil.vector_apply(self.fit_function, x, *list(self.fit_result.values_at_minimum.values()))
 
+    def evaluate_background(self, x: np.ndarray) -> np.ndarray:
+        """ Evaluates the background components of the fit function.
+
+        In the case of a background component, this is identical to ``evaluate_fit(...)``. However, in the case of
+        a signal component, this describes the background contribution to the signal.
+
+        Args:
+            x: x values where the fit component will be evaluted.
+        Returns:
+            Background function values at the given x values.
+        """
+        parameters = iminuit.util.describe(self.background_function)
+        # NOTE: "x" is not in values_at_minimum (as expected), so we have to check that each parameter name
+        #       is in values_at_minimum to prevent "x" from causing a problem
+        return probfit.nputil.vector_apply(
+            self.background_function,
+            x, *[self.fit_result.values_at_minimum[p] for p in parameters if p in self.fit_result.values_at_minimum]
+        )
+
     @property
     def rp_orientation(self) -> str:
         return self.fit_type.orientation
@@ -458,7 +480,7 @@ class FitComponent(ABC):
 
     @abstractmethod
     def determine_fit_function(self, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
-        """ Use the class parameters to determine the fit function and store it. """
+        """ Use the class parameters to determine the fit and background functions and store them. """
         ...
 
     def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
