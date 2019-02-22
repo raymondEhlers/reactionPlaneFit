@@ -80,8 +80,8 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
                 transform = ax.transAxes)
 
     # Add the legend on the inclusive signal axis if it exists.
-    # Otherwise, put in on the index 2 axis (which should be mid-pane)
-    legend_axis_index = 2
+    # Otherwise, put in on the index 1 axis (which should be mid-pane)
+    legend_axis_index = 1
     if len(axes) == 4:
         legend_axis_index = 0
     # Add legend on mid-plane panel
