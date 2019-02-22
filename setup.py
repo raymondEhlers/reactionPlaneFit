@@ -77,6 +77,9 @@ setup(
 
     # Include additional files
     include_package_data = True,
+    package_data = {
+        "pachyderm": ["py.typed"],
+    },
 
     extras_require = {
         "tests": [
