@@ -112,14 +112,23 @@ def fit_draw_func(component: fit.FitComponent, fit_type: base.FitType, x: np.nda
     plot = ax.plot(x, fit_values, label = "Fit")
     # Plot the fit errors
     errors = component.fit_result.errors
-    ax.fill_between(x, fit_values - errors, fit_values + errors, facecolor = plot[0].get_color(), alpha = 0.8)
+    ax.fill_between(x, fit_values - errors, fit_values + errors, facecolor = plot[0].get_color(), alpha = 0.8, zorder = 2)
     # Plot the data
     ax.errorbar(x, hist.y, yerr = hist.errors, label = "Data", marker = "o", linestyle = "")
 
     # Also plot the background only function if relevant.
     # We plot it last so that the colors are consistent throughout all axes.
     if fit_type.region == "signal":
-        ax.plot(x, component.evaluate_background(x), label = "Bkg. component")
+        # Calculate background function values
+        values = component.evaluate_background(x)
+        errors = component.calculate_background_function_errors(x)
+        # Plot background values and errors behind everything else
+        plot_background = ax.plot(x, values, zorder = 1, label = "Bkg. component")
+        ax.fill_between(
+            x, values - errors, values + errors,
+            facecolor = plot_background[0].get_color(), alpha = 0.8,
+            zorder = 1,
+        )
 
 def draw_fit(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str) -> DrawResult:
     """ Main entry point to draw the fit and the data together.
