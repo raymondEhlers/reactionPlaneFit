@@ -298,85 +298,11 @@ class ReactionPlaneFit(ABC):
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
-        for fit_type in self.components:
-            self.components[fit_type].fit_result.errors = self.calculate_errors(component_fit_type = fit_type)
+        for component in self.components.values():
+            component.fit_result.errors = component.calculate_fit_errors(x = self.fit_result.x)
 
         # Return true to note success.
         return (True, formatted_data)
-
-    def calculate_errors(self, component_fit_type: base.FitType) -> np.array:
-        """ Calculate the errors based on values from the fit.
-
-        Args:
-            component_fit_type: Fit type of the compnent for which we are calculating the errors.
-        Returns:
-            Array containing the calculated error values.
-        """
-        # Wrapper needed to call the function because ``numdifftools`` requires that multiple arguments
-        # are in a single list. The wrapper expands that list for us.
-        def func_wrap(x):
-            # Need to expand the arguments
-            return self.components[component_fit_type].fit_function(*x)
-        # Setup to compute the derivative
-        partial_derivative_func = nd.Gradient(func_wrap)
-
-        # Determine the arguments for the fit function
-        # Cannot use just values_at_minimum because x must be the first argument. So instead, we create the dict
-        # with "x" as the first arg, and then update with the rest. We set it here to a very large float to be
-        # clear that it will be set later.
-        args_at_minimum = {"x": -1000000.0}
-        args_at_minimum.update(self.components[component_fit_type].fit_result.values_at_minimum)
-        logger.debug(f"args_at_minimum: {args_at_minimum}")
-        # Retrieve the parameters to use in calculating the fit errors
-        free_parameters = self.components[component_fit_type].fit_result.free_parameters
-        logger.debug(f"free_parameters: {free_parameters}")
-
-        # To store the errors for each point
-        error_vals = np.zeros(len(self.fit_result.x))
-
-        for i, val in enumerate(self.fit_result.x):
-            #logger.debug(f"val: {val}")
-            # Add in x for the function call
-            args_at_minimum["x"] = val
-
-            # Evaluate the partial derivative at a point
-            # We need to calculate the derivative once per x value
-            # We time it to keep track of how long it takes to evaluate.
-            start = time.time()
-            logger.debug(f"Calculating the gradient for point {i}.")
-            # The args must be called as a list.
-            list_of_args_for_func_call = list(args_at_minimum.values())
-            partial_derivative_result = partial_derivative_func(list_of_args_for_func_call)
-            end = time.time()
-            logger.debug(f"Finished calculating the graident in {end-start} seconds.")
-
-            # Calculate error
-            error_val = 0
-            for i_name in free_parameters:
-                for j_name in free_parameters:
-                    # Determine the error value
-                    i_name_index = list_of_args_for_func_call.index(args_at_minimum[i_name])
-                    j_name_index = list_of_args_for_func_call.index(args_at_minimum[j_name])
-                    #logger.debug(
-                    #    f"Calculating error for i_name: {i_name}, i_name_index: {i_name_index}"
-                    #    f" j_name: {j_name}, j_name_index: {j_name_index}"
-                    #)
-
-                    # Add error to overall error value
-                    error_val += (
-                        partial_derivative_result[i_name_index]
-                        * partial_derivative_result[j_name_index]
-                        * self.components[component_fit_type].fit_result.covariance_matrix[(i_name, j_name)]
-                    )
-
-            # Modify from error squared to error
-            error_val = np.sqrt(error_val)
-
-            # Store
-            #logger.debug("i: {}, error_val: {}".format(i, error_val))
-            error_vals[i] = error_val
-
-        return error_vals
 
 class FitComponent(ABC):
     """ A component of the fit.
@@ -624,6 +550,105 @@ class FitComponent(ABC):
         arguments.update({"errordef": 0.5 if self.use_log_likelihood else 1.0})
 
         return arguments
+
+    def calculate_fit_errors(self, x: np.ndarray) -> np.ndarray:
+        """ Calculate the fit function errors based on values from the fit.
+
+        Args:
+            x: x values where the errors will be evaluted.
+        Returns:
+            The calculated error values.
+        """
+        return self._calculate_function_errors(func = self.fit_function, x = x)
+
+    def calculate_background_function_errors(self, x: np.ndarray) -> np.ndarray:
+        """ Calculate the background function errors based on values from the fit.
+
+        Args:
+            x: x values where the errors will be evaluted.
+        Returns:
+            The calculated error values.
+        """
+        return self._calculate_function_errors(func = self.background_function, x = x)
+
+    def _calculate_function_errors(self, func: Callable[..., float], x: np.ndarray) -> np.array:
+        """ Calculate the errors of the given function based on values from the fit.
+
+        Args:
+            func: Function to use in calculating the errors. This should be a function stored in the component,
+                such as the fit function or background function.
+            x: x values where the errors will be evaluted.
+        Returns:
+            The calculated error values.
+        """
+        # Determine relevant parameters for the given function
+        func_parameters = iminuit.util.describe(func)
+
+        # Wrapper needed to call the function because ``numdifftools`` requires that multiple arguments
+        # are in a single list. The wrapper expands that list for us.
+        def func_wrap(x):
+            # Need to expand the arguments
+            return func(*x)
+        # Setup to compute the derivative
+        partial_derivative_func = nd.Gradient(func_wrap)
+
+        # Determine the arguments for the fit function
+        # Cannot use just values_at_minimum because x must be the first argument. So instead, we create the dict
+        # with "x" as the first arg, and then update with the rest. We set it here to a very large float to be
+        # clear that it will be set later.
+        args_at_minimum = {"x": -1000000.0}
+        args_at_minimum.update({k: v for k, v in self.fit_result.values_at_minimum.items() if k in func_parameters})
+        logger.debug(f"args_at_minimum: {args_at_minimum}")
+        # Retrieve the parameters to use in calculating the fit errors
+        free_parameters = [p for p in self.fit_result.free_parameters if p in func_parameters]
+        logger.debug(f"free_parameters: {free_parameters}")
+
+        # To store the errors for each point
+        error_vals = np.zeros(len(x))
+
+        for i, val in enumerate(x):
+            #logger.debug(f"val: {val}")
+            # Add in x for the function call
+            args_at_minimum["x"] = val
+
+            # Evaluate the partial derivative at a point
+            # We need to calculate the derivative once per x value
+            # We time it to keep track of how long it takes to evaluate.
+            start = time.time()
+            logger.debug(f"Calculating the gradient for point {i}.")
+            # The args must be called as a list.
+            list_of_args_for_func_call = list(args_at_minimum.values())
+            partial_derivative_result = partial_derivative_func(list_of_args_for_func_call)
+            end = time.time()
+            logger.debug(f"Finished calculating the graident in {end-start} seconds.")
+
+            # Calculate error
+            error_val = 0
+            for i_name in free_parameters:
+                for j_name in free_parameters:
+                    # Determine the error value
+                    i_name_index = list_of_args_for_func_call.index(args_at_minimum[i_name])
+                    j_name_index = list_of_args_for_func_call.index(args_at_minimum[j_name])
+                    #logger.debug(
+                    #    f"Calculating error for i_name: {i_name}, i_name_index: {i_name_index}"
+                    #    f" j_name: {j_name}, j_name_index: {j_name_index}"
+                    #)
+
+                    # Add error to overall error value
+                    error_val += (
+                        partial_derivative_result[i_name_index]
+                        * partial_derivative_result[j_name_index]
+                        * self.fit_result.covariance_matrix[(i_name, j_name)]
+                    )
+
+            # Modify from error squared to error
+            error_val = np.sqrt(error_val)
+
+            # Store
+            #logger.debug("i: {}, error_val: {}".format(i, error_val))
+            error_vals[i] = error_val
+
+        return error_vals
 
 class SignalFitComponent(FitComponent):
     """ Fit component in the signal region.
