@@ -64,9 +64,11 @@ class ReactionPlaneFit(fit.ReactionPlaneFit):
         "out_of_plane": base.ReactionPlaneParameter(orientation = "out_of_plane",
                                                     phiS = np.pi / 2.,
                                                     c = np.pi / 6.),
-        # This is invalid and will be ignored!
+        # This is really meaningful, so it should be ignored.
         # However, it is helpful for it to be defined in this dict for lookup purposes.
-        "inclusive": None,
+        "inclusive": base.ReactionPlaneParameter(orientation = "inclusive",
+                                                 phiS = 0,
+                                                 c = np.pi / 2),
     }
 
 class BackgroundFit(ReactionPlaneFit):

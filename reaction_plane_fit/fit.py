@@ -61,7 +61,7 @@ class ReactionPlaneFit(ABC):
     """
     # RP orientations (including inclusive). Should be overridden by the derived class.
     _rp_orientations: list = []
-    reaction_plane_parameters: dict = {}
+    reaction_plane_parameters: Dict[str, base.ReactionPlaneParameter] = {}
 
     def __init__(self, resolution_parameters: ResolutionParameters,
                  use_log_likelihood: bool,
