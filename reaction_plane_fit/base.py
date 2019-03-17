@@ -74,6 +74,8 @@ class RPFitResult(FitResult):
         fixed_parameters (list): Names of the fixed parameters used in the fit.
         values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
             names of parameters, while values are the numerical values at convergence.
+        errors_on_parameters (dict): Contains the values of the errors associated with the parameters
+            determined via the fit.
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
@@ -104,6 +106,8 @@ class ComponentFitResult(FitResult):
         fixed_parameters (list): Names of the fixed parameters used in the fit.
         values_at_minimum (dict): Contains the values of the full RP fit function at the minimum. Keys are the
             names of parameters, while values are the numerical values at convergence.
+        errors_on_parameters (dict): Contains the values of the errors associated with the parameters
+            determined via the fit.
         covariance_matrix (dict): Contains the values of the covariance matrix. Keys are tuples
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
