@@ -1,21 +1,21 @@
 ---
 repos:
     - repo: "https://gitlab.com/pycqa/flake8"
-      rev: "7f50c3acc4b98caff0d0f3fbd82de34c5fc93c8a"  # 3.6.0 doesn't contain this configuration file.
+      rev: 3.7.7  # 3.6.0 doesn't contain this configuration file.
       hooks:
           - id: flake8
             additional_dependencies: ["flake8-colors"]
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: "v1.13.0"
+      rev: v1.15.0
       hooks:
           - id: yamllint
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: "v0.650"
+      rev: v0.670-1
       hooks:
           - id: mypy
             args: ["--ignore-missing-imports"]
     - repo: https://github.com/pre-commit/pygrep-hooks
-      rev: v1.1.0
+      rev: v1.2.0
       hooks:
           - id: python-check-mock-methods
           - id: rst-backticks
