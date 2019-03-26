@@ -132,7 +132,7 @@ class ComponentFitResult(FitResult):
         free_parameters = [p for p in parameters if p not in fit_result.fixed_parameters]
         # Need to carefully grab the available values corresponding to the parameters or free_parameters, respectively.
         # NOTE: We cannot just iterate over the dicts themselves and check if the keys are in parameters because
-        #       the parameters are deduplicated, and thus the order can be wrong. In particular, for signal fits,
+        #       the parameters are de-duplicated, and thus the order can be wrong. In particular, for signal fits,
         #       B of the background fit ends up at the end of the dict because all of the other parameters are already
         #       defined for the signal fit. This approach won't have a problem with this, because we retrieve the values
         #       in the order of the parameters of the current fit component.
