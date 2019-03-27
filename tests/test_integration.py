@@ -14,24 +14,26 @@ time savings is worth it.
 import numpy as np
 import pkg_resources
 import pytest
+import tempfile
 
 from reaction_plane_fit import base
 from reaction_plane_fit import example
 from reaction_plane_fit import plot
+from reaction_plane_fit import three_orientations
 
 @pytest.fixture
-def setup_integration_tests(logging_mixin):
+def setup_integration_tests(logging_mixin) -> str:
     """ Setup shared expected values for the fit integration tests. """
     sample_data_filename = pkg_resources.resource_filename("reaction_plane_fit.sample_data", "three_orientations.root")
 
     return sample_data_filename
 
-def compare_fit_result_to_expected(fit_result, expected_fit_result):
+def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_result: base.FitResult) -> bool:
     """ Helper function to compare a fit result to an expected fit result.
 
     Args:
-        fit_result (base.FitResult): The calculated fit result.
-        expected_fit_result (base.FitResult): The expected fit result.
+        fit_result: The calculated fit result.
+        expected_fit_result: The expected fit result.
     Returns:
         bool: True if the fit results are the same.
     """
@@ -66,6 +68,9 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     # Check particular base class attributes
     # Check the main fit only attributes.
     if isinstance(fit_result, base.RPFitResult):
+        # Help out mypy...
+        assert isinstance(expected_fit_result, base.RPFitResult)
+
         np.testing.assert_allclose(fit_result.x, expected_fit_result.x, atol = 1e-5, rtol = 0)
         assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
         assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
@@ -74,6 +79,9 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
         assert fit_result.nDOF == expected_fit_result.nDOF
     # Check the component fit only attributes
     if isinstance(fit_result, base.ComponentFitResult):
+        # Help out mypy...
+        assert isinstance(expected_fit_result, base.ComponentFitResult)
+
         np.testing.assert_allclose(fit_result.errors, expected_fit_result.errors, atol = 1e-4, rtol = 0)
 
     # If all assertions passed, then return True to indicate the success.
@@ -437,4 +445,71 @@ def test_background_fit(setup_integration_tests):
     # Instead, we get around this by comparing the fit in test_inclusive_signal_fit(...)
     fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = None)
     return fig
+
+@pytest.mark.slow
+@pytest.mark.parametrize("example_module_func, fit_object", [
+    (example.run_background_fit, three_orientations.BackgroundFit),
+    (example.run_inclusive_signal_fit, three_orientations.InclusiveSignalFit),
+], ids = ["Background", "Inclusive signal"])
+def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, example_module_func, fit_object):
+    """ Test storing results via the pachyderm `yaml` module.
+
+    Note:
+        This ends up as an integration test because we actually use the yaml module
+        to read and write to a file instead of mocking it.
+    """
+    # Setup
+    sample_data_filename = setup_integration_tests
+
+    expected_rp_fit, data = example_module_func(
+        input_filename = sample_data_filename,
+        user_arguments = {"v2_t": 0.02},
+    )
+
+    # Same definition as used in the example fit.
+    # We must be certain _not_ to run the fit for this object because we are going to use it for comparison.
+    rp_fit = fit_object(
+        resolution_parameters = {"R22": 1, "R42": 1, "R62": 1, "R82": 1},
+        use_log_likelihood = False,
+        signal_region = (0, 0.6),
+        background_region = (0.8, 1.2),
+    )
+
+    # Write to and then read from a file.
+    with tempfile.NamedTemporaryFile(mode = "r+") as f:
+        # Use the performed fit to write the fit result.
+        expected_rp_fit.write_fit_results(filename = f.name)
+        # Move back to beginning
+        f.seek(0)
+        # Load the fit into the newly created fit object (which hasn't run the fit).
+        rp_fit.read_fit_results(filename = f.name)
+
+    # Check the result
+    assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
+                                          expected_fit_result = expected_rp_fit.fit_result) is True
+    # Check the components
+    for (fit_type, fit_component), (expected_fit_type, expected_fit_component) in \
+            zip(rp_fit.components.items(), expected_rp_fit.components.items()):
+        assert fit_type == expected_fit_type
+        assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
+                                              expected_fit_result = expected_fit_component.fit_result) is True
+
+def test_invalid_arguments(logging_mixin, setup_integration_tests) -> None:
+    """ Test detection for invalid arguments.
+
+    This doesn't really need to be integration test, but it's very convenient to use
+    the integration test setup and the example module, so we perform the test here.
+    """
+    # Setup
+    sample_data_filename = setup_integration_tests
+
+    # Pass an invalid argument.
+    with pytest.raises(ValueError) as exception_info:
+        example.run_background_fit(
+            input_filename = sample_data_filename,
+            user_arguments = {"abcdefg": 0.02},
+        )
+
+    # Check that the invalid argument was caught successfully.
+    assert "User argument abcdefg" in exception_info.value.args[0]
 
