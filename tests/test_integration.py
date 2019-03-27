@@ -494,3 +494,22 @@ def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, 
         assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
                                               expected_fit_result = expected_fit_component.fit_result) is True
 
+def test_invalid_arguments(logging_mixin, setup_integration_tests) -> None:
+    """ Test detection for invalid arguments.
+
+    This doesn't really need to be integration test, but it's very convenient to use
+    the integration test setup and the example module, so we perform the test here.
+    """
+    # Setup
+    sample_data_filename = setup_integration_tests
+
+    # Pass an invalid argument.
+    with pytest.raises(ValueError) as exception_info:
+        example.run_background_fit(
+            input_filename = sample_data_filename,
+            user_arguments = {"abcdefg": 0.02},
+        )
+
+    # Check that the invalid argument was caught successfully.
+    assert "User argument abcdefg" in exception_info.value.args[0]
+
