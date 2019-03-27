@@ -15,6 +15,7 @@ import numdifftools as nd
 import numpy as np
 from pachyderm import histogram
 from pachyderm.typing_helpers import Hist
+from pachyderm import yaml
 import probfit
 
 from reaction_plane_fit import base
@@ -303,6 +304,67 @@ class ReactionPlaneFit(ABC):
 
         # Return true to note success.
         return (True, formatted_data)
+
+    def read_fit_results(self, filename: str, y: yaml.ruamel.yaml.YAML = None) -> bool:
+        """ Read all fit results from the specified filename using YAML.
+
+        We don't read the entire object from YAML because they we would have to deal with
+        serializing ``probfit`` classes. Instead, we read the fit results, with the expectation
+        that the fit object will be created independently, and then the results will be loaded.
+
+        Args:
+            filename: Name of the file under which the fit results are saved.
+            y: YAML object to be used for reading the result. If none is specified, one will be created automatically.
+        Returns:
+            True if the reading was successful. The results will be read into the fit object.
+        """
+        # Create the YAML object if necessary.
+        if y is None:
+            y = yaml.yaml(modules_to_register = [base])
+
+        with open(filename, "r") as f:
+            fit_results = y.load(f)
+
+        # Assign the full fit result.
+        # We pop the value so that the can iterate over the remaining results.
+        self.fit_result = fit_results.pop("full")
+        # Assign to the components.
+        for fit_type, result in fit_results.items():
+            self.components[fit_type].fit_result = result
+
+        return True
+
+    def write_fit_results(self, filename: str, y: yaml.ruamel.yaml.YAML = None) -> bool:
+        """ Write all fit results to the specified filename using YAML.
+
+        We don't write the entire object to YAML because they we would have to deal with
+        serializing ``probfit`` classes. Instead, we write the results, with the expectation
+        that the fit object will be created independently, and then the results will be loaded.
+
+        Args:
+            filename: Name of the file under which the fit results will be saved.
+            y: YAML object to be used for writing the result. If none is specified, one will be created automatically.
+        Returns:
+            True if the writing was successful.
+        """
+        # Create the YAML object if necessary.
+        if y is None:
+            y = yaml.yaml(modules_to_register = [base])
+
+        # We need to create a dict to format the output because we don't want to have to deal
+        # with registering `probfit` classes. "full" represent the full fit result, while the
+        # fit component results are stored under their ``fit_type``. Note that we can't just
+        # recreate the component fits from the full fit result because the full fit result doesn't
+        # store the calculated errors. We could of course recalculate the errors, but that would
+        # slow down loading the result, which would partially default the purpose. Plus, while
+        # there is some duplicated information, it's really not that much storage space, even for
+        # uncompressed information.
+        output: Dict[Union[str, base.FitType], base.FitResult] = {"full": self.fit_result}
+        output.update({fit_type: fit_component.fit_result for fit_type, fit_component in self.components.items()})
+        with open(filename, "w+") as f:
+            y.dump(output, f)
+
+        return True
 
 class FitComponent(ABC):
     """ A component of the fit.
