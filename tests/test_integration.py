@@ -22,18 +22,18 @@ from reaction_plane_fit import plot
 from reaction_plane_fit import three_orientations
 
 @pytest.fixture
-def setup_integration_tests(logging_mixin):
+def setup_integration_tests(logging_mixin) -> str:
     """ Setup shared expected values for the fit integration tests. """
     sample_data_filename = pkg_resources.resource_filename("reaction_plane_fit.sample_data", "three_orientations.root")
 
     return sample_data_filename
 
-def compare_fit_result_to_expected(fit_result, expected_fit_result):
+def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_result: base.FitResult) -> bool:
     """ Helper function to compare a fit result to an expected fit result.
 
     Args:
-        fit_result (base.FitResult): The calculated fit result.
-        expected_fit_result (base.FitResult): The expected fit result.
+        fit_result: The calculated fit result.
+        expected_fit_result: The expected fit result.
     Returns:
         bool: True if the fit results are the same.
     """
@@ -68,6 +68,9 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
     # Check particular base class attributes
     # Check the main fit only attributes.
     if isinstance(fit_result, base.RPFitResult):
+        # Help out mypy...
+        assert isinstance(expected_fit_result, base.RPFitResult)
+
         np.testing.assert_allclose(fit_result.x, expected_fit_result.x, atol = 1e-5, rtol = 0)
         assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
         assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val)
@@ -76,6 +79,9 @@ def compare_fit_result_to_expected(fit_result, expected_fit_result):
         assert fit_result.nDOF == expected_fit_result.nDOF
     # Check the component fit only attributes
     if isinstance(fit_result, base.ComponentFitResult):
+        # Help out mypy...
+        assert isinstance(expected_fit_result, base.ComponentFitResult)
+
         np.testing.assert_allclose(fit_result.errors, expected_fit_result.errors, atol = 1e-4, rtol = 0)
 
     # If all assertions passed, then return True to indicate the success.
