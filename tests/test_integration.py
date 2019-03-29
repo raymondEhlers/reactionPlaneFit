@@ -15,11 +15,19 @@ import numpy as np
 import pkg_resources
 import pytest
 import tempfile
+from typing import Any, Tuple
 
 from reaction_plane_fit import base
 from reaction_plane_fit import example
 from reaction_plane_fit import plot
 from reaction_plane_fit import three_orientations
+
+# Typing helpers
+# This is a tuple of the matplotlib figure and axes. However, we only specify Any here
+# because we don't want an explicit package dependency on matplotlib.
+Axes = Any
+Figure = Any
+DrawResult = Tuple[Figure, Axes]
 
 @pytest.fixture
 def setup_integration_tests(logging_mixin) -> str:
@@ -89,7 +97,7 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
 
 @pytest.mark.slow
 @pytest.mark.mpl_image_compare(tolerance = 5)
-def test_inclusive_signal_fit(setup_integration_tests):
+def test_inclusive_signal_fit(setup_integration_tests) -> Figure:
     """ Integration test for the inclusive signal fit.
 
     This uses the sample data in the ``testFiles`` directory.
@@ -289,7 +297,7 @@ def test_inclusive_signal_fit(setup_integration_tests):
     # Run the fit
     # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
     #       one to test the logic of how they are set.
-    rp_fit, data = example.run_inclusive_signal_fit(
+    rp_fit, data, _ = example.run_inclusive_signal_fit(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
@@ -303,12 +311,12 @@ def test_inclusive_signal_fit(setup_integration_tests):
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the residual plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the residual in test_background_fit(...)
-    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, filename = None)
+    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, filename = "")
     return fig
 
 @pytest.mark.slow
 @pytest.mark.mpl_image_compare(tolerance = 5)
-def test_background_fit(setup_integration_tests):
+def test_background_fit(setup_integration_tests) -> Figure:
     """ Integration test for the background fit.
 
     This uses the sample data in the ``testFiles`` directory.
@@ -427,7 +435,7 @@ def test_background_fit(setup_integration_tests):
     # Run the fit
     # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
     #       one to test the logic of how they are set.
-    rp_fit, data = example.run_background_fit(
+    rp_fit, data, _ = example.run_background_fit(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
@@ -443,7 +451,7 @@ def test_background_fit(setup_integration_tests):
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the fit plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the fit in test_inclusive_signal_fit(...)
-    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = None)
+    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = "")
     return fig
 
 @pytest.mark.slow
@@ -461,7 +469,7 @@ def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, 
     # Setup
     sample_data_filename = setup_integration_tests
 
-    expected_rp_fit, data = example_module_func(
+    expected_rp_fit, data, _ = example_module_func(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )

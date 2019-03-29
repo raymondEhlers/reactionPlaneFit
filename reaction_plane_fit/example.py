@@ -10,7 +10,7 @@ Provides example for fitting only the background, or fitting the inclusive signa
 import argparse
 import logging
 import pkg_resources
-from typing import Tuple, Type
+from typing import Tuple, Type, TYPE_CHECKING
 import uproot
 
 from reaction_plane_fit import fit
@@ -19,7 +19,13 @@ from reaction_plane_fit.fit import FitArguments
 from reaction_plane_fit import three_orientations
 from reaction_plane_fit import plot
 
+if TYPE_CHECKING:
+    import iminuit  # noqa: F401
+
 logger = logging.getLogger(__name__)
+
+# Type helpers
+FitReturnValues = Tuple[fit.ReactionPlaneFit, Data, "iminuit.Minuit"]
 
 def setup_data(input_filename: str, include_signal: bool) -> InputData:
     """ Setup the example input data.
@@ -44,7 +50,7 @@ def setup_data(input_filename: str, include_signal: bool) -> InputData:
 
 def run_fit(fit_object: Type[fit.ReactionPlaneFit],
             input_data: InputData,
-            user_arguments: FitArguments) -> Tuple[fit.ReactionPlaneFit, Data]:
+            user_arguments: FitArguments) -> FitReturnValues:
     """ Driver function for performing the fit.
 
     Note:
@@ -68,14 +74,14 @@ def run_fit(fit_object: Type[fit.ReactionPlaneFit],
     )
 
     # Perform the actual fit.
-    success, data = rp_fit.fit(data = input_data, user_arguments = user_arguments)
+    success, data, minuit = rp_fit.fit(data = input_data, user_arguments = user_arguments)
 
     if success:
         logger.info(f"Fit was successful! Fit result: {rp_fit.fit_result}")
 
-    return rp_fit, data
+    return rp_fit, data, minuit
 
-def run_background_fit(input_filename: str, user_arguments: FitArguments) -> Tuple[fit.ReactionPlaneFit, Data]:
+def run_background_fit(input_filename: str, user_arguments: FitArguments) -> FitReturnValues:
     """ Run the background example fit.
 
     Args:
@@ -87,11 +93,13 @@ def run_background_fit(input_filename: str, user_arguments: FitArguments) -> Tup
     """
     # Grab the input data.
     input_data = setup_data(input_filename, include_signal = False)
-    rp_fit, data = run_fit(fit_object = three_orientations.BackgroundFit,
-                           input_data = input_data, user_arguments = user_arguments)
-    return rp_fit, data
+    rp_fit, data, minuit = run_fit(
+        fit_object = three_orientations.BackgroundFit,
+        input_data = input_data, user_arguments = user_arguments
+    )
+    return rp_fit, data, minuit
 
-def run_inclusive_signal_fit(input_filename: str, user_arguments: FitArguments) -> Tuple[fit.ReactionPlaneFit, Data]:
+def run_inclusive_signal_fit(input_filename: str, user_arguments: FitArguments) -> FitReturnValues:
     """ Run the inclusive signal example fit.
 
     Args:
@@ -102,9 +110,11 @@ def run_inclusive_signal_fit(input_filename: str, user_arguments: FitArguments) 
             fit, and data (dict) is the formated data dict used for the fit.
     """
     input_data = setup_data(input_filename, include_signal = True)
-    rp_fit, data = run_fit(fit_object = three_orientations.InclusiveSignalFit,
-                           input_data = input_data, user_arguments = user_arguments)
-    return rp_fit, data
+    rp_fit, data, minuit = run_fit(
+        fit_object = three_orientations.InclusiveSignalFit,
+        input_data = input_data, user_arguments = user_arguments
+    )
+    return rp_fit, data, minuit
 
 if __name__ == "__main__":  # pragma: nocover
     """ Allow direction execution of this module.
@@ -133,7 +143,7 @@ if __name__ == "__main__":  # pragma: nocover
     func = run_inclusive_signal_fit
     if args.backgroundOnly:
         func = run_background_fit
-    rp_fit, data = func(input_filename = args.inputData, user_arguments = {})
+    rp_fit, data, _ = func(input_filename = args.inputData, user_arguments = {})
 
     # Draw the plots so that they will be saved out.
     plot.draw_fit(rp_fit = rp_fit, data = data, filename = "example_fit.png")

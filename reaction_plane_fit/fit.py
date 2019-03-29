@@ -226,7 +226,7 @@ class ReactionPlaneFit(ABC):
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: Union[InputData, Data], user_arguments: FitArguments = None) -> Tuple[bool, Data]:
+    def fit(self, data: Union[InputData, Data], user_arguments: FitArguments = None) -> Tuple[bool, Data, iminuit.Minuit]:
         """ Perform the actual fit.
 
         Args:
@@ -234,8 +234,11 @@ class ReactionPlaneFit(ABC):
                 ``[region][orientation]`` or ``[FitType]``. The values can be uproot or ROOT 1D histograms.
             user_arguments: User arguments to override the arguments to the fit. Default: None.
         Returns:
-            tuple: (fit_success, formatted_data) where fit_success (bool) is ``True`` if the fitting procedure was
-                successful, and formatted_data (dict) is the data reformatted in the preferred format for the fit.
+            tuple: (fit_success, formatted_data, minuit) where fit_success (bool) is ``True`` if the fitting
+                procedure was successful, formatted_data (dict) is the data reformatted in the preferred format for
+                the fit, and minuit (iminuit.Minuit) is the minuit object, which is provided it is provided for
+                specialized use cases. Note that the fit results (which contains most of the information in the minuit
+                object) are stored in the class.
         """
         # Validate settings.
         if user_arguments is None:
@@ -319,7 +322,7 @@ class ReactionPlaneFit(ABC):
             component.fit_result.errors = component.calculate_fit_errors(x = self.fit_result.x)
 
         # Return true to note success.
-        return (True, formatted_data)
+        return (True, formatted_data, minuit)
 
     def read_fit_results(self, filename: str, y: yaml.ruamel.yaml.YAML = None) -> bool:
         """ Read all fit results from the specified filename using YAML.
