@@ -85,7 +85,7 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
         np.testing.assert_allclose(
             correlation,
             list(expected_fit_result.correlation_matrix.values()),
-            atol = 1e-4, rtol = 0,
+            atol = 5e-4, rtol = 0,
         )
     # Check that the correlation matrix diagonal is one as a sanity check
     correlation_diagonal = [expected_fit_result.correlation_matrix[(n, n)] for n in expected_fit_result.free_parameters]
