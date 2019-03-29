@@ -90,6 +90,24 @@ class ReactionPlaneFit(ABC):
         """ Helper to determine the reaction plane parameters. """
         return self.reaction_plane_parameters[rp_orientation]
 
+    def _setup_component_fit_functions(self) -> bool:
+        """ Setup component fit functions.
+
+        This should be called in the constructor of derived objects.
+
+        Args:
+            None.
+        Returns:
+            True if the component fit functions were setup successfully.
+        """
+        for fit_type, component in self.components.items():
+            component.determine_fit_function(
+                resolution_parameters = self.resolution_parameters,
+                reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation)
+            )
+
+        return True
+
     def _validate_settings(self) -> bool:
         """ Validate the passed settings. """
         # Check that there are sufficient res params
@@ -247,9 +265,7 @@ class ReactionPlaneFit(ABC):
         # Setup the fit components.
         fit_data: Data = {}
         for fit_type, component in self.components.items():
-            fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type],
-                                                      resolution_parameters = self.resolution_parameters,
-                                                      reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation))
+            fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type])
 
         # Setup the final fit.
         self._fit = probfit.SimultaneousFit(*[component.cost_function for component in self.components.values()])
@@ -458,24 +474,16 @@ class FitComponent(ABC):
         """ Use the class parameters to determine the fit and background functions and store them. """
         ...
 
-    def _setup_fit(self, input_hist: histogram.Histogram1D, resolution_parameters: ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> histogram.Histogram1D:
+    def _setup_fit(self, input_hist: histogram.Histogram1D) -> histogram.Histogram1D:
         """ Setup the fit using information from the input hist.
 
         Args:
             input_hist (histogram.Histogram1D): The histogram to be fit by this function.
-            resolution_parameters (dict): Maps resolution parameters of the form "R22" (for
-                the R_{2,2} parameter) to the value. Expects "R22" - "R82"
-            reaction_plane_parameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
-                reaction plane.
         Returns:
             histogram.Histogram1D: The data limited histogram (to be used for determining the number of data points used
                 in the fit). Note that the fit is fully setup at this point.
         """
-        # Setup the fit itself.
-        self.determine_fit_function(resolution_parameters = resolution_parameters,
-                                    reaction_plane_parameter = reaction_plane_parameter)
-
-        #hist = histogram.Histogram1D.from_existing_hist(hist = input_hist)
+        # Determine the data which should be used for the fit.
         limited_hist = self.set_data_limits(hist = input_hist)
 
         # Determine the cost function

@@ -91,6 +91,9 @@ class BackgroundFit(ReactionPlaneFit):
                                                                resolution_parameters = self.resolution_parameters,
                                                                use_log_likelihood = self.use_log_likelihood)
 
+        # Complete basic setup of the components by setting up the fit functions.
+        self._setup_component_fit_functions()
+
 class InclusiveSignalFit(ReactionPlaneFit):
     """ RPF for inclusive signal region, and background region in 3 reaction planes orientations.
 
@@ -115,6 +118,9 @@ class InclusiveSignalFit(ReactionPlaneFit):
                                                                resolution_parameters = self.resolution_parameters,
                                                                use_log_likelihood = self.use_log_likelihood)
 
+        # Complete basic setup of the components by setting up the fit functions.
+        self._setup_component_fit_functions()
+
 class SignalFit(ReactionPlaneFit):
     """ RPF for signal and background regions with 3 reaction plane orientations.
 
@@ -135,6 +141,9 @@ class SignalFit(ReactionPlaneFit):
                 self.components[fit_type] = fitComponent(rp_orientation = fit_type.orientation,
                                                          resolution_parameters = self.resolution_parameters,
                                                          use_log_likelihood = self.use_log_likelihood)
+
+        # Complete basic setup of the components by setting up the fit functions.
+        self._setup_component_fit_functions()
 
 def background(x: float, phi: float, c: float, resolution_parameters: Dict[str, float], B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
     """ The background function is of the form specified in the RPF paper.
