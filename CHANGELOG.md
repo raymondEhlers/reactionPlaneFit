@@ -2,6 +2,28 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [2.1] - 29 March 2019
+
+### Added
+
+- Calculate the correlation matrix in the fit result. See: `ee94cb80e774c38848f31592b8df765c333fba7a`.
+- Read and write fit results with YAML, including integration tests. See:
+  `983a2519d9b882a34d6bf44be312b45a3e051316`.
+- Added test for invalid fit arguments. See: `009a974dc038d79ad2890e9c3f935094a88cb3ee`.
+
+### Changed
+
+- Modify the `ReactionPlaneFit.fit(...)` to return the minuit object for advanced use cases. The fit result
+  stores almost all of the minuit information, but it can be useful in limited circumstances. For now, it is
+  only used to check the correlation matrix calculation. See: `7a1efd908203abf1a1b8cb8d2f9d76afdfb1442d`.
+- Initialize the component fit functions when defining the fit objects. This allows fit components to be
+  evaluated using stored fit results. See: `e2673f25e7fa952087bb45ab5e35204850138b69`.
+- Updated typing information.  See: `0f284c79ccfb6ee04715b33e4500b2c96832f7ff` and
+  `60af85240d84adf5e011ee0b4b2f7a0c8cef154e`.
+- Updated documentation. See: `b94fc955ce15034490888ec75368853f61ad9244`.
+- Updated pre-commit hooks with newer versions of the packages. See:
+  `6d54231e4707502fec9811c0507daa5a37358076`.
+
 ## [2.0] - 22 February 2019
 
 Note the API changes introduced by moving the fit results to the components!
