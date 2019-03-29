@@ -61,6 +61,38 @@ class FitResult(ABC):
     errors_on_parameters: Dict[str, float]
     covariance_matrix: Dict[Tuple[str, str], float]
 
+    @property
+    def correlation_matrix(self) -> Dict[Tuple[str, str], float]:
+        """ The correlation matrix of the free parameters.
+
+        These values are derived from the covariance matrix values stored in the fit.
+
+        Note:
+            This property caches the correlation matrix value so we don't have to calculate it every time.
+
+        Args:
+            None
+        Returns:
+            The correlation matrix of the fit result.
+        """
+        try:
+            return self._correlation_matrix
+        except AttributeError:
+            def corr(i_name: str, j_name: str) -> float:
+                """ Calculate the correlation matrix (definition from iminut) from the covariance matrix. """
+                value = self.covariance_matrix[(i_name, j_name)] / (np.sqrt(self.covariance_matrix[(i_name, i_name)] * self.covariance_matrix[(j_name, j_name)]) + 1e-100)
+                # Need to explicitly cast to float. Otherwise, it will return a np.float64, which will cause problems for YAML...
+                return float(value)
+
+            matrix: Dict[Tuple[str, str], float] = {}
+            for i_name in self.free_parameters:
+                for j_name in self.free_parameters:
+                    matrix[(i_name, j_name)] = corr(i_name, j_name)
+
+            self._correlation_matrix = matrix
+
+        return self._correlation_matrix
+
 @dataclass
 class RPFitResult(FitResult):
     """ Store the main RP fit result and the component results.
