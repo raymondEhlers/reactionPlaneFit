@@ -11,15 +11,29 @@ time savings is worth it.
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
+import logging
 import numpy as np
 import pkg_resources
 import pytest
 import tempfile
+from typing import Any, Optional, Tuple, TYPE_CHECKING
 
 from reaction_plane_fit import base
 from reaction_plane_fit import example
 from reaction_plane_fit import plot
 from reaction_plane_fit import three_orientations
+
+if TYPE_CHECKING:
+    import iminuit  # noqa: F401
+
+# Typing helpers
+# This is a tuple of the matplotlib figure and axes. However, we only specify Any here
+# because we don't want an explicit package dependency on matplotlib.
+Axes = Any
+Figure = Any
+DrawResult = Tuple[Figure, Axes]
+
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def setup_integration_tests(logging_mixin) -> str:
@@ -28,12 +42,13 @@ def setup_integration_tests(logging_mixin) -> str:
 
     return sample_data_filename
 
-def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_result: base.FitResult) -> bool:
+def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_result: base.FitResult, minuit: Optional["iminuit.Minuit"] = None) -> bool:
     """ Helper function to compare a fit result to an expected fit result.
 
     Args:
         fit_result: The calculated fit result.
         expected_fit_result: The expected fit result.
+        minuit: Minuit from the fit.
     Returns:
         bool: True if the fit results are the same.
     """
@@ -64,6 +79,17 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
         list(expected_fit_result.covariance_matrix.values()),
         atol = 1e-5, rtol = 0
     )
+    # Compare correlation matrices to minuit
+    if minuit:
+        correlation = minuit.np_matrix(correlation = True).reshape(-1)
+        np.testing.assert_allclose(
+            correlation,
+            list(expected_fit_result.correlation_matrix.values()),
+            atol = 5e-4, rtol = 0,
+        )
+    # Check that the correlation matrix diagonal is one as a sanity check
+    correlation_diagonal = [expected_fit_result.correlation_matrix[(n, n)] for n in expected_fit_result.free_parameters]
+    assert np.allclose(correlation_diagonal, np.ones(len(correlation_diagonal)))
 
     # Check particular base class attributes
     # Check the main fit only attributes.
@@ -89,7 +115,7 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
 
 @pytest.mark.slow
 @pytest.mark.mpl_image_compare(tolerance = 5)
-def test_inclusive_signal_fit(setup_integration_tests):
+def test_inclusive_signal_fit(setup_integration_tests) -> Figure:
     """ Integration test for the inclusive signal fit.
 
     This uses the sample data in the ``testFiles`` directory.
@@ -289,26 +315,29 @@ def test_inclusive_signal_fit(setup_integration_tests):
     # Run the fit
     # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
     #       one to test the logic of how they are set.
-    rp_fit, data = example.run_inclusive_signal_fit(
+    rp_fit, data, minuit = example.run_inclusive_signal_fit(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
 
     # Check the result
-    assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result, expected_fit_result = expected_fit_result) is True
+    assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
+                                          expected_fit_result = expected_fit_result,
+                                          minuit = minuit) is True
     # Check the components
     for fit_type, fit_component in rp_fit.components.items():
-        assert compare_fit_result_to_expected(fit_result = fit_component.fit_result, expected_fit_result = expected_components[fit_type]) is True
+        assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
+                                              expected_fit_result = expected_components[fit_type]) is True
 
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the residual plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the residual in test_background_fit(...)
-    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, filename = None)
+    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, filename = "")
     return fig
 
 @pytest.mark.slow
 @pytest.mark.mpl_image_compare(tolerance = 5)
-def test_background_fit(setup_integration_tests):
+def test_background_fit(setup_integration_tests) -> Figure:
     """ Integration test for the background fit.
 
     This uses the sample data in the ``testFiles`` directory.
@@ -427,14 +456,15 @@ def test_background_fit(setup_integration_tests):
     # Run the fit
     # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
     #       one to test the logic of how they are set.
-    rp_fit, data = example.run_background_fit(
+    rp_fit, data, minuit = example.run_background_fit(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
-                                          expected_fit_result = expected_fit_result) is True
+                                          expected_fit_result = expected_fit_result,
+                                          minuit = minuit) is True
     # Check the components
     for fit_type, fit_component in rp_fit.components.items():
         assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
@@ -443,15 +473,18 @@ def test_background_fit(setup_integration_tests):
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the fit plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the fit in test_inclusive_signal_fit(...)
-    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = None)
+    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = "")
     return fig
 
 @pytest.mark.slow
+@pytest.mark.parametrize("calculate_correlation_matrix_before_writing", [
+    False, True,
+], ids = ["Don't calculate correlation matrix", "Calculate correlation matrix"])
 @pytest.mark.parametrize("example_module_func, fit_object", [
     (example.run_background_fit, three_orientations.BackgroundFit),
     (example.run_inclusive_signal_fit, three_orientations.InclusiveSignalFit),
 ], ids = ["Background", "Inclusive signal"])
-def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, example_module_func, fit_object):
+def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, calculate_correlation_matrix_before_writing, example_module_func, fit_object):
     """ Test storing results via the pachyderm `yaml` module.
 
     Note:
@@ -461,7 +494,7 @@ def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, 
     # Setup
     sample_data_filename = setup_integration_tests
 
-    expected_rp_fit, data = example_module_func(
+    expected_rp_fit, data, minuit = example_module_func(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
@@ -475,6 +508,10 @@ def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, 
         background_region = (0.8, 1.2),
     )
 
+    if calculate_correlation_matrix_before_writing:
+        # Don't need to actually do anything with it - just calculate it.
+        expected_rp_fit.fit_result.correlation_matrix
+
     # Write to and then read from a file.
     with tempfile.NamedTemporaryFile(mode = "r+") as f:
         # Use the performed fit to write the fit result.
@@ -486,13 +523,25 @@ def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, 
 
     # Check the result
     assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
-                                          expected_fit_result = expected_rp_fit.fit_result) is True
+                                          expected_fit_result = expected_rp_fit.fit_result,
+                                          minuit = minuit) is True
+    # Check the correlation matrix are the same in the fit objects (since we are testing if the object
+    # is preserved during the YAML round trip)
+    assert list(rp_fit.fit_result.correlation_matrix.keys()) == list(expected_rp_fit.fit_result.correlation_matrix.keys())
+    np.testing.assert_allclose(list(rp_fit.fit_result.correlation_matrix.values()),
+                               list(expected_rp_fit.fit_result.correlation_matrix.values()))
     # Check the components
     for (fit_type, fit_component), (expected_fit_type, expected_fit_component) in \
             zip(rp_fit.components.items(), expected_rp_fit.components.items()):
         assert fit_type == expected_fit_type
         assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
                                               expected_fit_result = expected_fit_component.fit_result) is True
+        # Check the correlation matrix are the same in the fit objects (since we are testing if the object
+        # is preserved during the YAML round trip)
+        assert list(fit_component.fit_result.correlation_matrix.keys()) == \
+            list(expected_fit_component.fit_result.correlation_matrix.keys())
+        np.testing.assert_allclose(list(fit_component.fit_result.correlation_matrix.values()),
+                                   list(expected_fit_component.fit_result.correlation_matrix.values()))
 
 def test_invalid_arguments(logging_mixin, setup_integration_tests) -> None:
     """ Test detection for invalid arguments.
