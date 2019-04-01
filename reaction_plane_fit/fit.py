@@ -187,7 +187,8 @@ class ReactionPlaneFit(ABC):
         # First, ensure that all user passed arguments are already in the argument keys. If not, the user probably
         # passed the wrong argument unintentionally.
         for k, v in user_arguments.items():
-            if k not in arguments:
+            # The second condition allows us to fix components that were not previously fixed.
+            if k not in arguments and k.replace("fix_", "") not in arguments:
                 raise ValueError(
                     f"User argument {k} (with value {v}) is not present in the fit arguments."
                     f" Possible arguments: {arguments}"
