@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import iminuit
 import logging
 import numpy as np
-from typing import Dict, Tuple, TYPE_CHECKING
+from typing import Dict, List, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from reaction_plane_fit import fit
@@ -54,9 +54,9 @@ class FitResult(ABC):
             with (param_name_a, param_name_b), and the values are covariance between the specified parameters.
             Note that fixed parameters are _not_ included in this matrix.
     """
-    parameters: list
-    free_parameters: list
-    fixed_parameters: list
+    parameters: List[str]
+    free_parameters: List[str]
+    fixed_parameters: List[str]
     values_at_minimum: Dict[str, float]
     errors_on_parameters: Dict[str, float]
     covariance_matrix: Dict[Tuple[str, str], float]
