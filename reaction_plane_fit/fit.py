@@ -285,8 +285,7 @@ class ReactionPlaneFit(ABC):
         if not minuit.matrix_accurate:
             raise base.FitFailed("Corvairance matrix is not accurate!")
 
-        # Calculate chi2/ndf (or really, min function value/ndf)
-        # NDF = number of points used in the fit minus the number of free parameters.
+        # Determine some of the fit result parameters.
         fixed_parameters = [k for k, v in minuit.fixed.items() if v is True]
         parameters = iminuit.util.describe(self._fit)
         # Can't just use set(parameters) - set(fixed_parameters) becase set() is unordered!
