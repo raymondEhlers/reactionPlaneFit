@@ -9,8 +9,10 @@ from abc import ABC
 from dataclasses import dataclass
 import iminuit
 import logging
+import numdifftools as nd
 import numpy as np
-from typing import Dict, List, Tuple, TYPE_CHECKING
+import time
+from typing import Callable, Dict, List, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from reaction_plane_fit import fit
@@ -189,6 +191,92 @@ class ComponentFitResult(FitResult):
             # This will be determine and set later.
             errors = np.array([]),
         )
+
+def calculate_function_errors(func: Callable[..., float], fit_result: FitResult, x: np.ndarray) -> np.array:
+    """ Calculate the errors of the given function based on values from the fit.
+
+    Note:
+        We don't take the x values for the fit_result as it may be desirable to calculate the errors for
+        only a subset of x values. Plus, the component fit result doesn't store the x values, so it would
+        complicate the validation. It's much easier to just require the user to pass the x values (and it takes
+        little effort to do so).
+
+    Args:
+        func: Function to use in calculating the errors.
+        fit_result: Fit result for which the errors will be calculated.
+        x: x values where the errors will be evaluated.
+    Returns:
+        The calculated error values.
+    """
+    # Determine relevant parameters for the given function
+    func_parameters = iminuit.util.describe(func)
+
+    # We need a function wrapper to call our fit function because ``numdifftools`` requires that each variable
+    # which will be differentiated against must in a list in the first argument. The wrapper just expands
+    # that list for us.
+    def func_wrap(x):
+        # Need to expand the arguments
+        return func(*x)
+    # Setup to compute the derivative
+    partial_derivative_func = nd.Gradient(func_wrap)
+
+    # Determine the arguments for the fit function
+    # NOTE: The fit result may have more arguments at minimum and free parameters than the fit function that we've
+    #       passed (for example, if we've calculating the background parameters for the inclusive signal fit), so
+    #       we need to determine the free parameters here.
+    # We cannot use just values_at_minimum because the arguments are ordered and therefore x must be the first argument.
+    # So instead, we create the dict with "x" as the first key, and then update with the rest. We set it here to a very
+    # large float to be clear that it will be set later.
+    args_at_minimum = {"x": -1000000.0}
+    args_at_minimum.update({k: v for k, v in fit_result.values_at_minimum.items() if k in func_parameters})
+    # Retrieve the parameters to use in calculating the fit errors.
+    free_parameters = [p for p in fit_result.free_parameters if p in func_parameters]
+    # To calculate the error, we need to match up the parameter names to their index in the arguments list
+    args_at_minimum_keys = list(args_at_minimum)
+    name_to_index = {name: args_at_minimum_keys.index(name) for name in free_parameters}
+    logger.debug(f"args_at_minimum: {args_at_minimum}")
+    logger.debug(f"free_parameters: {free_parameters}")
+    logger.debug(f"name_to_index: {name_to_index}")
+
+    # To store the errors for each point
+    error_vals = np.zeros(len(x))
+
+    for i, val in enumerate(x):
+        # Specify x for the function call
+        args_at_minimum["x"] = val
+
+        # Evaluate the partial derivative at a given x value with respect to all of the variables in the given function.
+        # In principle, we've doing some unnecessary work because we also calculate the gradient with
+        # respect to fixed parameters. But due to the argument requirements of ``numdifftools``, it would be
+        # quite difficult to tell it to only take the gradient with respect to a non-continuous selection of
+        # parameters. So we just accept the inefficiency.
+        logger.debug(f"Calculating the gradient for point {i}.")
+        # We time it to keep track of how long it takes to evaluate. Sometimes it can be a bit slow.
+        start = time.time()
+        # Actually evaluate the gradient. The args must be called as a list.
+        partial_derivative_result = partial_derivative_func(list(args_at_minimum.values()))
+        end = time.time()
+        logger.debug(f"Finished calculating the gradient in {end-start} seconds.")
+
+        # Finally, calculate the error by multiplying the matrix of gradient by the covariance matrix values.
+        error_val = 0
+        for i_name in free_parameters:
+            for j_name in free_parameters:
+                # Determine the error value
+                #logger.debug(f"Calculating error for i_name: {i_name}, j_name: {j_name}")
+                # Add error to overall error value
+                error_val += (
+                    partial_derivative_result[name_to_index[i_name]]
+                    * partial_derivative_result[name_to_index[j_name]]
+                    * fit_result.covariance_matrix[(i_name, j_name)]
+                )
+
+        # Store the value at the specified point. Note that we store the error, rather than the error squared.
+        # Modify from error squared to error
+        #logger.debug("i: {}, error_val: {}".format(i, error_val))
+        error_vals[i] = np.sqrt(error_val)
+
+    return error_vals
 
 @dataclass
 class ReactionPlaneParameter:
