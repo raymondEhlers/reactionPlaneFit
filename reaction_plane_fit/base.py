@@ -79,9 +79,14 @@ class FitResult(ABC):
             return self._correlation_matrix
         except AttributeError:
             def corr(i_name: str, j_name: str) -> float:
-                """ Calculate the correlation matrix (definition from iminut) from the covariance matrix. """
-                value = self.covariance_matrix[(i_name, j_name)] / (np.sqrt(self.covariance_matrix[(i_name, i_name)] * self.covariance_matrix[(j_name, j_name)]) + 1e-100)
-                # Need to explicitly cast to float. Otherwise, it will return a np.float64, which will cause problems for YAML...
+                """ Calculate the correlation matrix (definition from iminuit) from the covariance matrix. """
+                # The + 1e-100 is just to ensure that we don't divide by 0.
+                value = (self.covariance_matrix[(i_name, j_name)]
+                         / (np.sqrt(self.covariance_matrix[(i_name, i_name)]
+                            * self.covariance_matrix[(j_name, j_name)]) + 1e-100)
+                         )
+                # Need to explicitly cast to float. Otherwise, it will return a np.float64, which will cause problems
+                # for YAML...
                 return float(value)
 
             matrix: Dict[Tuple[str, str], float] = {}
@@ -113,8 +118,8 @@ class RPFitResult(FitResult):
             Note that fixed parameters are _not_ included in this matrix.
         x: x values where the fit result should be evaluated.
         n_fit_data_points (int): Number of data points used in the fit.
-        minimul_val (float): Minimum value of the fit when it coverages. This is the chi2 value for a
-            chi2 minimization fit.
+        minimul_val (float): Minimum value of the fit when it coverages. This is the chi squared value for a
+            chi squared minimization fit.
         nDOF (int): Number of degrees of freedom. Calculated on request from ``n_fit_data_points`` and ``free_parameters``.
     """
     x: np.array
@@ -163,7 +168,7 @@ class ComponentFitResult(FitResult):
         fixed_parameters = [p for p in parameters if p in fit_result.fixed_parameters]
         free_parameters = [p for p in parameters if p not in fit_result.fixed_parameters]
         # Need to carefully grab the available values corresponding to the parameters or free_parameters, respectively.
-        # NOTE: We cannot just iterate over the dicts themselves and check if the keys are in parameters because
+        # NOTE: We cannot just iterate over the dict(s) themselves and check if the keys are in parameters because
         #       the parameters are de-duplicated, and thus the order can be wrong. In particular, for signal fits,
         #       B of the background fit ends up at the end of the dict because all of the other parameters are already
         #       defined for the signal fit. This approach won't have a problem with this, because we retrieve the values

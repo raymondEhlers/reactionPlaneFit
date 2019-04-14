@@ -481,10 +481,10 @@ class FitComponent(ABC):
         """ Setup the fit using information from the input hist.
 
         Args:
-            input_hist (histogram.Histogram1D): The histogram to be fit by this function.
+            input_hist: The histogram to be fit by this function.
         Returns:
-            histogram.Histogram1D: The data limited histogram (to be used for determining the number of data points used
-                in the fit). Note that the fit is fully setup at this point.
+            The data limited histogram (to be used for determining the number of data points used in the fit).
+                Note that the fit is fully setup at this point.
         """
         # Determine the data which should be used for the fit.
         limited_hist = self.set_data_limits(hist = input_hist)
@@ -555,7 +555,7 @@ class FitComponent(ABC):
 
         Note:
             These values should be specified with the proper names so that they will be recognized by Minuit.
-            This is the users' responsbility.
+            This is the user's responsibility.
 
         Args:
             None.
@@ -590,7 +590,7 @@ class FitComponent(ABC):
             # Add in the signal limits regardless of RP orientation
             arguments.update(signal_limits)
 
-            # Background label related to the fourier series (and this is labeled as "BG")
+            # Background label related to the Fourier series (and this is labeled as "BG")
             background_label = "BG"
         else:
             # Background limits related to the RP background (and thus is labeled as "B")
@@ -621,7 +621,7 @@ class FitComponent(ABC):
         arguments.update(background_limits)
 
         # Set error definition depending on whether we are using log likelihood or not
-        # 0.5 should be used for negative log-likelihood, while 1 should be used for least sqaures (chi2)
+        # 0.5 should be used for negative log-likelihood, while 1 should be used for least squares (chi2)
         arguments.update({"errordef": 0.5 if self.use_log_likelihood else 1.0})
 
         return arguments
@@ -630,7 +630,7 @@ class FitComponent(ABC):
         """ Calculate the fit function errors based on values from the fit.
 
         Args:
-            x: x values where the errors will be evaluted.
+            x: x values where the errors will be evaluated.
         Returns:
             The calculated error values.
         """
@@ -640,7 +640,7 @@ class FitComponent(ABC):
         """ Calculate the background function errors based on values from the fit.
 
         Args:
-            x: x values where the errors will be evaluted.
+            x: x values where the errors will be evaluated.
         Returns:
             The calculated error values.
         """
