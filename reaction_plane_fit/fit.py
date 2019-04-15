@@ -7,7 +7,7 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import cast, Callable, Dict, Optional, Tuple, Union
+from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import iminuit
 import numpy as np
@@ -59,7 +59,7 @@ class ReactionPlaneFit(ABC):
         _fit (Callable): Fit function for the RP fit.
     """
     # RP orientations (including inclusive). Should be overridden by the derived class.
-    _rp_orientations: list = []
+    _rp_orientations: List[str] = []
     reaction_plane_parameters: Dict[str, base.ReactionPlaneParameter] = {}
 
     def __init__(self, resolution_parameters: ResolutionParameters,
@@ -79,12 +79,12 @@ class ReactionPlaneFit(ABC):
         self.fit_result: base.RPFitResult
 
     @property
-    def rp_orientations(self) -> list:
+    def rp_orientations(self) -> List[str]:
         """ Get the RP orientations (excluding the inclusive, which is the last entry). """
         # "inclusive" must be the last entry.
         return self._rp_orientations[:-1]
 
-    def _determine_reaction_plane_parameters(self, rp_orientation) -> base.ReactionPlaneParameter:
+    def _determine_reaction_plane_parameters(self, rp_orientation: str) -> base.ReactionPlaneParameter:
         """ Helper to determine the reaction plane parameters. """
         return self.reaction_plane_parameters[rp_orientation]
 
@@ -155,7 +155,7 @@ class ReactionPlaneFit(ABC):
 
         return formatted_data
 
-    def _validate_data(self, data: dict) -> bool:
+    def _validate_data(self, data: Data) -> bool:
         """ Validate that the provided data is sufficient for the defined components.
 
         Args:
@@ -416,7 +416,7 @@ class FitComponent(ABC):
         # Result
         self.fit_result: base.ComponentFitResult
 
-    def set_fit_type(self, region: Optional[str] = None, orientation: Optional[str] = None):
+    def set_fit_type(self, region: Optional[str] = None, orientation: Optional[str] = None) -> None:
         """ Update the fit type.
 
         Will use the any of the existing parameters if they are not specified.
@@ -437,7 +437,7 @@ class FitComponent(ABC):
         """ Evaluate the fit component.
 
         Args:
-            x: x values where the fit component will be evaluted.
+            x: x values where the fit component will be evaluated.
         Returns:
             Function values at the given x values.
         """
@@ -450,7 +450,7 @@ class FitComponent(ABC):
         a signal component, this describes the background contribution to the signal.
 
         Args:
-            x: x values where the fit component will be evaluted.
+            x: x values where the fit component will be evaluated.
         Returns:
             Background function values at the given x values.
         """
@@ -652,7 +652,7 @@ class SignalFitComponent(FitComponent):
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rp_orientation, *args, **kwargs):
+    def __init__(self, rp_orientation: str, *args, **kwargs):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
@@ -674,7 +674,7 @@ class BackgroundFitComponent(FitComponent):
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rp_orientation, *args, **kwargs):
+    def __init__(self, rp_orientation: str, *args, **kwargs):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")

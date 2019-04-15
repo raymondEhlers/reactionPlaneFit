@@ -11,11 +11,14 @@ for each value in an array by ``iminuit``.
 import logging
 import numpy as np
 import probfit
-from typing import Callable
+from typing import Callable, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from reaction_plane_fit import base
 
 logger = logging.getLogger(__name__)
 
-def determine_signal_dominated_fit_function(rp_orientation: str, resolution_parameters: dict, reaction_plane_parameter, rp_background_function: Callable[..., float]) -> Callable[..., float]:
+def determine_signal_dominated_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float], reaction_plane_parameter: "base.ReactionPlaneParameter", rp_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the signal fit function.
 
     This function consists of near-side and away side gaussians representing the signal added to a function
@@ -61,7 +64,7 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
     logger.debug(f"rp_orientation: {rp_orientation}, signal_dominated_func: {probfit.describe(signal_dominated_func)}")
     return signal_dominated_func
 
-def determine_background_fit_function(rp_orientation: str, resolution_parameters: dict, reaction_plane_parameter, rp_background_function: Callable[..., float]) -> Callable[..., float]:
+def determine_background_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float], reaction_plane_parameter: "base.ReactionPlaneParameter", rp_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the background fit function.
 
     For inclusive RP orientations, this is a Fourier series. For other RP orientations,
@@ -92,7 +95,7 @@ def determine_background_fit_function(rp_orientation: str, resolution_parameters
     logger.debug(f"rp_orientation: {rp_orientation}, background_func: {probfit.describe(background_func)}")
     return background_func
 
-def signal_wrapper(x: float, ns_amplitude: float, as_amplitude: float, ns_sigma: float, as_sigma: float, signal_pedestal: float, **kwargs: dict) -> float:
+def signal_wrapper(x: float, ns_amplitude: float, as_amplitude: float, ns_sigma: float, as_sigma: float, signal_pedestal: float, **kwargs: float) -> float:
     """ Wrapper for use with ``iminuit`` that basically reassigns descriptive parameter names to shorter names.
 
     These shorter names make the function definition less verbose to look and therefore easier to understand.
@@ -134,7 +137,7 @@ def signal(x: float, A1: float, A2: float, s1: float, s2: float, pedestal: float
         + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
         + pedestal
 
-def background_wrapper(phi: float, c: float, resolution_parameters: dict, background_function: Callable[..., float]):
+def background_wrapper(phi: float, c: float, resolution_parameters: Dict[str, float], background_function: Callable[..., float]) -> Callable[..., float]:
     """ Wrapper around the RPF background function to allow the specification of relevant parameters.
 
     This allows the more standard background function to be used without having to pass these fixed parameters
@@ -149,7 +152,7 @@ def background_wrapper(phi: float, c: float, resolution_parameters: dict, backgr
     Returns:
         function: Wrapper around the actual background function with the specified parameters.
     """
-    def bg_wrapper(x: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
+    def bg_wrapper(x: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
         """ Defines the background function that will be passed to a particular cost function
         (and eventually, to ``iminuit``).
 
@@ -182,7 +185,7 @@ def background_wrapper(phi: float, c: float, resolution_parameters: dict, backgr
 
     return bg_wrapper
 
-def fourier(x: float, BG: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
+def fourier(x: float, BG: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
     """ Fourier decomposition for use in describing the background.
 
     Note:

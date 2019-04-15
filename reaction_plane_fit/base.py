@@ -155,7 +155,7 @@ class ComponentFitResult(FitResult):
     errors: np.ndarray
 
     @classmethod
-    def from_rp_fit_result(cls, fit_result: RPFitResult, component: "fit.FitComponent"):
+    def from_rp_fit_result(cls, fit_result: RPFitResult, component: "fit.FitComponent") -> "ComponentFitResult":
         """ Extract the component fit result from the fit component and the RP fit result.
 
         Args:
@@ -214,7 +214,7 @@ def calculate_function_errors(func: Callable[..., float], fit_result: FitResult,
     # We need a function wrapper to call our fit function because ``numdifftools`` requires that each variable
     # which will be differentiated against must in a list in the first argument. The wrapper just expands
     # that list for us.
-    def func_wrap(x):
+    def func_wrap(x: List[float]) -> float:
         # Need to expand the arguments
         return func(*x)
     # Setup to compute the derivative

@@ -10,7 +10,7 @@ Provides example for fitting only the background, or fitting the inclusive signa
 import argparse
 import logging
 import pkg_resources
-from typing import Tuple, Type, TYPE_CHECKING
+from typing import Any, Dict, Tuple, Type, TYPE_CHECKING
 import uproot
 
 from reaction_plane_fit import fit
@@ -39,7 +39,7 @@ def setup_data(input_filename: str, include_signal: bool) -> InputData:
     Returns:
         dict: Containing the input data.
     """
-    data: dict = {"signal": {}, "background": {}}
+    data: Dict[str, Any] = {"signal": {}, "background": {}}
     with uproot.open(input_filename) as f:
         if include_signal:
             data["signal"]["inclusive"] = f["signalDominated_inclusive"]

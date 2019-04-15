@@ -135,17 +135,17 @@ class SignalFit(ReactionPlaneFit):
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
-        for region, fitComponent in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
+        for region, fit_component in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
             for orientation in self.rp_orientations:
                 fit_type = base.FitType(region = region, orientation = orientation)
-                self.components[fit_type] = fitComponent(rp_orientation = fit_type.orientation,
-                                                         resolution_parameters = self.resolution_parameters,
-                                                         use_log_likelihood = self.use_log_likelihood)
+                self.components[fit_type] = fit_component(rp_orientation = fit_type.orientation,
+                                                          resolution_parameters = self.resolution_parameters,
+                                                          use_log_likelihood = self.use_log_likelihood)
 
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
 
-def background(x: float, phi: float, c: float, resolution_parameters: Dict[str, float], B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: dict) -> float:
+def background(x: float, phi: float, c: float, resolution_parameters: Dict[str, float], B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
     """ The background function is of the form specified in the RPF paper.
 
     Resolution parameters implemented include R{2,2} through R{8,2}, which denotes the resolution of an order
