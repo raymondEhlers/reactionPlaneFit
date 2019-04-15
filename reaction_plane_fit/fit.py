@@ -108,7 +108,7 @@ class ReactionPlaneFit(ABC):
 
     def _validate_settings(self) -> bool:
         """ Validate the passed settings. """
-        # Check that there are sufficient res params
+        # Check that there are sufficient resolution parameters.
         resParams = set(["R22", "R42", "R62", "R82"])
         good_params = resParams.issubset(self.resolution_parameters.keys())
         if not good_params:
@@ -278,7 +278,7 @@ class ReactionPlaneFit(ABC):
         # Check if fit is considered valid
         if good_fit is False:
             raise base.FitFailed("Minimization failed! The fit is invalid!")
-        # Check covariance matrix accuracy. We need to check it explictily because It appears that it is not
+        # Check covariance matrix accuracy. We need to check it explicitly because It appears that it is not
         # included in the migrad_ok status check.
         if not minuit.matrix_accurate:
             raise base.FitFailed("Corvairance matrix is not accurate!")
@@ -286,7 +286,7 @@ class ReactionPlaneFit(ABC):
         # Determine some of the fit result parameters.
         fixed_parameters = [k for k, v in minuit.fixed.items() if v is True]
         parameters = iminuit.util.describe(self._fit)
-        # Can't just use set(parameters) - set(fixed_parameters) becase set() is unordered!
+        # Can't just use set(parameters) - set(fixed_parameters) because set() is unordered!
         free_parameters = [p for p in parameters if p not in set(fixed_parameters)]
         # Determine the number of fit data points. This cannot just be the length of x because we need to count
         # the data points that are used in all histograms!

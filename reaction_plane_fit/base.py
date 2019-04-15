@@ -129,7 +129,7 @@ class RPFitResult(FitResult):
     minimum_val: float
 
     @property
-    def nDOF(self):
+    def nDOF(self) -> int:
         return self.n_fit_data_points - len(self.free_parameters)
 
 @dataclass
