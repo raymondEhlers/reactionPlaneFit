@@ -120,7 +120,7 @@ class RPFitResult(FitResult):
             Note that fixed parameters are _not_ included in this matrix.
         x: x values where the fit result should be evaluated.
         n_fit_data_points (int): Number of data points used in the fit.
-        minimul_val (float): Minimum value of the fit when it coverages. This is the chi squared value for a
+        minimum_val (float): Minimum value of the fit when it coverages. This is the chi squared value for a
             chi squared minimization fit.
         nDOF (int): Number of degrees of freedom. Calculated on request from ``n_fit_data_points`` and ``free_parameters``.
     """
@@ -273,7 +273,7 @@ def calculate_function_errors(func: Callable[..., float], fit_result: FitResult,
 
         # Store the value at the specified point. Note that we store the error, rather than the error squared.
         # Modify from error squared to error
-        #logger.debug("i: {}, error_val: {}".format(i, error_val))
+        #logger.debug(f"i: {i}, error_val: {error_val}")
         error_vals[i] = np.sqrt(error_val)
 
     return error_vals
