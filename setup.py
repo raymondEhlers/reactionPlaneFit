@@ -80,6 +80,9 @@ setup(
     package_data = {
         "reaction_plane_fit": ["py.typed"],
     },
+    # Apparently this is required to be compatiable with mypy.
+    # See: https://mypy.readthedocs.io/en/latest/installed_packages.html
+    zip_safe = False,
 
     extras_require = {
         "tests": [
