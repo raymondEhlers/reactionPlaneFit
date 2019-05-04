@@ -8,7 +8,7 @@
 import logging
 import numpy as np
 from numpy import sin, cos
-from typing import Dict
+from typing import Any, Dict
 
 from reaction_plane_fit import base
 from reaction_plane_fit import fit
@@ -80,7 +80,7 @@ class BackgroundFit(ReactionPlaneFit):
     Args:
         Same as for ``ReactionPlaneFit``.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         # Create the base class first
         super().__init__(*args, **kwargs)
 
@@ -103,7 +103,7 @@ class InclusiveSignalFit(ReactionPlaneFit):
     Args:
         Same as for ``ReactionPlaneFit``.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         # Create the base class first
         super().__init__(*args, **kwargs)
 
@@ -130,12 +130,14 @@ class SignalFit(ReactionPlaneFit):
     Args:
         Same as for ``ReactionPlaneFit``.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         # Create the base class first
         super().__init__(*args, **kwargs)
 
         # Setup the fit components
         for region, fit_component in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
+            # Help out mypy
+            assert isinstance(fit_component, (SignalFitComponent, BackgroundFitComponent))
             for orientation in self.rp_orientations:
                 fit_type = base.FitType(region = region, orientation = orientation)
                 self.components[fit_type] = fit_component(rp_orientation = fit_type.orientation,

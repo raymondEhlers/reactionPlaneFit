@@ -11,7 +11,7 @@ for each value in an array by ``iminuit``.
 import logging
 import numpy as np
 import probfit
-from typing import Callable, Dict, TYPE_CHECKING
+from typing import Callable, cast, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from reaction_plane_fit import base
@@ -62,7 +62,7 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
         signal_dominated_func = probfit.functor.AddPdf(signal_func, background_func, prefix = [rp_orientation + "_", "BG"], skip_prefix = prefix_skip_parameters)
 
     logger.debug(f"rp_orientation: {rp_orientation}, signal_dominated_func: {probfit.describe(signal_dominated_func)}")
-    return signal_dominated_func
+    return cast(Callable[..., float], signal_dominated_func)
 
 def determine_background_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float], reaction_plane_parameter: "base.ReactionPlaneParameter", rp_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the background fit function.
@@ -133,9 +133,12 @@ def signal(x: float, A1: float, A2: float, s1: float, s2: float, pedestal: float
     Returns:
         float: Value calculated by the function.
     """
-    return A1 * probfit.pdf.gaussian(x = x, mean = 0.0, sigma = s1) \
-        + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2) \
+    return cast(
+        float,
+        A1 * probfit.pdf.gaussian(x = x, mean = 0.0, sigma = s1)
+        + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2)
         + pedestal
+    )
 
 def background_wrapper(phi: float, c: float, resolution_parameters: Dict[str, float], background_function: Callable[..., float]) -> Callable[..., float]:
     """ Wrapper around the RPF background function to allow the specification of relevant parameters.
@@ -205,8 +208,10 @@ def fourier(x: float, BG: float, v2_t: float, v2_a: float, v4_t: float, v4_a: fl
     Returns:
         float: Values calculated by the function.
     """
-    return BG * (1 + 2 * v1 * np.cos(x)
-                   + 2 * v2_t * v2_a * np.cos(2 * x)
-                   + 2 * v3 * np.cos(3 * x)
-                   + 2 * v4_t * v4_a * np.cos(4 * x))
-
+    return cast(
+        float,
+        BG * (1 + 2 * v1 * np.cos(x)
+              + 2 * v2_t * v2_a * np.cos(2 * x)
+              + 2 * v3 * np.cos(3 * x)
+              + 2 * v4_t * v4_a * np.cos(4 * x))
+    )

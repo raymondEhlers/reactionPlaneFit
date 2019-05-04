@@ -7,7 +7,7 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Union
 
 import iminuit
 import numpy as np
@@ -64,8 +64,8 @@ class ReactionPlaneFit(ABC):
 
     def __init__(self, resolution_parameters: ResolutionParameters,
                  use_log_likelihood: bool,
-                 signal_region: Tuple[float, float] = None,
-                 background_region: Tuple[float, float] = None,
+                 signal_region: Optional[Tuple[float, float]] = None,
+                 background_region: Optional[Tuple[float, float]] = None,
                  use_minos: bool = False):
         self.resolution_parameters = resolution_parameters
         self.use_log_likelihood = use_log_likelihood
@@ -225,7 +225,8 @@ class ReactionPlaneFit(ABC):
         minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: Union[InputData, Data], user_arguments: FitArguments = None) -> Tuple[bool, Data, iminuit.Minuit]:
+    def fit(self, data: Union[InputData, Data],
+            user_arguments: Optional[FitArguments] = None) -> Tuple[bool, Data, iminuit.Minuit]:
         """ Perform the actual fit.
 
         Args:
@@ -408,7 +409,7 @@ class FitComponent(ABC):
         # Called last to ensure that all variables are available.
         self.fit_function: Callable[..., float]
         # Fit cost function
-        self.cost_function = None
+        self.cost_function: Any
         # Background function. This describes the background of the component. In the case that the component
         # is fit to the background, this is identical to the fit function.
         self.background_function: Callable[..., float]
@@ -496,7 +497,10 @@ class FitComponent(ABC):
         """ Extract the data from the histogram. """
         return hist
 
-    def _cost_function(self, hist: Optional[histogram.Histogram1D] = None, bin_edges: Optional[np.ndarray] = None, y: Optional[np.ndarray] = None, errors_squared: Optional[np.ndarray] = None):
+    def _cost_function(self, hist: Optional[histogram.Histogram1D] = None,
+                       bin_edges: Optional[np.ndarray] = None,
+                       y: Optional[np.ndarray] = None,
+                       errors_squared: Optional[np.ndarray] = None) -> Any:
         """ Define the cost function.
 
         Called when setting up a fit object.
@@ -544,7 +548,7 @@ class FitComponent(ABC):
                                                    y = hist.y,
                                                    error = hist.errors)
 
-        # Return the function so that it can be stored. We explicitly return it
+        # Return the cost function class so that it can be stored. We explicitly return it
         # so that it is clear that it is being assigned.
         return cost_function
 
@@ -652,7 +656,7 @@ class SignalFitComponent(FitComponent):
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rp_orientation: str, *args, **kwargs):
+    def __init__(self, rp_orientation: str, *args: Any, **kwargs: Any):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
@@ -674,7 +678,7 @@ class BackgroundFitComponent(FitComponent):
         *args (list): Only use named args.
         **kwargs (dict): Named arguments to be passed on to the base component.
     """
-    def __init__(self, rp_orientation: str, *args, **kwargs):
+    def __init__(self, rp_orientation: str, *args: Any, **kwargs: Any):
         # Validation
         if args:
             raise ValueError(f"Please specify all variables by name. Gave positional arguments: {args}")
