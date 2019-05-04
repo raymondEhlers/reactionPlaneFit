@@ -2,6 +2,16 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [2.1.2] - 4 May 2019
+
+### Added
+
+- Enabled strict `mypy` checks. See: `1585c7398201319bac49f6881f678be3f9582ee5`.
+
+### Changed
+
+- Improved typing. `341330a5e48f1526848de27ceaba4ee10499de67`.
+
 ## [2.1.1] - 3 May 2019
 
 ### Changed
