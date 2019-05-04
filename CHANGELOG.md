@@ -2,6 +2,21 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [2.1.1] - 3 May 2019
+
+### Changed
+
+- Refactor function error calculation so that it can used by other packages. See:
+  `04dff6cc7cbd1fd4ad1f2f26ecc528dfeebbe3f7`.
+
+### Fixed
+
+- Enable fixing parameters via user arguments. See: `cf9de684245217d4c7583407940d5a3864b192b1`.
+- Properly mark the package as typed. See: `fe43d5368bb8fdd1defa5dbff8a39ac45d2424a3`.
+- Improved code formatting and typing information, and fixed typos.
+- Fix `mypy` typing in third party packages by adding `zip_safe = False` in the `setup.py`. See:
+  `79eb4e821bed8d5290c18c779c2bce6c8a71e5c0`.
+
 ## [2.1] - 29 March 2019
 
 ### Added
