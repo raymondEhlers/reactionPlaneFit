@@ -102,7 +102,7 @@ class ReactionPlaneFit(ABC):
         for fit_type, component in self.components.items():
             component.determine_fit_function(
                 resolution_parameters = self.resolution_parameters,
-                reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation)
+                reaction_plane_parameter = self._determine_reaction_plane_parameters(fit_type.orientation),
             )
 
         return True
@@ -390,6 +390,11 @@ class ReactionPlaneFit(ABC):
 
         return True
 
+    @abstractmethod
+    def create_full_set_of_components(self) -> Dict[str, "FitComponent"]:
+        """ Create the full set of fit components. """
+        ...
+
 class FitComponent(ABC):
     """ A component of the fit.
 
@@ -666,6 +671,7 @@ class SignalFitComponent(FitComponent):
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
+            inclusive_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
 
 class BackgroundFitComponent(FitComponent):
@@ -688,6 +694,7 @@ class BackgroundFitComponent(FitComponent):
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
+            inclusive_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
 
     def set_data_limits(self, hist: histogram.Histogram1D) -> histogram.Histogram1D:

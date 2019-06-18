@@ -20,7 +20,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-def determine_signal_dominated_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float], reaction_plane_parameter: "base.ReactionPlaneParameter", rp_background_function: Callable[..., float]) -> Callable[..., float]:
+def determine_signal_dominated_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float],
+                                            reaction_plane_parameter: "base.ReactionPlaneParameter",
+                                            rp_background_function: Callable[..., float],
+                                            inclusive_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the signal fit function.
 
     This function consists of near-side and away side gaussians representing the signal added to a function
@@ -33,17 +36,19 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
         reaction_plane_parameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
                 reaction plane.
-        rp_background_function (function): Background RP fit function.
+        rp_background_function (function): RP orientation dependent background fit function.
+        inclusive_background_function (function): Inclusive RP orientation background fit function.
     Returns:
         Callable: The signal fit function.
     """
     # Signal function
     signal_func = signal_wrapper
     # Background function
-    background_func = determine_background_fit_function(rp_orientation,
-                                                        resolution_parameters,
-                                                        reaction_plane_parameter,
-                                                        rp_background_function = rp_background_function)
+    background_func = determine_background_fit_function(
+        rp_orientation, resolution_parameters, reaction_plane_parameter,
+        rp_background_function = rp_background_function,
+        inclusive_background_function = inclusive_background_function
+    )
 
     if rp_orientation == "inclusive":
         # We don't need to rename the all orientations function because we can only use
@@ -71,11 +76,14 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
     )
     return cast(Callable[..., float], signal_dominated_func)
 
-def determine_background_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float], reaction_plane_parameter: "base.ReactionPlaneParameter", rp_background_function: Callable[..., float]) -> Callable[..., float]:
+def determine_background_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float],
+                                      reaction_plane_parameter: "base.ReactionPlaneParameter",
+                                      rp_background_function: Callable[..., float],
+                                      inclusive_background_function: Callable[..., float]) -> Callable[..., float]:
     """ Determine the background fit function.
 
-    For inclusive RP orientations, this is a Fourier series. For other RP orientations,
-    it is an RPF function.
+    For inclusive RP orientations, this is a Fourier series (but may include additional constraints).
+    For other RP orientations, it is an RPF function.
 
     Note:
         If the RP orientation is inclusive, it is assumed to be labeled as "inclusive".
@@ -86,12 +94,13 @@ def determine_background_fit_function(rp_orientation: str, resolution_parameters
             the R_{2,2} parameter) to the value. Expects "R22" - "R82". Only used for RPF.
         reaction_plane_parameter (base.ReactionPlaneParameter): Reaction plane parameters for the selected
                 reaction plane.
-        rp_background_function (function): Background RP fit function.
+        rp_background_function (function): RP orientation dependent background fit function.
+        inclusive_background_function (function): Inclusive RP orientation background fit function.
     Returns:
         function: The background function.
     """
     if rp_orientation == "inclusive":
-        background_func = fourier
+        background_func = inclusive_background_function
     else:
         # Define the function based on the parameters passed to the function.
         background_func = background_wrapper(phi = reaction_plane_parameter.phiS,

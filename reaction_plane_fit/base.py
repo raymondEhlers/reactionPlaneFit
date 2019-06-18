@@ -65,9 +65,28 @@ def component_fit_result_from_rp_fit_result(fit_result: fit_base.FitResult,
     Returns:
         Constructed component fit result.
     """
-    # We use the cost function because it describe will then exclude the x parameter (which is what we want)
-    parameters = iminuit.util.describe(component.cost_function)
+    # Although the cost function could be convenient (because it doesn't include the x parameter that we want
+    # to exclude), the fit function is more appropriate.
+    parameters = iminuit.util.describe(component.fit_function)
+    parameters.pop(parameters.index("x"))
     # Pare down the values to only include parameters which are relevant for this component.
+    #constructing_fake_component = False
+    #storage_parameters = {p: p for p in parameters}
+    #if "BG" in parameters and "BG" not in fit_result.values_at_minimum:
+    #    logger.info("Faking component")
+    #    constructing_fake_component = True
+    #    #parameters[parameters.index("BG")] = "B"
+    #    new_parameters = {}
+    #    for p in parameters:
+    #        if p == "BG":
+    #            new_parameters["BG"] = "B"
+    #        else:
+    #            new_parameters[p] = p
+    #    storage_parameters = new_parameters
+
+    #logger.info(f"parameters: {parameters}")
+    #logger.info(f"storage_parameters: {storage_parameters}")
+
     fixed_parameters = [p for p in parameters if p in fit_result.fixed_parameters]
     free_parameters = [p for p in parameters if p not in fit_result.fixed_parameters]
     # Need to carefully grab the available values corresponding to the parameters or free_parameters, respectively.
@@ -76,11 +95,16 @@ def component_fit_result_from_rp_fit_result(fit_result: fit_base.FitResult,
     #       B of the background fit ends up at the end of the dict because all of the other parameters are already
     #       defined for the signal fit. This approach won't have a problem with this, because we retrieve the values
     #       in the order of the parameters of the current fit component.
+    #values_at_minimum = {p: fit_result.values_at_minimum[storage_parameters[p]] for p in parameters}
+    #errors_on_parameters = {p: fit_result.errors_on_parameters[storage_parameters[p]] for p in parameters}
     values_at_minimum = {p: fit_result.values_at_minimum[p] for p in parameters}
     errors_on_parameters = {p: fit_result.errors_on_parameters[p] for p in parameters}
     covariance_matrix = {
         (a, b): fit_result.covariance_matrix[(a, b)] for a in free_parameters for b in free_parameters
     }
+    #logger.info(f"values_at_minimum: {values_at_minimum}")
+    #logger.info(f"errors_on_parameters: {errors_on_parameters}")
+    #logger.info(f"covariance_matrix: {covariance_matrix}")
 
     cost_function_data = component.cost_function.data
     # Help out mypy...

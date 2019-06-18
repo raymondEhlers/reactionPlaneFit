@@ -8,7 +8,7 @@
 import logging
 import numpy as np
 from numpy import sin, cos
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 from reaction_plane_fit import base
 from reaction_plane_fit import fit
@@ -16,31 +16,45 @@ from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
 
-# Define the relevant fit components for this set of RP orientation.
 class SignalFitComponent(fit.SignalFitComponent):
-    """ Signal fit component for three RP orientations. """
-    def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    """ Signal fit component for three RP orientations.
+
+    Args:
+        inclusive_background_function: Background function for the inclusive RP orientation. By default, one
+            should use ``fourier``, but when not fitting the inclusive orientation, one should use
+            the constrained ``fourier`` which sets the background level.
+    """
+    def __init__(self, inclusive_background_function: Callable[..., float], *args: Any, **kwargs: Any):
+        self._inclusive_background_function = inclusive_background_function
+        super().__init__(*args, **kwargs)
+
+    def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters,
+                               reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_signal_dominated_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
+            inclusive_background_function = self._inclusive_background_function,
         )
         self.background_function = functions.determine_background_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
+            inclusive_background_function = self._inclusive_background_function,
         )
 
 class BackgroundFitComponent(fit.BackgroundFitComponent):
     """ Background fit component for three RP orientations. """
-    def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters, reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
+    def determine_fit_function(self, resolution_parameters: fit.ResolutionParameters,
+                               reaction_plane_parameter: base.ReactionPlaneParameter) -> None:
         self.fit_function = functions.determine_background_fit_function(
             rp_orientation = self.rp_orientation,
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
+            inclusive_background_function = constrained_inclusive_background,
         )
         # This is identical to the fit function.
         self.background_function = self.fit_function
@@ -94,6 +108,42 @@ class BackgroundFit(ReactionPlaneFit):
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
 
+    def create_full_set_of_components(self) -> Dict[str, fit.FitComponent]:
+        """ Create the full set of fit components. """
+        # Sanity check that the fit has actually been performed.
+        if not hasattr(self, "fit_result"):
+            raise RuntimeError("Must perform fit before attempt to retrieve all of the fit components.")
+
+        # Determine the components to return
+        components = {}
+        # First copy the RP orientation components.
+        for fit_type, c in self.components.items():
+            components[fit_type.orientation] = c
+
+        # Create the inclusive component. We only want the background fit component.
+        inclusive_component = BackgroundFitComponent(
+            rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
+            use_log_likelihood = self.use_log_likelihood
+        )
+        # Fully setup the component and retrieve the appropraite fit result values.
+        inclusive_component.determine_fit_function(
+            resolution_parameters = self.resolution_parameters,
+            reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
+        )
+        # TODO: Extract the relevant information into the component
+        inclusive_component.fit_result = base.ComponentFitResult.from_rp_fit_result(
+            fit_result = self.fit_result,
+            component = inclusive_component,
+        )
+        # We need to caluclate the fit errors.
+        x = self.fit_result.x
+        inclusive_component.fit_result.errors = inclusive_component.calculate_fit_errors(x)
+
+        # Store the newly created component
+        components["inclusive"] = inclusive_component
+
+        return components
+
 class InclusiveSignalFit(ReactionPlaneFit):
     """ RPF for inclusive signal region, and background region in 3 reaction planes orientations.
 
@@ -109,7 +159,8 @@ class InclusiveSignalFit(ReactionPlaneFit):
 
         # Setup the fit components
         fit_type = base.FitType(region = "signal", orientation = "inclusive")
-        self.components[fit_type] = SignalFitComponent(rp_orientation = fit_type.orientation,
+        self.components[fit_type] = SignalFitComponent(inclusive_background_function = functions.fourier,
+                                                       rp_orientation = fit_type.orientation,
                                                        resolution_parameters = self.resolution_parameters,
                                                        use_log_likelihood = self.use_log_likelihood)
         for orientation in self.rp_orientations:
@@ -120,6 +171,19 @@ class InclusiveSignalFit(ReactionPlaneFit):
 
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
+
+    def create_full_set_of_components(self) -> Dict[str, fit.FitComponent]:
+        """ Create the full set of fit components. """
+        # Sanity check that the fit has actually been performed.
+        if not hasattr(self, "fit_result"):
+            raise RuntimeError("Must perform fit before attempt to retrieve all of the fit components.")
+
+        # We just return a component of the existing components, but with a simplied key.
+        components = {}
+        for fit_type, c in self.components.items():
+            components[fit_type.orientation] = c
+
+        return components
 
 class SignalFit(ReactionPlaneFit):
     """ RPF for signal and background regions with 3 reaction plane orientations.
@@ -136,18 +200,88 @@ class SignalFit(ReactionPlaneFit):
 
         # Setup the fit components
         for region, fit_component in [("signal", SignalFitComponent), ("background", BackgroundFitComponent)]:
-            # Help out mypy
-            assert isinstance(fit_component, (SignalFitComponent, BackgroundFitComponent))
             for orientation in self.rp_orientations:
                 fit_type = base.FitType(region = region, orientation = orientation)
-                self.components[fit_type] = fit_component(rp_orientation = fit_type.orientation,
-                                                          resolution_parameters = self.resolution_parameters,
-                                                          use_log_likelihood = self.use_log_likelihood)
+                # Determine the proper arguments
+                component_args: Dict[str, Any] = {
+                    "inclusive_background_function": constrained_inclusive_background,
+                    "rp_orientation": fit_type.orientation,
+                    "resolution_parameters": self.resolution_parameters,
+                    "use_log_likelihood": self.use_log_likelihood,
+                }
+                if region != "signal":
+                    # This isn't a valid argument for the background component, so remove it.
+                    component_args.pop("inclusive_background_function")
+
+                # Finally, create the components.
+                self.components[fit_type] = fit_component(**component_args)
 
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
 
-def background(x: float, phi: float, c: float, resolution_parameters: Dict[str, float], B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
+    def create_full_set_of_components(self) -> Dict[str, fit.FitComponent]:
+        """ Create the full set of fit components. """
+        # Sanity check that the fit has actually been performed.
+        if not hasattr(self, "fit_result"):
+            raise RuntimeError("Must perform fit before attempt to retrieve all of the fit components.")
+
+        # Determine the components to return
+        components = {}
+        # First copy the RP orientation components.
+        for fit_type, c in self.components.items():
+            components[fit_type.orientation] = c
+
+        # Create the inclusive component. We only want the background fit component.
+        inclusive_component = SignalFitComponent(
+            inclusive_background_function = constrained_inclusive_background,
+            rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
+            use_log_likelihood = self.use_log_likelihood
+        )
+        # Fully setup the component and retrieve the appropraite fit result values.
+        inclusive_component.determine_fit_function(
+            resolution_parameters = self.resolution_parameters,
+            reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
+        )
+        # TODO: Extract the relevant information into the component
+        inclusive_component.fit_result = base.ComponentFitResult.from_rp_fit_result(
+            fit_result = self.fit_result,
+            component = inclusive_component,
+        )
+        # We need to caluclate the fit errors.
+        x = self.fit_result.x
+        inclusive_component.fit_result.errors = inclusive_component.calculate_fit_errors(x)
+
+        # Store the newly created component
+        components["inclusive"] = inclusive_component
+
+        return components
+
+def constrained_inclusive_background(x: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float,
+                                     v1: float, v3: float, **kwargs: float) -> float:
+    """ Background function for inclusive signal compnent when performing the background fit.
+
+    Include the trivial scaling factor of ``3 * B`` because there are 3 RP orientations and that background
+    level is set by the individual RP orientations.
+
+    Args:
+        x (float): Delta phi value for which the background will be calculated.
+        B (float): Overall multiplicative background level.
+        v2_t (float): Trigger v_{2}.
+        v2_a (float): Associated v_{2}.
+        v4_t (float): Trigger v_{4}.
+        v4_a (float): Associated v_{4}
+        v1 (float): v1 parameter.
+        v3 (float): v3 parameter.
+        kwargs (dict): Used to absorbs extra possible parameters from Minuit (especially when used in
+                conjunction with other functions).
+    Returns:
+        float: Values calculated by the function.
+    """
+    return functions.fourier(x, 3 * B, v2_t, v2_a, v4_t, v4_a, v1, v3)
+
+def background(x: float, phi: float, c: float, resolution_parameters: fit.ResolutionParameters,
+               B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float,
+               **kwargs: float) -> float:
     """ The background function is of the form specified in the RPF paper.
 
     Resolution parameters implemented include R{2,2} through R{8,2}, which denotes the resolution of an order
