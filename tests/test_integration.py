@@ -14,12 +14,14 @@ time savings is worth it.
 import logging
 import numpy as np
 import pkg_resources
+import probfit
 import pytest
 import tempfile
 from typing import Any, Optional, Tuple, TYPE_CHECKING
 
 from reaction_plane_fit import base
 from reaction_plane_fit import example
+from reaction_plane_fit import functions
 from reaction_plane_fit import plot
 from reaction_plane_fit import three_orientations
 
@@ -491,6 +493,36 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
         assert compare_fit_result_to_expected(fit_result = fit_component.fit_result,
                                               expected_fit_result = expected_components[fit_type]) is True
 
+    # Check standard summary components
+    # Crreate the full set of components and check them out.
+    summary_components = rp_fit.create_full_set_of_components()
+
+    # Make sure that we have all of the components (including the inclusive)
+    assert len(summary_components) == len(rp_fit._rp_orientations)
+
+    # Check the inclusive summary component.
+    inclusive_component = summary_components["inclusive"]
+    assert inclusive_component.fit_function == three_orientations.constrained_inclusive_background
+    assert inclusive_component.fit_result.parameters == expected_background_parameters
+    # Check values
+    values_at_minimum = expected_fit_result.values_at_minimum
+    assert list(inclusive_component.fit_result.values_at_minimum) == list(values_at_minimum)
+    np.testing.assert_allclose(
+        list(inclusive_component.fit_result.values_at_minimum.values()), list(values_at_minimum.values()),
+        atol = 1e-5, rtol = 0,
+    )
+    # We want to compare against the fourier values.
+    values_at_minimum["B"] = 3 * values_at_minimum["B"]
+    x = expected_fit_result.x
+    expected_inclusive_component_values = probfit.nputil.vector_apply(functions.fourier, x, *list(values_at_minimum.values()))
+    np.testing.assert_allclose(inclusive_component.evaluate_fit(x), expected_inclusive_component_values)
+
+    # Check that we've properly transfered the fit results to the summary components.
+    for fit_type, fit_component in rp_fit.components.items():
+        if fit_type.orientation in summary_components:
+            assert compare_fit_result_to_expected(fit_result = summary_components[fit_type.orientation].fit_result,
+                                                  expected_fit_result = fit_component.fit_result) is True
+
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the fit plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the fit in test_inclusive_signal_fit(...)
@@ -582,4 +614,12 @@ def test_invalid_arguments(logging_mixin: Any, setup_integration_tests: Any) -> 
 
     # Check that the invalid argument was caught successfully.
     assert "User argument abcdefg" in exception_info.value.args[0]
+
+@pytest.mark.slow
+@pytest.mark.mpl_image_compare(tolerance = 5)
+def test_signal_fit(setup_integration_tests) -> Figure:
+    """ Integration test for the (differential) signal fit.
+
+    This uses the sample data in the ``testFiles`` directory.
+    """
 
