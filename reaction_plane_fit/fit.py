@@ -595,8 +595,14 @@ class FitComponent(ABC):
             # Add in the signal limits regardless of RP orientation
             arguments.update(signal_limits)
 
-            # Background label related to the Fourier series (and this is labeled as "BG")
-            background_label = "BG"
+            # Specify the background level associated with the signal function.
+            # If using a separate fourier series, this should be labeled as "BG". We will
+            # know this if the function includes "BG". Otherewise, just use the overall
+            # backgrond level.
+            background_label = "B"
+            func_args = iminuit.util.describe(self.fit_function)
+            if "BG" in func_args:
+                background_label = "BG"
         else:
             # Background limits related to the RP background (and thus is labeled as "B")
             background_label = "B"

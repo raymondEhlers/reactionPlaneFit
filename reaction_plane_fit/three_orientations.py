@@ -130,7 +130,7 @@ class BackgroundFit(ReactionPlaneFit):
             resolution_parameters = self.resolution_parameters,
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
         )
-        # TODO: Extract the relevant information into the component
+        # Extract the relevant information into the component
         inclusive_component.fit_result = base.ComponentFitResult.from_rp_fit_result(
             fit_result = self.fit_result,
             component = inclusive_component,
@@ -153,13 +153,17 @@ class InclusiveSignalFit(ReactionPlaneFit):
     Args:
         Same as for ``ReactionPlaneFit``.
     """
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, use_constrainted_inclusive_background: bool = False, **kwargs: Any):
         # Create the base class first
         super().__init__(*args, **kwargs)
 
+        # Determine the signal background function
+        inclusive_background_function = constrained_inclusive_background if use_constrainted_inclusive_background \
+            else functions.fourier
+
         # Setup the fit components
         fit_type = base.FitType(region = "signal", orientation = "inclusive")
-        self.components[fit_type] = SignalFitComponent(inclusive_background_function = functions.fourier,
+        self.components[fit_type] = SignalFitComponent(inclusive_background_function = inclusive_background_function,
                                                        rp_orientation = fit_type.orientation,
                                                        resolution_parameters = self.resolution_parameters,
                                                        use_log_likelihood = self.use_log_likelihood)
@@ -242,7 +246,8 @@ class SignalFit(ReactionPlaneFit):
             resolution_parameters = self.resolution_parameters,
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
         )
-        # TODO: Extract the relevant information into the component
+        # Extract the relevant information into the component
+        # TODO: Do this here...
         inclusive_component.fit_result = base.ComponentFitResult.from_rp_fit_result(
             fit_result = self.fit_result,
             component = inclusive_component,
@@ -260,8 +265,9 @@ def constrained_inclusive_background(x: float, B: float, v2_t: float, v2_a: floa
                                      v1: float, v3: float, **kwargs: float) -> float:
     """ Background function for inclusive signal compnent when performing the background fit.
 
-    Include the trivial scaling factor of ``3 * B`` because there are 3 RP orientations and that background
-    level is set by the individual RP orientations.
+    Include the trivial scaling factor of ``B / 3`` because there are 3 RP orientations and that background
+    level is set by the individual RP orientations. So when they are added together, they are (approximately)
+    3 times more.
 
     Args:
         x (float): Delta phi value for which the background will be calculated.
@@ -277,7 +283,7 @@ def constrained_inclusive_background(x: float, B: float, v2_t: float, v2_a: floa
     Returns:
         float: Values calculated by the function.
     """
-    return functions.fourier(x, 3 * B, v2_t, v2_a, v4_t, v4_a, v1, v3)
+    return functions.fourier(x, B / 3, v2_t, v2_a, v4_t, v4_a, v1, v3)
 
 def background(x: float, phi: float, c: float, resolution_parameters: fit.ResolutionParameters,
                B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float,

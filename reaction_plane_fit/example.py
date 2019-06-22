@@ -42,7 +42,8 @@ def setup_data(input_filename: str, include_signal: bool) -> InputData:
     data: Dict[str, Any] = {"signal": {}, "background": {}}
     with uproot.open(input_filename) as f:
         if include_signal:
-            data["signal"]["inclusive"] = f["signalDominated_inclusive"]
+            pass
+        data["signal"]["inclusive"] = f["signalDominated_inclusive"]
         for rp in ["in_plane", "mid_plane", "out_of_plane"]:
             data["background"][rp] = f[f"backgroundDominated_{rp}"]
 

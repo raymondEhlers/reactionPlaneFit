@@ -52,16 +52,22 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
     plt.rcParams.update({"font.size": 12})
 
     # Setup
+    full_set_of_components = rp_fit.create_full_set_of_components()
+
     x = rp_fit.fit_result.x
-    n_components = len(rp_fit.components)
+    n_components = len(full_set_of_components)
     fig, axes = plt.subplots(1, n_components, sharey = True, sharex = True, figsize = (3 * n_components, 6))
 
     # Shared y axis label
     axes[0].set_ylabel(y_label)
 
-    for (fit_type, component), ax in zip(rp_fit.components.items(), axes):
+    print(f"data: {data}")
+    for (rp_orientation, component), ax in zip(full_set_of_components.items(), axes):
         # Get the relevant data
-        hist = data[fit_type]
+        for fit_type, hist in data.items():
+            if fit_type.orientation == rp_orientation:
+                break
+        # Use the hist from when the iteration hits the break.
 
         # Draw the data according to the given function
         draw_func(fit_type = fit_type, component = component, x = x, hist = hist, ax = ax)

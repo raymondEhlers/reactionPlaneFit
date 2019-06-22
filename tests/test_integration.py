@@ -512,7 +512,7 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
         atol = 1e-5, rtol = 0,
     )
     # We want to compare against the fourier values.
-    values_at_minimum["B"] = 3 * values_at_minimum["B"]
+    values_at_minimum["B"] = values_at_minimum["B"] / 3
     x = expected_fit_result.x
     expected_inclusive_component_values = probfit.nputil.vector_apply(functions.fourier, x, *list(values_at_minimum.values()))
     np.testing.assert_allclose(inclusive_component.evaluate_fit(x), expected_inclusive_component_values)
