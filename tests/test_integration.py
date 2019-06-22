@@ -529,15 +529,16 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = "")
     return fig
 
-@pytest.mark.slow
-@pytest.mark.parametrize("calculate_correlation_matrix_before_writing", [
+@pytest.mark.slow  # type: ignore
+@pytest.mark.parametrize("calculate_correlation_matrix_before_writing", [  # type: ignore
     False, True,
-], ids = ["Don't calculate correlation matrix", "Calculate correlation matrix"])  # type: ignore
-@pytest.mark.parametrize("example_module_func, fit_object", [
+], ids = ["Don't calculate correlation matrix", "Calculate correlation matrix"])
+@pytest.mark.parametrize("example_module_func, fit_object", [  # type: ignore
     (example.run_background_fit, three_orientations.BackgroundFit),
     (example.run_inclusive_signal_fit, three_orientations.InclusiveSignalFit),
 ], ids = ["Background", "Inclusive signal"])
-def test_write_and_read_result_in_class(logging_mixin, setup_integration_tests, calculate_correlation_matrix_before_writing, example_module_func, fit_object):
+def test_write_and_read_result_in_class(logging_mixin: Any, setup_integration_tests: Any, calculate_correlation_matrix_before_writing: bool,
+                                        example_module_func: Any, fit_object: Any) -> None:
     """ Test storing results via the pachyderm `yaml` module.
 
     Note:
@@ -615,9 +616,9 @@ def test_invalid_arguments(logging_mixin: Any, setup_integration_tests: Any) -> 
     # Check that the invalid argument was caught successfully.
     assert "User argument abcdefg" in exception_info.value.args[0]
 
-@pytest.mark.slow
-@pytest.mark.mpl_image_compare(tolerance = 5)
-def test_signal_fit(setup_integration_tests) -> Figure:
+@pytest.mark.slow  # type: ignore
+@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
+def test_signal_fit(setup_integration_tests: Any) -> Figure:
     """ Integration test for the (differential) signal fit.
 
     This uses the sample data in the ``testFiles`` directory.

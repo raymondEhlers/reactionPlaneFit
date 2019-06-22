@@ -8,23 +8,24 @@ Including the signal (Gaussian) and fourier functions, as well as the three orie
 """
 
 import iminuit
+import logging
 import numpy as np
 import pytest
-import logging
+from typing import Any, Callable, Tuple
 
 from reaction_plane_fit import functions
 from reaction_plane_fit import three_orientations
 
 logger = logging.getLogger(__name__)
 
-def setup_values():
+def setup_values() -> np.ndarray:
     """ Setup the required binning for tests. """
     # Use 50 bins evaluted at the bin centers
     edges = np.linspace(-1. / 2 * np.pi, 3. / 2 * np.pi, 51)
     return (edges[1:] + edges[:-1]) / 2
 
-@pytest.fixture
-def setup_signal():
+@pytest.fixture  # type: ignore
+def setup_signal() -> Tuple[np.ndarray, Callable[..., float], np.ndarray]:
     """ Setup for testing the signal function. """
     values = setup_values()
     ns_amplitude = 1
@@ -35,9 +36,9 @@ def setup_signal():
     # These will be ignored.
     kwargs = {"randomValue": "toBeIgnored"}
 
-    def test_wrapper(x):
+    def test_wrapper(x: float) -> float:
         """ Trivial wraper so we can set the parameter values in the fixture. """
-        return functions.signal_wrapper(x, ns_amplitude = ns_amplitude,
+        return functions.signal_wrapper(x, ns_amplitude = ns_amplitude,  # type: ignore
                                         as_amplitude = as_amplitude,
                                         ns_sigma = ns_sigma,
                                         as_sigma = as_sigma,
@@ -57,8 +58,8 @@ def setup_signal():
 
     return (values, test_wrapper, expected)
 
-@pytest.fixture
-def setup_three_orientations_background():
+@pytest.fixture  # type: ignore
+def setup_three_orientations_background() -> Tuple[np.ndarray, Callable[..., float], np.ndarray]:
     """ Setup for testing the background functions. """
     values = setup_values()
 
@@ -75,7 +76,7 @@ def setup_three_orientations_background():
     # These will be ignored.
     kwargs = {"randomValue": "toBeIgnored"}
 
-    def test_wrapper(x):
+    def test_wrapper(x: float) -> float:
         """ Trivial wrapper so we can set the parameter values in the fixture. Note call a wrapper and then
         return that function with the proper parameters set. """
         func = functions.background_wrapper(phi = phi, c = c, resolution_parameters = resolution_parameters,
@@ -101,8 +102,8 @@ def setup_three_orientations_background():
 
     return (values, test_wrapper, expected)
 
-@pytest.fixture
-def setup_fourier(logging_mixin):
+@pytest.fixture  # type: ignore
+def setup_fourier(logging_mixin: Any) -> Tuple[np.ndarray, Callable[..., float], np.ndarray]:
     """ Setup for testing the fourier series function. """
     values = setup_values()
 
@@ -116,9 +117,9 @@ def setup_fourier(logging_mixin):
     # These will be ignored.
     kwargs = {"randomValue": "toBeIgnored"}
 
-    def test_wrapper(x):
+    def test_wrapper(x: float) -> float:
         """ Trivial wraper so we can set the parameter values in the fixture. """
-        return functions.fourier(x = x,
+        return functions.fourier(x = x,  # type: ignore
                                  BG = BG,
                                  v2_t = v2_t, v2_a = v2_a,
                                  v4_t = v4_t, v4_a = v4_a,
@@ -139,12 +140,12 @@ def setup_fourier(logging_mixin):
 
     return (values, test_wrapper, expected)
 
-@pytest.mark.parametrize("setup_fit", [
+@pytest.mark.parametrize("setup_fit", [  # type: ignore
     "setup_signal",
     "setup_three_orientations_background",
     "setup_fourier"
 ], ids = ["Signal", "Three orientation background", "Fourier"])
-def test_fit_functions(logging_mixin, setup_fit, request):
+def test_fit_functions(logging_mixin: Any, setup_fit: Any, request: Any) -> None:
     """ Test the fit functions. Each `setup_fit` value refers to a different fixture. """
     values, func, expected = request.getfixturevalue(setup_fit)
     output = np.zeros(len(values))
@@ -153,13 +154,13 @@ def test_fit_functions(logging_mixin, setup_fit, request):
 
     assert np.allclose(output, expected)
 
-def test_signal_args(logging_mixin):
+def test_signal_args(logging_mixin: Any) -> None:
     """ Test the arguments for the signal function. """
     assert iminuit.util.describe(functions.signal_wrapper) == [
         "x", "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal"
     ]
 
-def test_three_orientations_background_args(logging_mixin, mocker):
+def test_three_orientations_background_args(logging_mixin: Any, mocker: Any) -> None:
     """ Test the arguments for the RPF function. """
     phi = 0
     c = np.pi / 6
@@ -170,7 +171,7 @@ def test_three_orientations_background_args(logging_mixin, mocker):
         "x", "B", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3"
     ]
 
-def test_fourier_args(logging_mixin):
+def test_fourier_args(logging_mixin: Any) -> None:
     """ Test the arguments for the Fourier series function. """
     assert iminuit.util.describe(functions.fourier) == [
         "x", "BG", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3"
