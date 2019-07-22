@@ -255,8 +255,9 @@ class ReactionPlaneFit(ABC):
         good_data = self._validate_data(formatted_data)
         if not good_data:
             raise ValueError(
-                f"Insufficient data provided for the fit components. Component keys: {self.components.keys()},"
-                f" Data keys: {data.keys()}"
+                f"Insufficient data provided for the fit components.\nComponent keys: {self.components.keys()}\n"
+                f"Data keys: {data.keys()}\n"
+                f"Formatted Data keys: {formatted_data.keys()}"
             )
 
         # Extract the x locations from where the fit should be evaluated.
