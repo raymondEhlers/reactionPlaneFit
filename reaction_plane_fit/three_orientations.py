@@ -153,12 +153,12 @@ class InclusiveSignalFit(ReactionPlaneFit):
     Args:
         Same as for ``ReactionPlaneFit``.
     """
-    def __init__(self, *args: Any, use_constrainted_inclusive_background: bool = False, **kwargs: Any):
+    def __init__(self, *args: Any, use_constrained_inclusive_background: bool = False, **kwargs: Any):
         # Create the base class first
         super().__init__(*args, **kwargs)
 
         # Determine the signal background function
-        inclusive_background_function = constrained_inclusive_background if use_constrainted_inclusive_background \
+        inclusive_background_function = constrained_inclusive_background if use_constrained_inclusive_background \
             else functions.fourier
 
         # Setup the fit components
@@ -235,6 +235,17 @@ class SignalFit(ReactionPlaneFit):
         for fit_type, c in self.components.items():
             components[fit_type.orientation] = c
 
+        # We first need to extract the background parameters. An easy way to do this is
+        # to pass a fake background component.
+        temp_bg_component = BackgroundFitComponent(
+            rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
+            use_log_likelihood = self.use_log_likelihood
+        )
+        background_fit_result = base.ComponentFitResult.from_rp_fit_result(
+            fit_result = self.fit_result,
+            component = temp_bg_component,
+        )
+
         # Create the inclusive component. We only want the background fit component.
         inclusive_component = SignalFitComponent(
             inclusive_background_function = constrained_inclusive_background,
@@ -247,11 +258,9 @@ class SignalFit(ReactionPlaneFit):
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
         )
         # Extract the relevant information into the component
-        # TODO: Do this here...
-        inclusive_component.fit_result = base.ComponentFitResult.from_rp_fit_result(
-            fit_result = self.fit_result,
-            component = inclusive_component,
-        )
+        # TODO: Extract yield, sigma from the RPF signal fits.
+
+        #inclusive_component.fit_result
         # We need to caluclate the fit errors.
         x = self.fit_result.x
         inclusive_component.fit_result.errors = inclusive_component.calculate_fit_errors(x)

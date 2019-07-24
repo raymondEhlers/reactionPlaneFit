@@ -41,11 +41,9 @@ def setup_data(input_filename: str, include_signal: bool) -> InputData:
     """
     data: Dict[str, Any] = {"signal": {}, "background": {}}
     with uproot.open(input_filename) as f:
-        if include_signal:
-            pass
-        data["signal"]["inclusive"] = f["signalDominated_inclusive"]
-        for rp in ["in_plane", "mid_plane", "out_of_plane"]:
-            data["background"][rp] = f[f"backgroundDominated_{rp}"]
+        for region in ["signal", "background"]:
+            for rp in ["inclusive", "in_plane", "mid_plane", "out_of_plane"]:
+                data[region][rp] = f[f"{region}Dominated_{rp}"]
 
     return data
 
@@ -117,6 +115,23 @@ def run_inclusive_signal_fit(input_filename: str, user_arguments: FitArguments) 
     )
     return rp_fit, data, minuit
 
+def run_differential_signal_fit(input_filename: str, user_arguments: FitArguments) -> FitReturnValues:
+    """ Run the differential signal example fit.
+
+    Args:
+        input_filename: Path to the input data to use.
+        user_arguments: User arguments to override the arguments to the fit.
+    Returns:
+        tuple: (rp_fit, data), where rp_fit (fit.ReactionPlaneFit) is the reaction plane fit object from the
+            fit, and data (dict) is the formated data dict used for the fit.
+    """
+    input_data = setup_data(input_filename, include_signal = True)
+    rp_fit, data, minuit = run_fit(
+        fit_object = three_orientations.SignalFit,
+        input_data = input_data, user_arguments = user_arguments
+    )
+    return rp_fit, data, minuit
+
 if __name__ == "__main__":  # pragma: nocover
     """ Allow direction execution of this module.
 
@@ -134,6 +149,9 @@ if __name__ == "__main__":  # pragma: nocover
                         type = str, default = sample_data_filename,
                         help="Path to input data")
     # Set the fit type
+    parser.add_argument("-s", "--inclusiveSignal",
+                        action = "store_true",
+                        help = "Fit the inclusive orientation signal region.")
     parser.add_argument("-b", "--backgroundOnly",
                         action = "store_true",
                         help = "Only fit the background.")
@@ -141,7 +159,9 @@ if __name__ == "__main__":  # pragma: nocover
     args = parser.parse_args()
 
     # Execute the selected function
-    func = run_inclusive_signal_fit
+    func = run_differential_signal_fit
+    if args.inclusiveSignal:
+        func = run_inclusive_signal_fit
     if args.backgroundOnly:
         func = run_background_fit
     rp_fit, data, _ = func(input_filename = args.inputData, user_arguments = {})

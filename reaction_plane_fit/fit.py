@@ -207,6 +207,9 @@ class ReactionPlaneFit(ABC):
             tuple: (fitOkay, minuit) where fitOkay (bool) is ``True`` if the fit is okay, and
                 ``minuit`` (``iminuit.minuit``) is the Minuit object which was used to perform the fit.
         """
+        # TEMP
+        arguments["print_level"] = 1
+        # ENDTEMP
         logger.debug(f"Minuit args: {arguments}")
         minuit = iminuit.Minuit(self._fit, **arguments)
 

@@ -530,6 +530,16 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     return fig
 
 @pytest.mark.slow  # type: ignore
+@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
+def test_signal_fit(setup_integration_tests: Any) -> Figure:
+    """ Integration test for the (differential) signal fit.
+
+    This uses the sample data in the ``testFiles`` directory.
+    """
+    # TODO: ...
+    assert False
+
+@pytest.mark.slow  # type: ignore
 @pytest.mark.parametrize("calculate_correlation_matrix_before_writing", [  # type: ignore
     False, True,
 ], ids = ["Don't calculate correlation matrix", "Calculate correlation matrix"])
@@ -615,12 +625,4 @@ def test_invalid_arguments(logging_mixin: Any, setup_integration_tests: Any) -> 
 
     # Check that the invalid argument was caught successfully.
     assert "User argument abcdefg" in exception_info.value.args[0]
-
-@pytest.mark.slow  # type: ignore
-@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
-def test_signal_fit(setup_integration_tests: Any) -> Figure:
-    """ Integration test for the (differential) signal fit.
-
-    This uses the sample data in the ``testFiles`` directory.
-    """
 

@@ -80,7 +80,11 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
         text += f"\n" + format_rp_labels(fit_type.orientation)
         # Add the chi2/ndf for in the last panel.
         if ax == axes[-1]:
-            text += "\n" + r"$\chi^{2}$/NDF = %(chi2).1f/%(ndf)i = %(chi2_over_ndf).3f" % {"chi2": rp_fit.fit_result.minimum_val, "ndf": rp_fit.fit_result.nDOF, "chi2_over_ndf": rp_fit.fit_result.minimum_val / rp_fit.fit_result.nDOF}
+            text += "\n" + r"$\chi^{2}$/NDF = %(chi2).1f/%(ndf)i = %(chi2_over_ndf).3f" % {
+                "chi2": rp_fit.fit_result.minimum_val,
+                "ndf": rp_fit.fit_result.nDOF,
+                "chi2_over_ndf": rp_fit.fit_result.minimum_val / rp_fit.fit_result.nDOF
+            }
         ax.text(0.5, 0.95, text,
                 horizontalalignment="center", verticalalignment="top", multialignment="left",
                 transform = ax.transAxes)
