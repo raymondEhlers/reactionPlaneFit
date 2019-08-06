@@ -52,6 +52,7 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
     Returns:
         bool: True if the fit results are the same.
     """
+    logger.debug(f"fit_result.parameters: {fit_result.parameters}")
     assert fit_result.parameters == expected_fit_result.parameters
     assert fit_result.free_parameters == expected_fit_result.free_parameters
     assert fit_result.fixed_parameters == expected_fit_result.fixed_parameters
@@ -125,31 +126,31 @@ def test_inclusive_signal_fit(setup_integration_tests) -> Figure:
     # NOTE: They are not calculated independently, so there are most like regression tests.
     expected_fit_result = base.RPFitResult(
         parameters = [
+            "B", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3",
             "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal", "BG",
-            "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3", "B"
         ],
         free_parameters = [
+            "B", "v2_t", "v2_a", "v4_t", "v4_a", "v3",
             "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "BG",
-            "v2_t", "v2_a", "v4_t", "v4_a", "v3", "B"
         ],
-        fixed_parameters = ["signal_pedestal", "v1"],
+        fixed_parameters = ["v1", "signal_pedestal"],
         values_at_minimum = {
-            'ns_amplitude': 1.7933561625700922, 'as_amplitude': 1.0001072229610664,
-            'ns_sigma': 0.2531797052038343, 'as_sigma': 0.4304508803936734,
-            'signal_pedestal': 0.0, 'BG': 24.51231187224201,
+            'B': 74.09951310294166,
             'v2_t': 1.635883107545255e-05, 'v2_a': 0.04207445772474305,
             'v4_t': 0.0021469295947451894, 'v4_a': 0.002584005026287889,
             'v1': 0.0, 'v3': 0.0016802003999212695,
-            'B': 74.09951310294166
+            'ns_amplitude': 1.7933561625700922, 'as_amplitude': 1.0001072229610664,
+            'ns_sigma': 0.2531797052038343, 'as_sigma': 0.4304508803936734,
+            'signal_pedestal': 0.0, 'BG': 24.51231187224201,
         },
         errors_on_parameters = {
-            'ns_amplitude': 0.12839073902939924, 'as_amplitude': 0.1601590707638878,
-            'ns_sigma': 0.01756754811099917, 'as_sigma': 0.0771999164701046,
-            'signal_pedestal': 1.0, 'BG': 0.04915769800151182,
+            'B': 0.28291657094270306,
             'v2_t': 0.09027663461261039, 'v2_a': 0.0039482883973311345,
             'v4_t': 0.003222254298287666, 'v4_a': 0.004554445381827463,
             'v1': 1.0, 'v3': 0.001172204666172523,
-            'B': 0.28291657094270306
+            'ns_amplitude': 0.12839073902939924, 'as_amplitude': 0.1601590707638878,
+            'ns_sigma': 0.01756754811099917, 'as_sigma': 0.0771999164701046,
+            'signal_pedestal': 1.0, 'BG': 0.04915769800151182,
         },
         covariance_matrix = {
             ('ns_amplitude', 'ns_amplitude'): 0.016484487745377686, ('ns_amplitude', 'as_amplitude'): 0.00937777016042199,

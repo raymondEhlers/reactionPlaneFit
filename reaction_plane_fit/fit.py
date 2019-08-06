@@ -7,16 +7,17 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import iminuit
 import numpy as np
+
 from pachyderm import histogram
 from pachyderm.typing_helpers import Hist
 from pachyderm import yaml
-import probfit
 
 from reaction_plane_fit import base
+from reaction_plane_fit import cost_function
 from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
@@ -270,8 +271,9 @@ class ReactionPlaneFit(ABC):
         for fit_type, component in self.components.items():
             fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type])
 
-        # Setup the final fit.
-        self._fit = probfit.SimultaneousFit(*[component.cost_function for component in self.components.values()])
+        # Setup the final fit to be performed simultaneously.
+        #self._fit = sum(reversed(list(component.cost_function for component in self.components.values())))
+        self._fit = sum(component.cost_function for component in self.components.values())
         arguments = self._determine_component_parameter_limits(user_arguments = user_arguments)
 
         # Perform the actual fit
@@ -327,7 +329,7 @@ class ReactionPlaneFit(ABC):
         """ Read all fit results from the specified filename using YAML.
 
         We don't read the entire object from YAML because they we would have to deal with
-        serializing ``probfit`` classes. Instead, we read the fit results, with the expectation
+        serializing many classes. Instead, we read the fit results, with the expectation
         that the fit object will be created independently, and then the results will be loaded.
 
         Args:
@@ -356,7 +358,7 @@ class ReactionPlaneFit(ABC):
         """ Write all fit results to the specified filename using YAML.
 
         We don't write the entire object to YAML because they we would have to deal with
-        serializing ``probfit`` classes. Instead, we write the results, with the expectation
+        serializing many classes. Instead, we write the results, with the expectation
         that the fit object will be created independently, and then the results will be loaded.
 
         Args:
@@ -370,7 +372,7 @@ class ReactionPlaneFit(ABC):
             y = yaml.yaml(modules_to_register = [base])
 
         # We need to create a dict to format the output because we don't want to have to deal
-        # with registering `probfit` classes. "full" represent the full fit result, while the
+        # with registering many classes. "full" represent the full fit result, while the
         # fit component results are stored under their ``fit_type``. Note that we can't just
         # recreate the component fits from the full fit result because the full fit result doesn't
         # store the calculated errors. We could of course recalculate the errors, but that would
@@ -398,7 +400,7 @@ class FitComponent(ABC):
         fit_type (FitType): Overall type of the fit.
         use_log_likelihood (bool): True if the fit should be performed using log likelihood.
         fit_function (function): Function of the component.
-        cost_function (probfit.costFunc): Cost function associated with the fit component.
+        cost_func (cost_function.CostFunctionBase): Cost function associated with the fit component.
     """
     def __init__(self, fit_type: base.FitType, resolution_parameters: ResolutionParameters, use_log_likelihood: bool = False) -> None:
         self.fit_type = fit_type
@@ -409,7 +411,7 @@ class FitComponent(ABC):
         # Called last to ensure that all variables are available.
         self.fit_function: Callable[..., float]
         # Fit cost function
-        self.cost_function: Any
+        self.cost_function: cost_function.CostFunctionBase
         # Background function. This describes the background of the component. In the case that the component
         # is fit to the background, this is identical to the fit function.
         self.background_function: Callable[..., float]
@@ -442,7 +444,7 @@ class FitComponent(ABC):
         Returns:
             Function values at the given x values.
         """
-        return probfit.nputil.vector_apply(self.fit_function, x, *list(self.fit_result.values_at_minimum.values()))
+        return self.fit_function(x, *list(self.fit_result.values_at_minimum.values()))
 
     def evaluate_background(self, x: np.ndarray) -> np.ndarray:
         """ Evaluates the background components of the fit function.
@@ -456,10 +458,8 @@ class FitComponent(ABC):
             Background function values at the given x values.
         """
         parameters = iminuit.util.describe(self.background_function)
-        # NOTE: "x" is not in values_at_minimum (as expected), so we have to check that each parameter name
-        #       is in values_at_minimum to prevent "x" from causing a problem
-        return probfit.nputil.vector_apply(
-            self.background_function,
+        # NOTE: We only need a subset of parameters to evaluate the background function, so we explicitly select them.
+        return self.background_function(
             x, *[self.fit_result.values_at_minimum[p] for p in parameters if p in self.fit_result.values_at_minimum]
         )
 
@@ -500,15 +500,10 @@ class FitComponent(ABC):
     def _cost_function(self, hist: Optional[histogram.Histogram1D] = None,
                        bin_edges: Optional[np.ndarray] = None,
                        y: Optional[np.ndarray] = None,
-                       errors_squared: Optional[np.ndarray] = None) -> Any:
+                       errors_squared: Optional[np.ndarray] = None) -> cost_function.CostFunctionBase:
         """ Define the cost function.
 
         Called when setting up a fit object.
-
-        Note:
-            We don't want to use the binned cost function versions - they will bin
-            the data that is given, which is definitely not what we want. Instead,
-            use the unbinned functions (as defined by ``probfit``).
 
         Note:
             Either specify the hist or the (bin_edges, y, errors_squared) tuple.
@@ -519,7 +514,7 @@ class FitComponent(ABC):
             y: The y values associated with an input histogram.
             errors_squared: The errors associated with an input histogram.
         Returns:
-            probfit.costFunc: The defined cost function.
+            The defined cost function.
         """
         # Argument validation and properly format individual array is necessary.
         if not hist:
@@ -535,22 +530,21 @@ class FitComponent(ABC):
                     "Provided histogram, and bin_edges, y, or errors_squared. Must provide only the histogram!"
                 )
 
+        cost_func_class: Type[cost_function.CostFunctionBase]
         if self.use_log_likelihood:
             logger.debug(f"Using log likelihood for {self.fit_type}, {self.rp_orientation}, {self.region}")
             # Generally will use when statistics are limited.
-            # Errors are extracted by assuming a Poisson distribution, so we don't need to pass them explicitly (?)
-            cost_function = probfit.UnbinnedLH(f = self.fit_function,
-                                               data = hist.x)
+            cost_func_class = cost_function.BinnedLogLikelihood
         else:
             logger.debug(f"Using Chi2 for {self.fit_type}, {self.rp_orientation}, {self.region}")
-            cost_function = probfit.Chi2Regression(f = self.fit_function,
-                                                   x = hist.x,
-                                                   y = hist.y,
-                                                   error = hist.errors)
+            cost_func_class = cost_function.BinnedChiSquared
+        cost_func: cost_function.CostFunctionBase = cost_func_class(
+            f = self.fit_function, data = hist
+        )
 
         # Return the cost function class so that it can be stored. We explicitly return it
         # so that it is clear that it is being assigned.
-        return cost_function
+        return cost_func
 
     def determine_parameters_limits(self) -> FitArguments:
         """ Determine the parameter seed values, limits, step sizes for the component.

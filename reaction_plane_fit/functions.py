@@ -9,9 +9,11 @@ for each value in an array by ``iminuit``.
 """
 
 import logging
+import iminuit
 import numpy as np
-import probfit
 from typing import Callable, cast, Dict, TYPE_CHECKING
+
+from reaction_plane_fit import cost_function
 
 if TYPE_CHECKING:
     from reaction_plane_fit import base
@@ -47,21 +49,26 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
         # We don't need to rename the all orientations function because we can only use
         # the signal fit on all orientations alone. If we fit the other reaction plane orientations
         # at the same time, it will double count.
-        signal_dominated_func = probfit.functor.AddPdf(signal_func, background_func)
+        signal_dominated_func = cost_function.AddPDF(signal_func, background_func)
     else:
         # Rename the variables so each signal related variable is independent for each RP
         # We do this by renaming all parameters that are _not_ used in the background
         # NOTE: prefix_skip_parameters includes the variable "x", but that is fine, as it
         #       would be automatically excluded (and we don't want to prefix it anyway)!
-        prefix_skip_parameters = probfit.describe(background_func)
+        prefix_skip_parameters = iminuit.util.describe(background_func)
 
         # Sum the functions together
         # NOTE: The "BG" prefix shouldn't ever need to be used, but it is included so that
         #       it fails clearly in the case that a mistake is made and the prefix is actually
         #       matched to and applied to some parameter.
-        signal_dominated_func = probfit.functor.AddPdf(signal_func, background_func, prefix = [rp_orientation + "_", "BG"], skip_prefix = prefix_skip_parameters)
+        signal_dominated_func = cost_function.AddPDF(
+            signal_func, background_func,
+            prefixes = [rp_orientation + "_", "BG"], skip_prefixes = prefix_skip_parameters
+        )
 
-    logger.debug(f"rp_orientation: {rp_orientation}, signal_dominated_func: {probfit.describe(signal_dominated_func)}")
+    logger.debug(
+        f"rp_orientation: {rp_orientation}, signal_dominated_func: {iminuit.util.describe(signal_dominated_func)}"
+    )
     return cast(Callable[..., float], signal_dominated_func)
 
 def determine_background_fit_function(rp_orientation: str, resolution_parameters: Dict[str, float], reaction_plane_parameter: "base.ReactionPlaneParameter", rp_background_function: Callable[..., float]) -> Callable[..., float]:
@@ -92,7 +99,7 @@ def determine_background_fit_function(rp_orientation: str, resolution_parameters
                                              resolution_parameters = resolution_parameters,
                                              background_function = rp_background_function)
 
-    logger.debug(f"rp_orientation: {rp_orientation}, background_func: {probfit.describe(background_func)}")
+    logger.debug(f"rp_orientation: {rp_orientation}, background_func: {iminuit.util.describe(background_func)}")
     return background_func
 
 def signal_wrapper(x: float, ns_amplitude: float, as_amplitude: float, ns_sigma: float, as_sigma: float, signal_pedestal: float, **kwargs: float) -> float:
@@ -133,12 +140,9 @@ def signal(x: float, A1: float, A2: float, s1: float, s2: float, pedestal: float
     Returns:
         float: Value calculated by the function.
     """
-    return cast(
-        float,
-        A1 * probfit.pdf.gaussian(x = x, mean = 0.0, sigma = s1)
-        + A2 * probfit.pdf.gaussian(x = x, mean = np.pi, sigma = s2)
-        + pedestal
-    )
+    return (A1 * cost_function.gaussian(x = x, mean = 0.0, sigma = s1)
+            + A2 * cost_function.gaussian(x = x, mean = np.pi, sigma = s2)
+            + pedestal)
 
 def background_wrapper(phi: float, c: float, resolution_parameters: Dict[str, float], background_function: Callable[..., float]) -> Callable[..., float]:
     """ Wrapper around the RPF background function to allow the specification of relevant parameters.

@@ -7,8 +7,8 @@ Including the signal (Gaussian) and fourier functions, as well as the three orie
 .. code-author: Raymond Ehlers <raymond.ehlers@cern.ch>, Yale University
 """
 
+import iminuit
 import numpy as np
-import probfit
 import pytest
 import logging
 
@@ -155,10 +155,9 @@ def test_fit_functions(logging_mixin, setup_fit, request):
 
 def test_signal_args(logging_mixin):
     """ Test the arguments for the signal function. """
-    assert probfit.describe(functions.signal_wrapper) == ["x",
-                                                          "ns_amplitude", "as_amplitude",
-                                                          "ns_sigma", "as_sigma",
-                                                          "signal_pedestal"]
+    assert iminuit.util.describe(functions.signal_wrapper) == [
+        "x", "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal"
+    ]
 
 def test_three_orientations_background_args(logging_mixin, mocker):
     """ Test the arguments for the RPF function. """
@@ -167,17 +166,13 @@ def test_three_orientations_background_args(logging_mixin, mocker):
     resolution_parameters = {"R22": 0.5, "R42": 0.4, "R62": 0.1, "R82": 0.1}
     func = functions.background_wrapper(phi = phi, c = c, resolution_parameters = resolution_parameters,
                                         background_function = mocker.MagicMock())
-    assert probfit.describe(func, verbose = True) == ["x",
-                                                      "B",
-                                                      "v2_t", "v2_a",
-                                                      "v4_t", "v4_a",
-                                                      "v1", "v3"]
+    assert iminuit.util.describe(func, verbose = True) == [
+        "x", "B", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3"
+    ]
 
 def test_fourier_args(logging_mixin):
     """ Test the arguments for the Fourier series function. """
-    assert probfit.describe(functions.fourier) == ["x",
-                                                   "BG",
-                                                   "v2_t", "v2_a",
-                                                   "v4_t", "v4_a",
-                                                   "v1", "v3"]
+    assert iminuit.util.describe(functions.fourier) == [
+        "x", "BG", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3"
+    ]
 
