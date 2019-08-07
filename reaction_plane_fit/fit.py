@@ -12,12 +12,12 @@ from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Type, Union
 import iminuit
 import numpy as np
 
+import pachyderm.fit
 from pachyderm import histogram
 from pachyderm.typing_helpers import Hist
 from pachyderm import yaml
 
 from reaction_plane_fit import base
-from reaction_plane_fit import cost_function
 from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class ReactionPlaneFit(ABC):
             (rather, we store the covariance matrix, which one cannot extract from Minos). By printing out the values,
             the use can check that the Hesse and Minos errors are similar, which will indicate that the function is
             well approximated by a hyperparabola at the minima (and thus Hesse errors are okay to be used).
-        fit_result (base.RPFitResult): Result of the RP fit.
+        fit_result: Result of the RP fit.
         _fit (Callable): Fit function for the RP fit.
     """
     # RP orientations (including inclusive). Should be overridden by the derived class.
@@ -77,7 +77,7 @@ class ReactionPlaneFit(ABC):
         # Contains the simultaneous fit to all of the components.
         self._fit = Callable[..., float]
         # Contains the fit results
-        self.fit_result: base.RPFitResult
+        self.fit_result: base.FitResult
 
     @property
     def rp_orientations(self) -> List[str]:
@@ -302,7 +302,7 @@ class ReactionPlaneFit(ABC):
         )
 
         # Store Minuit information for calculating the errors.
-        self.fit_result = base.RPFitResult(
+        self.fit_result = base.FitResult(
             parameters = parameters,
             fixed_parameters = fixed_parameters,
             free_parameters = free_parameters,
@@ -312,10 +312,13 @@ class ReactionPlaneFit(ABC):
             x = x,
             n_fit_data_points = n_fit_data_points,
             minimum_val = minuit.fval,
+            # This doesn't need to be meaningful - it won't be accessed.
+            errors = [],
         )
         for fit_type, component in self.components.items():
-            self.components[fit_type].fit_result = base.ComponentFitResult.from_rp_fit_result(fit_result = self.fit_result,
-                                                                                              component = component)
+            self.components[fit_type].fit_result = base.component_fit_result_from_rp_fit_result(
+                fit_result = self.fit_result, component = component, fit_data = fit_data[fit_type],
+            )
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
         # Calculate the errors.
@@ -381,6 +384,7 @@ class ReactionPlaneFit(ABC):
         # uncompressed information.
         output: Dict[Union[str, base.FitType], base.FitResult] = {"full": self.fit_result}
         output.update({fit_type: fit_component.fit_result for fit_type, fit_component in self.components.items()})
+        logger.debug(f"output: {output}")
         with open(filename, "w+") as f:
             y.dump(output, f)
 
@@ -400,7 +404,7 @@ class FitComponent(ABC):
         fit_type (FitType): Overall type of the fit.
         use_log_likelihood (bool): True if the fit should be performed using log likelihood.
         fit_function (function): Function of the component.
-        cost_func (cost_function.CostFunctionBase): Cost function associated with the fit component.
+        cost_func (pachyderm.fit.CostFunctionBase): Cost function associated with the fit component.
     """
     def __init__(self, fit_type: base.FitType, resolution_parameters: ResolutionParameters, use_log_likelihood: bool = False) -> None:
         self.fit_type = fit_type
@@ -411,7 +415,7 @@ class FitComponent(ABC):
         # Called last to ensure that all variables are available.
         self.fit_function: Callable[..., float]
         # Fit cost function
-        self.cost_function: cost_function.CostFunctionBase
+        self.cost_function: pachyderm.fit.CostFunctionBase
         # Background function. This describes the background of the component. In the case that the component
         # is fit to the background, this is identical to the fit function.
         self.background_function: Callable[..., float]
@@ -500,7 +504,7 @@ class FitComponent(ABC):
     def _cost_function(self, hist: Optional[histogram.Histogram1D] = None,
                        bin_edges: Optional[np.ndarray] = None,
                        y: Optional[np.ndarray] = None,
-                       errors_squared: Optional[np.ndarray] = None) -> cost_function.CostFunctionBase:
+                       errors_squared: Optional[np.ndarray] = None) -> pachyderm.fit.CostFunctionBase:
         """ Define the cost function.
 
         Called when setting up a fit object.
@@ -530,15 +534,15 @@ class FitComponent(ABC):
                     "Provided histogram, and bin_edges, y, or errors_squared. Must provide only the histogram!"
                 )
 
-        cost_func_class: Type[cost_function.CostFunctionBase]
+        cost_func_class: Type[pachyderm.fit.CostFunctionBase]
         if self.use_log_likelihood:
             logger.debug(f"Using log likelihood for {self.fit_type}, {self.rp_orientation}, {self.region}")
             # Generally will use when statistics are limited.
-            cost_func_class = cost_function.BinnedLogLikelihood
+            cost_func_class = pachyderm.fit.BinnedLogLikelihood
         else:
             logger.debug(f"Using Chi2 for {self.fit_type}, {self.rp_orientation}, {self.region}")
-            cost_func_class = cost_function.BinnedChiSquared
-        cost_func: cost_function.CostFunctionBase = cost_func_class(
+            cost_func_class = pachyderm.fit.BinnedChiSquared
+        cost_func: pachyderm.fit.CostFunctionBase = cost_func_class(
             f = self.fit_function, data = hist
         )
 

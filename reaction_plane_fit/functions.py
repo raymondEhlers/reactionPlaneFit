@@ -13,7 +13,7 @@ import iminuit
 import numpy as np
 from typing import Callable, cast, Dict, TYPE_CHECKING
 
-from reaction_plane_fit import cost_function
+import pachyderm.fit
 
 if TYPE_CHECKING:
     from reaction_plane_fit import base
@@ -49,7 +49,7 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
         # We don't need to rename the all orientations function because we can only use
         # the signal fit on all orientations alone. If we fit the other reaction plane orientations
         # at the same time, it will double count.
-        signal_dominated_func = cost_function.AddPDF(signal_func, background_func)
+        signal_dominated_func = pachyderm.fit.AddPDF(signal_func, background_func)
     else:
         # Rename the variables so each signal related variable is independent for each RP
         # We do this by renaming all parameters that are _not_ used in the background
@@ -61,7 +61,7 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
         # NOTE: The "BG" prefix shouldn't ever need to be used, but it is included so that
         #       it fails clearly in the case that a mistake is made and the prefix is actually
         #       matched to and applied to some parameter.
-        signal_dominated_func = cost_function.AddPDF(
+        signal_dominated_func = pachyderm.fit.AddPDF(
             signal_func, background_func,
             prefixes = [rp_orientation + "_", "BG"], skip_prefixes = prefix_skip_parameters
         )
@@ -140,9 +140,12 @@ def signal(x: float, A1: float, A2: float, s1: float, s2: float, pedestal: float
     Returns:
         float: Value calculated by the function.
     """
-    return (A1 * cost_function.gaussian(x = x, mean = 0.0, sigma = s1)
-            + A2 * cost_function.gaussian(x = x, mean = np.pi, sigma = s2)
-            + pedestal)
+    return cast(
+        float,
+        A1 * pachyderm.fit.function.gaussian(x = x, mean = 0.0, sigma = s1)
+        + A2 * pachyderm.fit.function.gaussian(x = x, mean = np.pi, sigma = s2)
+        + pedestal
+    )
 
 def background_wrapper(phi: float, c: float, resolution_parameters: Dict[str, float], background_function: Callable[..., float]) -> Callable[..., float]:
     """ Wrapper around the RPF background function to allow the specification of relevant parameters.

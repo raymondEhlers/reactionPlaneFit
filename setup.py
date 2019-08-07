@@ -70,9 +70,7 @@ setup(
         "dataclasses;python_version<'3.7'",
         "numpy",
         "uproot",  # Handles ROOT I/O without needing ROOT itself.
-        "numdifftools",
         "iminuit",
-        "probfit",
         "pachyderm",
     ],
 
