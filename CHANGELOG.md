@@ -2,6 +2,26 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [3.0] - 8 August 2019
+
+## Changed
+
+- Move to using the pachyderm fit package for general fit functionality, cost functions, and fit results. This
+  move was instigated by the recognition that `probfit` cost functions didn't actually work properly with
+  pre-binned data. It also allows for the centralization of basic fit code to make it generally available.
+  Some code from this package was refactored into pachyderm. See: `9e62f6777afed290709b74d4ee18284d61c2bab9`
+  and `0f66cff8264ff06f5138d78ba0213f40a195dd5e`. Note that developed was handled in a private branch in this
+  repository, so some older commits have references to a fit package in the RPF package before it was moved to
+  pachyderm.
+- No longer rely on `probfit`. All functionality and more is now provided in `pachyderm.fit`. Plus, the package
+  wasn't super actively maintained. See: `9e62f6777afed290709b74d4ee18284d61c2bab9`.
+- Updated pre-commit hooks. See: `03844495a12f4269b14dbd4972c09fb203a88c7c`.
+
+## Fixed
+
+- Log likelihood and chi squared cost functions properly take binned data into account. See:
+  `0f66cff8264ff06f5138d78ba0213f40a195dd5e`.
+
 ## [2.1.2] - 4 May 2019
 
 ### Added
