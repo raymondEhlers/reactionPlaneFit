@@ -140,12 +140,9 @@ def signal(x: float, A1: float, A2: float, s1: float, s2: float, pedestal: float
     Returns:
         float: Value calculated by the function.
     """
-    return cast(
-        float,
-        A1 * pachyderm.fit.function.gaussian(x = x, mean = 0.0, sigma = s1)
-        + A2 * pachyderm.fit.function.gaussian(x = x, mean = np.pi, sigma = s2)
-        + pedestal
-    )
+    return (A1 * pachyderm.fit.function.gaussian(x = x, mean = 0.0, sigma = s1)
+            + A2 * pachyderm.fit.function.gaussian(x = x, mean = np.pi, sigma = s2)
+            + pedestal)
 
 def background_wrapper(phi: float, c: float, resolution_parameters: Dict[str, float], background_function: Callable[..., float]) -> Callable[..., float]:
     """ Wrapper around the RPF background function to allow the specification of relevant parameters.
