@@ -97,16 +97,17 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
     correlation_diagonal = [expected_fit_result.correlation_matrix[(n, n)] for n in expected_fit_result.free_parameters]
     assert np.allclose(correlation_diagonal, np.ones(len(correlation_diagonal)))
 
-    # Check the general fit description
-    np.testing.assert_allclose(fit_result.x, expected_fit_result.x, atol = 1e-5, rtol = 0)
-    assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
-    assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val, atol = 1e-2)
-
-    # Calculated values
-    assert fit_result.nDOF == expected_fit_result.nDOF
-
     # Check the errors
     np.testing.assert_allclose(fit_result.errors, expected_fit_result.errors, atol = 2e-2, rtol = 0)
+
+    # Check the general fit description
+    if isinstance(fit_result, base.FitResult):
+        np.testing.assert_allclose(fit_result.x, expected_fit_result.x, atol = 1e-5, rtol = 0)
+        assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
+        assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val, atol = 1e-2)
+
+        # Calculated values
+        assert fit_result.nDOF == expected_fit_result.nDOF
 
     # If all assertions passed, then return True to indicate the success.
     return True

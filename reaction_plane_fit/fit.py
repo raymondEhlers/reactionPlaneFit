@@ -307,21 +307,17 @@ class ReactionPlaneFit(ABC):
 
         # Store Minuit information for calculating the errors.
         self.fit_result = base.FitResult(
-            parameters = parameters,
-            fixed_parameters = fixed_parameters,
-            free_parameters = free_parameters,
-            values_at_minimum = dict(minuit.values),
-            errors_on_parameters = dict(minuit.errors),
+            parameters = parameters, fixed_parameters = fixed_parameters, free_parameters = free_parameters,
+            values_at_minimum = dict(minuit.values), errors_on_parameters = dict(minuit.errors),
             covariance_matrix = minuit.covariance,
             x = x,
-            n_fit_data_points = n_fit_data_points,
-            minimum_val = minuit.fval,
+            n_fit_data_points = n_fit_data_points, minimum_val = minuit.fval,
             # This doesn't need to be meaningful - it won't be accessed.
             errors = [],
         )
         for fit_type, component in self.components.items():
             self.components[fit_type].fit_result = base.component_fit_result_from_rp_fit_result(
-                fit_result = self.fit_result, component = component, fit_data = fit_data[fit_type],
+                fit_result = self.fit_result, component = component,
             )
         logger.debug(f"nDOF: {self.fit_result.nDOF}")
 
@@ -386,7 +382,7 @@ class ReactionPlaneFit(ABC):
         # slow down loading the result, which would partially default the purpose. Plus, while
         # there is some duplicated information, it's really not that much storage space, even for
         # uncompressed information.
-        output: Dict[Union[str, base.FitType], base.FitResult] = {"full": self.fit_result}
+        output: Dict[Union[str, base.FitType], Union[base.BaseFitResult, base.FitResult]] = {"full": self.fit_result}
         output.update({fit_type: fit_component.fit_result for fit_type, fit_component in self.components.items()})
         logger.debug(f"output: {output}")
         with open(filename, "w+") as f:
@@ -395,7 +391,7 @@ class ReactionPlaneFit(ABC):
         return True
 
     @abstractmethod
-    def create_full_set_of_components(self) -> Dict[str, "FitComponent"]:
+    def create_full_set_of_components(self, input_data: Data) -> Dict[str, "FitComponent"]:
         """ Create the full set of fit components. """
         ...
 
@@ -430,7 +426,7 @@ class FitComponent(ABC):
         self.background_function: Callable[..., float]
 
         # Result
-        self.fit_result: base.ComponentFitResult
+        self.fit_result: base.BaseFitResult
 
     def set_fit_type(self, region: Optional[str] = None, orientation: Optional[str] = None) -> None:
         """ Update the fit type.

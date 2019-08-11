@@ -12,8 +12,7 @@ import numpy as np
 from typing import TYPE_CHECKING
 
 import pachyderm.fit as fit_base
-from pachyderm import histogram
-from pachyderm.fit.base import calculate_function_errors, FitFailed, FitResult  # noqa: F401
+from pachyderm.fit.base import calculate_function_errors, FitFailed, BaseFitResult, FitResult  # noqa: F401
 
 if TYPE_CHECKING:
     from reaction_plane_fit import fit
@@ -48,20 +47,12 @@ class ReactionPlaneParameter:
     c: float
 
 def component_fit_result_from_rp_fit_result(fit_result: fit_base.FitResult,
-                                            component: "fit.FitComponent",
-                                            fit_data: histogram.Histogram1D) -> fit_base.FitResult:
+                                            component: "fit.FitComponent") -> fit_base.BaseFitResult:
     """ Create a component fit result from the fit component and the RP fit result.
-
-    Note:
-        The component fit result only contains the subset of fit information that is relevant for this component,
-        even if it is part of a larger fit. This means that one must be careful when using the ``x``,
-        ``n_fit_data_points``, and ``minimum_val`` of a component which is part of the larger fit. Better is to use
-        the quantities calculated for the main fit.
 
     Args:
         fit_result: Fit result from the RP fit.
         component: Fit component for this fit result.
-        fit_data: Fit data used for the fit component.
     Returns:
         Constructed component fit result.
     """
@@ -106,21 +97,13 @@ def component_fit_result_from_rp_fit_result(fit_result: fit_base.FitResult,
     #logger.info(f"errors_on_parameters: {errors_on_parameters}")
     #logger.info(f"covariance_matrix: {covariance_matrix}")
 
-    cost_function_data = component.cost_function.data
-    # Help out mypy...
-    assert isinstance(cost_function_data, histogram.Histogram1D)
-    return fit_base.FitResult(
+    return fit_base.BaseFitResult(
         parameters = parameters,
         free_parameters = free_parameters,
         fixed_parameters = fixed_parameters,
         values_at_minimum = values_at_minimum,
         errors_on_parameters = errors_on_parameters,
         covariance_matrix = covariance_matrix,
-        # These are only the information relevant to this component, but it's derived from the main fit information,
-        # so some care is required.
-        x = cost_function_data.x,
-        n_fit_data_points = len(cost_function_data.x),
-        minimum_val = float(component.cost_function(*list(values_at_minimum.values()))),
         # This will be determined and set later.
         errors = np.array([]),
     )
