@@ -108,7 +108,7 @@ class BackgroundFit(ReactionPlaneFit):
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
 
-    def create_full_set_of_components(self) -> Dict[str, fit.FitComponent]:
+    def create_full_set_of_components(self, input_data: fit.Data) -> Dict[str, fit.FitComponent]:
         """ Create the full set of fit components. """
         # Sanity check that the fit has actually been performed.
         if not hasattr(self, "fit_result"):
@@ -130,8 +130,11 @@ class BackgroundFit(ReactionPlaneFit):
             resolution_parameters = self.resolution_parameters,
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
         )
+        inclusive_component._setup_fit(
+            input_hist = input_data[base.FitType(region = "background", orientation = "inclusive")]
+        )
         # Extract the relevant information into the component
-        inclusive_component.fit_result = base.ComponentFitResult.from_rp_fit_result(
+        inclusive_component.fit_result = base.component_fit_result_from_rp_fit_result(
             fit_result = self.fit_result,
             component = inclusive_component,
         )
@@ -176,7 +179,7 @@ class InclusiveSignalFit(ReactionPlaneFit):
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
 
-    def create_full_set_of_components(self) -> Dict[str, fit.FitComponent]:
+    def create_full_set_of_components(self, input_data: fit.Data) -> Dict[str, fit.FitComponent]:
         """ Create the full set of fit components. """
         # Sanity check that the fit has actually been performed.
         if not hasattr(self, "fit_result"):
@@ -223,7 +226,7 @@ class SignalFit(ReactionPlaneFit):
         # Complete basic setup of the components by setting up the fit functions.
         self._setup_component_fit_functions()
 
-    def create_full_set_of_components(self) -> Dict[str, fit.FitComponent]:
+    def create_full_set_of_components(self, input_data: fit.Data) -> Dict[str, fit.FitComponent]:
         """ Create the full set of fit components. """
         # Sanity check that the fit has actually been performed.
         if not hasattr(self, "fit_result"):
@@ -241,7 +244,11 @@ class SignalFit(ReactionPlaneFit):
             rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
             use_log_likelihood = self.use_log_likelihood
         )
-        background_fit_result = base.ComponentFitResult.from_rp_fit_result(
+        temp_bg_component.determine_fit_function(
+            resolution_parameters = self.resolution_parameters,
+            reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
+        )
+        background_fit_result = base.component_fit_result_from_rp_fit_result(
             fit_result = self.fit_result,
             component = temp_bg_component,
         )

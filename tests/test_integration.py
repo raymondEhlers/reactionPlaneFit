@@ -496,7 +496,7 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
 
     # Check standard summary components
     # Crreate the full set of components and check them out.
-    summary_components = rp_fit.create_full_set_of_components()
+    summary_components = rp_fit.create_full_set_of_components(input_data = data)
 
     # Make sure that we have all of the components (including the inclusive)
     assert len(summary_components) == len(rp_fit._rp_orientations)

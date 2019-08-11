@@ -52,7 +52,7 @@ def draw(rp_fit: fit.ReactionPlaneFit, data: Data, filename: str, y_label: str, 
     plt.rcParams.update({"font.size": 12})
 
     # Setup
-    full_set_of_components = rp_fit.create_full_set_of_components()
+    full_set_of_components = rp_fit.create_full_set_of_components(input_data = data)
 
     x = rp_fit.fit_result.x
     n_components = len(full_set_of_components)

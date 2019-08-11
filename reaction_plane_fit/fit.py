@@ -679,6 +679,7 @@ class SignalFitComponent(FitComponent):
             rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
             inclusive_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
+        self.background_function = lambda: -1e6  # Large negative number to ensure that it is clear that this went wrong
 
 class BackgroundFitComponent(FitComponent):
     """ Fit component in the background region.
@@ -702,6 +703,7 @@ class BackgroundFitComponent(FitComponent):
             rp_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
             inclusive_background_function = lambda: -1e6,  # Large negative number to ensure that it is clear that this went wrong
         )
+        self.background_function = lambda: -1e6  # Large negative number to ensure that it is clear that this went wrong
 
     def set_data_limits(self, hist: histogram.Histogram1D) -> histogram.Histogram1D:
         """ Set the limits of the fit to only use near-side data (ie dPhi < pi/2)
