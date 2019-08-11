@@ -68,7 +68,7 @@ def determine_signal_dominated_fit_function(rp_orientation: str, resolution_para
         #       matched to and applied to some parameter.
         signal_dominated_func = pachyderm.fit.AddPDF(
             signal_func, background_func,
-            prefixes = [rp_orientation + "_", "BG"], skip_prefixes = prefix_skip_parameters
+            prefixes = [rp_orientation, "BG"], skip_prefixes = prefix_skip_parameters
         )
 
     logger.debug(
