@@ -70,11 +70,11 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.errors_on_parameters.keys()) == list(expected_fit_result.errors_on_parameters.keys())
     # Need the extra tolerance to work on other systems.
-    #np.testing.assert_allclose(
-    #    list(fit_result.errors_on_parameters.values()),
-    #    list(expected_fit_result.errors_on_parameters.values()),
-    #    atol = 1e-3, rtol = 0
-    #)
+    np.testing.assert_allclose(
+        list(fit_result.errors_on_parameters.values()),
+        list(expected_fit_result.errors_on_parameters.values()),
+        atol = 1e-3, rtol = 0
+    )
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.covariance_matrix.keys()) == list(expected_fit_result.covariance_matrix.keys())
     # Need the extra tolerance to work on other systems.
