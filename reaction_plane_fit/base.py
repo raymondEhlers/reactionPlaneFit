@@ -9,15 +9,21 @@ from dataclasses import dataclass
 import iminuit
 import logging
 import numpy as np
-from typing import TYPE_CHECKING
+from typing import Dict, Union, TYPE_CHECKING, cast
 
 import pachyderm.fit as fit_base
 from pachyderm.fit.base import calculate_function_errors, FitFailed, BaseFitResult, FitResult  # noqa: F401
+from pachyderm.typing_helpers import Hist
+from pachyderm import histogram
 
 if TYPE_CHECKING:
     from reaction_plane_fit import fit
 
 logger = logging.getLogger(__name__)
+
+# Type helpers
+InputData = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
+Data = Dict["FitType", histogram.Histogram1D]
 
 @dataclass(frozen = True)
 class FitType:
@@ -108,3 +114,41 @@ def component_fit_result_from_rp_fit_result(fit_result: fit_base.FitResult,
         errors = np.array([]),
     )
 
+def format_input_data(data: Union[InputData, Data]) -> Data:
+    """ Convert input data into a more convenient format.
+
+    By using ``FitType``, we can very easily check that all fit components have the appropriate data.
+
+    Args:
+        data: Input data to be formatted.
+    Returns:
+        Properly formatted data, with ``FitType`` keys and histograms as values.
+    """
+    # Check if it's already properly formatted.
+    formatted_data: Data = {}
+    properly_formatted = all(isinstance(k, FitType) for k in data.keys())
+    if not properly_formatted:
+        # Convert the string keys to ``FitType`` keys.
+        # Help out mypy
+        data = cast(InputData, data)
+        for region in ["signal", "background"]:
+            if region in data:
+                for rp_orientation in data[region]:
+                    # Convert the key for storing the data.
+                    # For example, ["background"]["in_plane"] -> [FitType(region = "background",
+                    # orientation = "in_plane")]
+                    hist = data[region][rp_orientation]
+                    formatted_data[FitType(region = region, orientation = rp_orientation)] = hist
+    else:
+        # Help out mypy
+        data = cast(Data, data)
+        formatted_data = data
+
+    # Convert the data to Histogram objects.
+    formatted_data = {
+        fit_type: histogram.Histogram1D.from_existing_hist(input_hist)
+        for fit_type, input_hist in formatted_data.items()
+    }
+    logger.debug(f"{formatted_data}")
+
+    return formatted_data

@@ -7,24 +7,22 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import iminuit
 import numpy as np
 
 import pachyderm.fit
 from pachyderm import histogram
-from pachyderm.typing_helpers import Hist
 from pachyderm import yaml
 
 from reaction_plane_fit import base
+from reaction_plane_fit.base import InputData, Data
 from reaction_plane_fit import functions
 
 logger = logging.getLogger(__name__)
 
 # Type helpers
-InputData = Dict[str, Dict[str, Union[Hist, histogram.Histogram1D]]]
-Data = Dict[base.FitType, histogram.Histogram1D]
 FitArguments = Dict[str, Union[bool, float, Tuple[float, float], Tuple[int, int]]]
 ResolutionParameters = Dict[str, float]
 
@@ -127,34 +125,7 @@ class ReactionPlaneFit(ABC):
         Returns:
             Properly formatted data, with ``FitType`` keys and histograms as values.
         """
-        # Check if it's already properly formatted.
-        formatted_data: Data = {}
-        properly_formatted = all(isinstance(k, base.FitType) for k in data.keys())
-        if not properly_formatted:
-            # Convert the string keys to ``FitType`` keys.
-            # Help out mypy
-            data = cast(InputData, data)
-            for region in ["signal", "background"]:
-                if region in data:
-                    for rp_orientation in data[region]:
-                        # Convert the key for storing the data.
-                        # For example, ["background"]["in_plane"] -> [FitType(region = "background",
-                        # orientation = "in_plane")]
-                        hist = data[region][rp_orientation]
-                        formatted_data[base.FitType(region = region, orientation = rp_orientation)] = hist
-        else:
-            # Help out mypy
-            data = cast(Data, data)
-            formatted_data = data
-
-        # Convert the data to Histogram objects.
-        formatted_data = {
-            fit_type: histogram.Histogram1D.from_existing_hist(input_hist)
-            for fit_type, input_hist in formatted_data.items()
-        }
-        logger.debug(f"{formatted_data}")
-
-        return formatted_data
+        return base.format_input_data(data)
 
     def _validate_data(self, data: Data) -> bool:
         """ Validate that the provided data is sufficient for the defined components.
