@@ -593,11 +593,12 @@ class FitComponent(ABC):
         # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
         #       is correct.
         background_limits: FitArguments = {
-            "v2_t": 0.02, "limit_v2_t": (0, 0.50), "error_v2_t": 0.001,
-            "v2_a": 0.02, "limit_v2_a": (0, 0.50), "error_v2_a": 0.001,
-            "v4_t": 0.01, "limit_v4_t": (0, 0.50), "error_v4_t": 0.001,
+            "v2_t": 0.02, "limit_v2_t": (0.001, 0.20), "error_v2_t": 0.001,
+            "v2_a": 0.10, "limit_v2_a": (0.03, 0.50), "error_v2_a": 0.001,
+            "v4_t": 0.005, "limit_v4_t": (0, 0.50), "error_v4_t": 0.0005,
             "v4_a": 0.01, "limit_v4_a": (0, 0.50), "error_v4_a": 0.001,
-            "v3": 0.0, "limit_v3": (-0.1, 0.5), "error_v3": 0.001,
+            # v3 is squared, so it always must be greater than 1
+            "v3": 0.001, "limit_v3": (0.0, 0.5), "error_v3": 0.0001,
             "v1": 0.0, "fix_v1": True,
         }
         arguments.update(background_limits)
