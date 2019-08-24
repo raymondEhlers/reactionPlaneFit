@@ -2,6 +2,24 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [3.1] - 24 August 2019
+
+## Changed
+
+- Added a method to create a full set of fit components for each EP orientation, regardless of which were used
+  for the fit. This allows for downstream code to not need to differentiate between the different cases for
+  most tasks, easing the user experience. See: Nearly all of the commits between 3.0 and 3.1.
+- Use the `pachyderm.fit.BaseFitResult` for components in order to avoid needing to calculate unnecessary
+  values for component fit results. It's more natural. See: `bbbcac45c41490072f345b6aebbeb6f49d427a1d`.
+- Updated the included test data for better test consistently with external sources. See:
+  `0bf5e1ceaede9cd578a20c12db81455f38326a2d`.
+- Updated pre-commit hooks. See: `6d780545b5547f42c7c3a684f11234d069973c10`.
+
+## Fixed
+
+- Warning about registering `pytest` marks. See: `8f6f5386fddea1e540a15de99ce8852dfc2319fd`.
+- Removed final `probfit` dependence. See: `b94ea052246269e454f3df1c7afbb7ac96f35cec`.
+
 ## [3.0] - 8 August 2019
 
 ## Changed
