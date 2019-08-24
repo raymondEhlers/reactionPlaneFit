@@ -17,7 +17,7 @@ import pkg_resources
 import probfit
 import pytest
 import tempfile
-from typing import Any, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Optional, Tuple, Union, TYPE_CHECKING
 
 from reaction_plane_fit import base
 from reaction_plane_fit import example
@@ -47,7 +47,9 @@ def setup_integration_tests(logging_mixin: Any) -> str:
 
     return sample_data_filename
 
-def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_result: base.FitResult, minuit: Optional["iminuit.Minuit"] = None) -> bool:
+def compare_fit_result_to_expected(fit_result: Union[base.FitResult, base.BaseFitResult],
+                                   expected_fit_result: Union[base.BaseFitResult, base.FitResult],
+                                   minuit: Optional["iminuit.Minuit"] = None) -> bool:
     """ Helper function to compare a fit result to an expected fit result.
 
     Args:
@@ -102,6 +104,9 @@ def compare_fit_result_to_expected(fit_result: base.FitResult, expected_fit_resu
 
     # Check the general fit description
     if isinstance(fit_result, base.FitResult):
+        # Help out mypy...
+        assert isinstance(expected_fit_result, base.FitResult)
+        # Check the additional attributes
         np.testing.assert_allclose(fit_result.x, expected_fit_result.x, atol = 1e-5, rtol = 0)
         assert fit_result.n_fit_data_points == expected_fit_result.n_fit_data_points
         assert np.isclose(fit_result.minimum_val, expected_fit_result.minimum_val, atol = 1e-2)
@@ -123,108 +128,181 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
     # Setup the expected fit result. These values are extracted from an example fit.
     # NOTE: They are not calculated independently, so there are most like regression tests.
     expected_fit_result = base.FitResult(
-        parameters = [
+        parameters=[
             "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "signal_pedestal", "BG",
             "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3", "B",
         ],
-        free_parameters = [
+        free_parameters=[
             "ns_amplitude", "as_amplitude", "ns_sigma", "as_sigma", "BG",
             "v2_t", "v2_a", "v4_t", "v4_a", "v3", "B",
         ],
-        fixed_parameters = ["signal_pedestal", "v1"],
-        values_at_minimum = {
-            'ns_amplitude': 1.7933561625700922, 'as_amplitude': 1.0001072229610664,
-            'ns_sigma': 0.2531797052038343, 'as_sigma': 0.4304508803936734,
-            'signal_pedestal': 0.0, 'BG': 24.51231187224201,
-            'v2_t': 1.635883107545255e-05, 'v2_a': 0.04207445772474305,
-            'v4_t': 0.0021469295947451894, 'v4_a': 0.002584005026287889,
-            'v1': 0.0, 'v3': 0.0016802003999212695,
-            'B': 74.09951310294166,
+        fixed_parameters=["signal_pedestal", "v1"],
+        values_at_minimum={
+            "ns_amplitude": 3.2809411988915516,
+            "as_amplitude": 1.8489432297751907,
+            "ns_sigma": 0.22868472738561316,
+            "as_sigma": 0.4441709704395406,
+            "signal_pedestal": 0.0,
+            "BG": 58.76378642598284,
+            "v2_t": 0.0010001897811286388,
+            "v2_a": 0.046815379069918756,
+            "v4_t": 4.7683700662992656e-07,
+            "v4_a": 0.00590849609503144,
+            "v1": 0.0,
+            "v3": 0.002632852199485086,
+            "B": 175.99722684284168,
         },
-        errors_on_parameters = {
-            'ns_amplitude': 0.12839073902939924, 'as_amplitude': 0.1601590707638878,
-            'ns_sigma': 0.01756754811099917, 'as_sigma': 0.0771999164701046,
-            'signal_pedestal': 1.0, 'BG': 0.04915769800151182,
-            'v2_t': 0.09027663461261039, 'v2_a': 0.0039482883973311345,
-            'v4_t': 0.003222254298287666, 'v4_a': 0.004554445381827463,
-            'v1': 1.0, 'v3': 0.001172204666172523,
-            'B': 0.28291657094270306,
+        errors_on_parameters={
+            "ns_amplitude": 0.22013880427482202,
+            "as_amplitude": 0.28265751518882776,
+            "ns_sigma": 0.0158226305008205,
+            "as_sigma": 0.07218259727767867,
+            "signal_pedestal": 1.0,
+            "BG": 0.086624204119925,
+            "v2_t": 0.0002163040833313033,
+            "v2_a": 0.0027335037481057353,
+            "v4_t": 0.0008960281450342555,
+            "v4_a": 0.0031936933858524724,
+            "v1": 1.0,
+            "v3": 0.0008681618870475666,
+            "B": 0.46210742166589114,
         },
-        covariance_matrix = {
-            ('ns_amplitude', 'ns_amplitude'): 0.016484487745377686, ('ns_amplitude', 'as_amplitude'): 0.00937777016042199,
-            ('ns_amplitude', 'ns_sigma'): 0.001433801183150422, ('ns_amplitude', 'as_sigma'): 0.004586628583904665,
-            ('ns_amplitude', 'BG'): -0.004019509691337873, ('ns_amplitude', 'v2_t'): -3.5013665434579806e-05,
-            ('ns_amplitude', 'v2_a'): 3.6570973251680785e-06, ('ns_amplitude', 'v4_t'): 3.047333679513599e-06,
-            ('ns_amplitude', 'v4_a'): 1.0803267317539679e-06, ('ns_amplitude', 'v3'): -6.630890180366187e-05,
-            ('ns_amplitude', 'B'): -0.0019040291327373684, ('as_amplitude', 'ns_amplitude'): 0.00937777016042199,
-            ('as_amplitude', 'as_amplitude'): 0.025651478042855662, ('as_amplitude', 'ns_sigma'): 0.0008107414313640945,
-            ('as_amplitude', 'as_sigma'): 0.008412717771853899, ('as_amplitude', 'BG'): -0.005534282484339136,
-            ('as_amplitude', 'v2_t'): -3.973113571976044e-05, ('as_amplitude', 'v2_a'): 2.2158781868346477e-06,
-            ('as_amplitude', 'v4_t'): 3.993982077267372e-06, ('as_amplitude', 'v4_a'): 2.0448291125666287e-06,
-            ('as_amplitude', 'v3'): -4.486572540586001e-05, ('as_amplitude', 'B'): -0.0011687806471112946,
-            ('ns_sigma', 'ns_amplitude'): 0.001433801183150422, ('ns_sigma', 'as_amplitude'): 0.0008107414313640945,
-            ('ns_sigma', 'ns_sigma'): 0.00030892555738012, ('ns_sigma', 'as_sigma'): 0.00026655034266817346,
-            ('ns_sigma', 'BG'): -0.00035502620690710114, ('ns_sigma', 'v2_t'): -2.7640556065111823e-06,
-            ('ns_sigma', 'v2_a'): 4.692003518761862e-08, ('ns_sigma', 'v4_t'): 3.3575404158283206e-07,
-            ('ns_sigma', 'v4_a'): 2.3485231088135886e-07, ('ns_sigma', 'v3'): -1.4273558060264512e-06,
-            ('ns_sigma', 'B'): -2.600804727681495e-05, ('as_sigma', 'ns_amplitude'): 0.004586628583904665,
-            ('as_sigma', 'as_amplitude'): 0.008412717771853899, ('as_sigma', 'ns_sigma'): 0.00026655034266817346,
-            ('as_sigma', 'as_sigma'): 0.006070036665554977, ('as_sigma', 'BG'): -0.00206225002748495,
-            ('as_sigma', 'v2_t'): -6.500023012349592e-06, ('as_sigma', 'v2_a'): 3.3860989603375093e-06,
-            ('as_sigma', 'v4_t'): 2.1962728737091226e-06, ('as_sigma', 'v4_a'): 3.0421272676325655e-06,
-            ('as_sigma', 'v3'): -5.4028432040217185e-05, ('as_sigma', 'B'): -0.0017156715899985726,
-            ('BG', 'ns_amplitude'): -0.004019509691337873, ('BG', 'as_amplitude'): -0.005534282484339136,
-            ('BG', 'ns_sigma'): -0.00035502620690710114, ('BG', 'as_sigma'): -0.00206225002748495,
-            ('BG', 'BG'): 0.0024165089641249695, ('BG', 'v2_t'): 1.1909535850558192e-05,
-            ('BG', 'v2_a'): -9.235738758378376e-07, ('BG', 'v4_t'): -1.1225041117879457e-06,
-            ('BG', 'v4_a'): -4.984057137464932e-07, ('BG', 'v3'): 1.752340820569268e-05,
-            ('BG', 'B'): 0.00048338251767429316, ('v2_t', 'ns_amplitude'): -3.5013665434579806e-05,
-            ('v2_t', 'as_amplitude'): -3.973113571976044e-05, ('v2_t', 'ns_sigma'): -2.7640556065111823e-06,
-            ('v2_t', 'as_sigma'): -6.500023012349592e-06, ('v2_t', 'BG'): 1.1909535850558192e-05,
-            ('v2_t', 'v2_t'): 6.320254289545203e-06, ('v2_t', 'v2_a'): 1.0042970964403218e-07,
-            ('v2_t', 'v4_t'): -3.820177656965649e-07, ('v2_t', 'v4_a'): 1.175863881401016e-07,
-            ('v2_t', 'v3'): 7.136379479651473e-08, ('v2_t', 'B'): -4.4784727962737335e-05,
-            ('v2_a', 'ns_amplitude'): 3.6570973251680785e-06, ('v2_a', 'as_amplitude'): 2.2158781868346477e-06,
-            ('v2_a', 'ns_sigma'): 4.692003518761862e-08, ('v2_a', 'as_sigma'): 3.3860989603375093e-06,
-            ('v2_a', 'BG'): -9.235738758378376e-07, ('v2_a', 'v2_t'): 1.0042970964403218e-07,
-            ('v2_a', 'v2_a'): 1.5593189473215385e-05, ('v2_a', 'v4_t'): -5.362285833796496e-08,
-            ('v2_a', 'v4_a'): 3.2849588077829256e-07, ('v2_a', 'v3'): -8.720385751786689e-08,
-            ('v2_a', 'B'): 2.7828543786649263e-08, ('v4_t', 'ns_amplitude'): 3.047333679513599e-06,
-            ('v4_t', 'as_amplitude'): 3.993982077267372e-06, ('v4_t', 'ns_sigma'): 3.3575404158283206e-07,
-            ('v4_t', 'as_sigma'): 2.1962728737091226e-06, ('v4_t', 'BG'): -1.1225041117879457e-06,
-            ('v4_t', 'v2_t'): -3.820177656965649e-07, ('v4_t', 'v2_a'): -5.362285833796496e-08,
-            ('v4_t', 'v4_t'): 1.0416749518759913e-05, ('v4_t', 'v4_a'): -2.2806392429457846e-07,
-            ('v4_t', 'v3'): -2.4769876813646587e-08, ('v4_t', 'B'): 2.3164202191932045e-06,
-            ('v4_a', 'ns_amplitude'): 1.0803267317539679e-06, ('v4_a', 'as_amplitude'): 2.0448291125666287e-06,
-            ('v4_a', 'ns_sigma'): 2.3485231088135886e-07, ('v4_a', 'as_sigma'): 3.0421272676325655e-06,
-            ('v4_a', 'BG'): -4.984057137464932e-07, ('v4_a', 'v2_t'): 1.175863881401016e-07,
-            ('v4_a', 'v2_a'): 3.2849588077829256e-07, ('v4_a', 'v4_t'): -2.2806392429457846e-07,
-            ('v4_a', 'v4_a'): 2.085553317728389e-05, ('v4_a', 'v3'): -3.6541969118161186e-08,
-            ('v4_a', 'B'): -3.077207877523124e-06, ('v3', 'ns_amplitude'): -6.630890180366187e-05,
-            ('v3', 'as_amplitude'): -4.486572540586001e-05, ('v3', 'ns_sigma'): -1.4273558060264512e-06,
-            ('v3', 'as_sigma'): -5.4028432040217185e-05, ('v3', 'BG'): 1.752340820569268e-05,
-            ('v3', 'v2_t'): 7.136379479651473e-08, ('v3', 'v2_a'): -8.720385751786689e-08,
-            ('v3', 'v4_t'): -2.4769876813646587e-08, ('v3', 'v4_a'): -3.6541969118161186e-08,
-            ('v3', 'v3'): 1.3740774655449359e-06, ('v3', 'B'): 4.433272832354065e-05,
-            ('B', 'ns_amplitude'): -0.0019040291327373684, ('B', 'as_amplitude'): -0.0011687806471112946,
-            ('B', 'ns_sigma'): -2.600804727681495e-05, ('B', 'as_sigma'): -0.0017156715899985726,
-            ('B', 'BG'): 0.00048338251767429316, ('B', 'v2_t'): -4.4784727962737335e-05,
-            ('B', 'v2_a'): 2.7828543786649263e-08, ('B', 'v4_t'): 2.3164202191932045e-06,
-            ('B', 'v4_a'): -3.077207877523124e-06, ('B', 'v3'): 4.433272832354065e-05,
-            ('B', 'B'): 0.08004222963133066
+        covariance_matrix={
+            ("ns_amplitude", "ns_amplitude"): 0.04846133253279189,
+            ("ns_amplitude", "as_amplitude"): 0.02632121772890272,
+            ("ns_amplitude", "ns_sigma"): 0.002252527350040729,
+            ("ns_amplitude", "as_sigma"): 0.006995623419233939,
+            ("ns_amplitude", "BG"): -0.011635567365839462,
+            ("ns_amplitude", "v2_t"): -1.997103063002631e-09,
+            ("ns_amplitude", "v2_a"): 2.3954482558423866e-07,
+            ("ns_amplitude", "v4_t"): 2.5541716687991815e-11,
+            ("ns_amplitude", "v4_a"): 2.667475073274938e-07,
+            ("ns_amplitude", "v3"): -8.602836964339254e-05,
+            ("ns_amplitude", "B"): -0.006702940356711055,
+            ("as_amplitude", "ns_amplitude"): 0.02632121772890272,
+            ("as_amplitude", "as_amplitude"): 0.0798964238443217,
+            ("as_amplitude", "ns_sigma"): 0.0012367143527582136,
+            ("as_amplitude", "as_sigma"): 0.013227317566298415,
+            ("as_amplitude", "BG"): -0.01681898685960936,
+            ("as_amplitude", "v2_t"): -2.3280579277848087e-09,
+            ("as_amplitude", "v2_a"): -8.638378687247485e-07,
+            ("as_amplitude", "v4_t"): 8.152906213924981e-10,
+            ("as_amplitude", "v4_a"): 1.3429173761007637e-07,
+            ("as_amplitude", "v3"): -5.1921742330894725e-05,
+            ("as_amplitude", "B"): -0.004045983645905941,
+            ("ns_sigma", "ns_amplitude"): 0.002252527350040729,
+            ("ns_sigma", "as_amplitude"): 0.0012367143527582136,
+            ("ns_sigma", "ns_sigma"): 0.00025056834280290586,
+            ("ns_sigma", "as_sigma"): 0.0002364643220729578,
+            ("ns_sigma", "BG"): -0.0005517133576386456,
+            ("ns_sigma", "v2_t"): -8.635121192809922e-11,
+            ("ns_sigma", "v2_a"): -3.9272492313043876e-08,
+            ("ns_sigma", "v4_t"): 5.680557315666346e-11,
+            ("ns_sigma", "v4_a"): 3.874027709281244e-09,
+            ("ns_sigma", "v3"): -1.6200420139126602e-06,
+            ("ns_sigma", "B"): -0.00012624705053034544,
+            ("as_sigma", "ns_amplitude"): 0.006995623419233939,
+            ("as_sigma", "as_amplitude"): 0.013227317566298415,
+            ("as_sigma", "ns_sigma"): 0.0002364643220729578,
+            ("as_sigma", "as_sigma"): 0.005295921830156029,
+            ("as_sigma", "BG"): -0.0032049182346621497,
+            ("as_sigma", "v2_t"): -1.530066506545061e-10,
+            ("as_sigma", "v2_a"): 7.14502308354666e-07,
+            ("as_sigma", "v4_t"): 5.95939607748049e-10,
+            ("as_sigma", "v4_a"): 1.2846634840719582e-07,
+            ("as_sigma", "v3"): -3.604332541105233e-05,
+            ("as_sigma", "B"): -0.0028080429559457576,
+            ("BG", "ns_amplitude"): -0.011635567365839462,
+            ("BG", "as_amplitude"): -0.01681898685960936,
+            ("BG", "ns_sigma"): -0.0005517133576386456,
+            ("BG", "as_sigma"): -0.0032049182346621497,
+            ("BG", "BG"): 0.007503753078738351,
+            ("BG", "v2_t"): 6.89514178994482e-10,
+            ("BG", "v2_a"): 1.0537517618602591e-07,
+            ("BG", "v4_t"): -1.3647027909619434e-10,
+            ("BG", "v4_a"): -6.302808557238417e-08,
+            ("BG", "v3"): 2.1744348197413337e-05,
+            ("BG", "B"): 0.0016942994655952252,
+            ("v2_t", "ns_amplitude"): -1.997103063002631e-09,
+            ("v2_t", "as_amplitude"): -2.3280579277848087e-09,
+            ("v2_t", "ns_sigma"): -8.635121192809922e-11,
+            ("v2_t", "as_sigma"): -1.530066506545061e-10,
+            ("v2_t", "BG"): 6.89514178994482e-10,
+            ("v2_t", "v2_t"): 1.6426141683899495e-10,
+            ("v2_t", "v2_a"): 4.548222250576325e-12,
+            ("v2_t", "v4_t"): -1.2118832422939818e-15,
+            ("v2_t", "v4_a"): 8.335558954386748e-13,
+            ("v2_t", "v3"): 1.4886768914860179e-12,
+            ("v2_t", "B"): -1.4039293520415545e-09,
+            ("v2_a", "ns_amplitude"): 2.3954482558423866e-07,
+            ("v2_a", "as_amplitude"): -8.638378687247485e-07,
+            ("v2_a", "ns_sigma"): -3.9272492313043876e-08,
+            ("v2_a", "as_sigma"): 7.14502308354666e-07,
+            ("v2_a", "BG"): 1.0537517618602591e-07,
+            ("v2_a", "v2_t"): 4.548222250576325e-12,
+            ("v2_a", "v2_a"): 7.474486187274642e-06,
+            ("v2_a", "v4_t"): -1.075426302568744e-11,
+            ("v2_a", "v4_a"): 2.0039178391235273e-07,
+            ("v2_a", "v3"): -1.648108668028786e-08,
+            ("v2_a", "B"): 2.3229894564596034e-06,
+            ("v4_t", "ns_amplitude"): 2.5541716687991815e-11,
+            ("v4_t", "as_amplitude"): 8.152906213924981e-10,
+            ("v4_t", "ns_sigma"): 5.680557315666346e-11,
+            ("v4_t", "as_sigma"): 5.95939607748049e-10,
+            ("v4_t", "BG"): -1.3647027909619434e-10,
+            ("v4_t", "v2_t"): -1.2118832422939818e-15,
+            ("v4_t", "v2_a"): -1.075426302568744e-11,
+            ("v4_t", "v4_t"): 1.7100610209014645e-09,
+            ("v4_t", "v4_a"): -2.440735706023077e-11,
+            ("v4_t", "v3"): -2.8635331971346696e-12,
+            ("v4_t", "B"): -1.7517308704640773e-09,
+            ("v4_a", "ns_amplitude"): 2.667475073274938e-07,
+            ("v4_a", "as_amplitude"): 1.3429173761007637e-07,
+            ("v4_a", "ns_sigma"): 3.874027709281244e-09,
+            ("v4_a", "as_sigma"): 1.2846634840719582e-07,
+            ("v4_a", "BG"): -6.302808557238417e-08,
+            ("v4_a", "v2_t"): 8.335558954386748e-13,
+            ("v4_a", "v2_a"): 2.0039178391235273e-07,
+            ("v4_a", "v4_t"): -2.440735706023077e-11,
+            ("v4_a", "v4_a"): 1.0211578282445497e-05,
+            ("v4_a", "v3"): -2.7240320839964862e-09,
+            ("v4_a", "B"): -4.637048315969915e-07,
+            ("v3", "ns_amplitude"): -8.602836964339254e-05,
+            ("v3", "as_amplitude"): -5.1921742330894725e-05,
+            ("v3", "ns_sigma"): -1.6200420139126602e-06,
+            ("v3", "as_sigma"): -3.604332541105233e-05,
+            ("v3", "BG"): 2.1744348197413337e-05,
+            ("v3", "v2_t"): 1.4886768914860179e-12,
+            ("v3", "v2_a"): -1.648108668028786e-08,
+            ("v3", "v4_t"): -2.8635331971346696e-12,
+            ("v3", "v4_a"): -2.7240320839964862e-09,
+            ("v3", "v3"): 7.538497097706797e-07,
+            ("v3", "B"): 5.872976118430097e-05,
+            ("B", "ns_amplitude"): -0.006702940356711055,
+            ("B", "as_amplitude"): -0.004045983645905941,
+            ("B", "ns_sigma"): -0.00012624705053034544,
+            ("B", "as_sigma"): -0.0028080429559457576,
+            ("B", "BG"): 0.0016942994655952252,
+            ("B", "v2_t"): -1.4039293520415545e-09,
+            ("B", "v2_a"): 2.3229894564596034e-06,
+            ("B", "v4_t"): -1.7517308704640773e-09,
+            ("B", "v4_a"): -4.637048315969915e-07,
+            ("B", "v3"): 5.872976118430097e-05,
+            ("B", "B"): 0.21354337397198286,
         },
-        x = np.array([-1.48352986, -1.30899694, -1.13446401, -0.95993109, -0.78539816,
-                      -0.61086524, -0.43633231, -0.26179939, -0.08726646,  0.08726646,  # noqa: E241
-                       0.26179939,  0.43633231,  0.61086524,  0.78539816,  0.95993109,  # noqa: E241
-                       1.13446401,  1.30899694,  1.48352986,  1.65806279,  1.83259571,  # noqa: E241
-                       2.00712864,  2.18166156,  2.35619449,  2.53072742,  2.70526034,  # noqa: E241
-                       2.87979327,  3.05432619,  3.22885912,  3.40339204,  3.57792497,  # noqa: E241
-                       3.75245789,  3.92699082,  4.10152374,  4.27605667,  4.45058959,  # noqa: E241
-                       4.62512252]),
-        n_fit_data_points = 90,
-        minimum_val = 82.97071829310454,
-        errors = [],
+        errors=[],
+        x=np.array([
+            -1.48352986, -1.30899694, -1.13446401, -0.95993109, -0.78539816, -0.61086524,
+            -0.43633231, -0.26179939, -0.08726646, 0.08726646, 0.26179939, 0.43633231,
+            0.61086524, 0.78539816, 0.95993109, 1.13446401, 1.30899694, 1.48352986,
+            1.65806279, 1.83259571, 2.00712864, 2.18166156, 2.35619449, 2.53072742,
+            2.70526034, 2.87979327, 3.05432619, 3.22885912, 3.40339204, 3.57792497,
+            3.75245789, 3.92699082, 4.10152374, 4.27605667, 4.45058959, 4.62512252,
+        ]),
+        n_fit_data_points=90,
+        minimum_val=129.53525910258875,
     )
+
     expected_signal_parameters = [
         'ns_amplitude', 'as_amplitude', 'ns_sigma', 'as_sigma', 'signal_pedestal',
         'BG', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3'
@@ -235,29 +313,26 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
     ]
     expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
     expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
-    x_component = np.array(expected_fit_result.x[:int(len(expected_fit_result.x) / 2)])
     expected_components = {
-        base.FitType(region='signal', orientation='inclusive'): base.FitResult(
+        base.FitType(region='signal', orientation='inclusive'): base.BaseFitResult(
             parameters = expected_signal_parameters,
             free_parameters = expected_signal_free_parameters,
             fixed_parameters = ['signal_pedestal', 'v1'],
             values_at_minimum = {k: expected_fit_result.values_at_minimum[k] for k in expected_signal_parameters},
-            errors_on_parameters = {k: expected_fit_result.errors_on_parameters[k] for k in expected_signal_parameters},
+            errors_on_parameters = {
+                k: expected_fit_result.errors_on_parameters[k] for k in expected_signal_parameters
+            },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_signal_free_parameters for k2 in expected_signal_free_parameters},
-            x = expected_fit_result.x,
-            n_fit_data_points = 36,
-            minimum_val = 43.47809398077163,
             errors = np.array([
-                0.04659353, 0.05320476, 0.06173382, 0.06129561, 0.05044053,
-                0.05628865, 0.10358349, 0.09225062, 0.13088703, 0.13088703,
-                0.09225063, 0.10358349, 0.05628864, 0.05044054, 0.06129673,
-                0.06173997, 0.05318416, 0.04603239, 0.05215069, 0.0630976 ,  # noqa: E203
-                0.06490267, 0.0595903 , 0.06622332, 0.07684584, 0.06925706,  # noqa: E203
-                0.07379214, 0.10335831, 0.10335831, 0.07379214, 0.06925706,
-                0.07684584, 0.06622332, 0.0595903 , 0.06490267, 0.0630976 ,  # noqa: E203
-                0.05215069]),
+                0.08281593, 0.09514459, 0.11058085, 0.11038697, 0.09246798, 0.08607996,
+                0.18658103, 0.19248293, 0.25152553, 0.25152553, 0.19248293, 0.18658103,
+                0.08607986, 0.09246791, 0.11039063, 0.11059964, 0.09510031, 0.08156646,
+                0.09114142, 0.11009599, 0.11508615, 0.10894117, 0.11631684, 0.12684909,
+                0.11718967, 0.13390741, 0.1801032 , 0.1801032 , 0.13390741, 0.11718967,  # noqa: E203
+                0.12684909, 0.11631684, 0.10894117, 0.11508615, 0.11009599, 0.09114142,
+            ]),
         ),
-        base.FitType(region='background', orientation='in_plane'): base.FitResult(
+        base.FitType(region='background', orientation='in_plane'): base.BaseFitResult(
             parameters = expected_background_parameters,
             free_parameters=expected_background_free_parameters,
             fixed_parameters=['v1'],
@@ -266,20 +341,16 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
                 k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
             },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
-            x = x_component,
-            n_fit_data_points = 18,
-            minimum_val = 17.470196626377145,
             errors = np.array([
-                0.22600626, 0.20236964, 0.1792622 , 0.17417331, 0.17607922,  # noqa: E203
-                0.17589761, 0.1895709 , 0.22364286, 0.25277766, 0.25277766,  # noqa: E203
-                0.22364286, 0.1895709 , 0.17589761, 0.17607922, 0.17417331,  # noqa: E203
-                0.1792622 , 0.20236964, 0.22600626, 0.2282912 , 0.20927409,  # noqa: E203
-                0.18976985, 0.18483703, 0.18363486, 0.17856864, 0.18720743,
-                0.21845047, 0.24672188, 0.24672188, 0.21845047, 0.18720743,
-                0.17856864, 0.18363486, 0.18483703, 0.18976985, 0.20927409,
-                0.2282912])
+                0.32841373, 0.28401352, 0.23776085, 0.22430129, 0.22249343, 0.2152592 ,  # noqa: E203
+                0.24073382, 0.30957262, 0.3659735 , 0.3659735 , 0.30957262, 0.24073382,  # noqa: E203
+                0.2152592 , 0.22249343, 0.22430129, 0.23776085, 0.28401352, 0.32841373,  # noqa: E203
+                0.33221576, 0.29585571, 0.25675   , 0.24435686, 0.23745899, 0.22103222,  # noqa: E203
+                0.23544904, 0.2982731 , 0.35293121, 0.35293121, 0.2982731 , 0.23544904,  # noqa: E203
+                0.22103222, 0.23745899, 0.24435686, 0.25675   , 0.29585571, 0.33221576,  # noqa: E203
+            ])
         ),
-        base.FitType(region='background', orientation='mid_plane'): base.FitResult(
+        base.FitType(region='background', orientation='mid_plane'): base.BaseFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -288,20 +359,16 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
                 k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
             },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
-            x = x_component,
-            n_fit_data_points = 18,
-            minimum_val = 12.466924663501008,
             errors = np.array([
-                0.235723  , 0.18639393, 0.16976855, 0.22061279, 0.24931356,  # noqa: E203
-                0.21663034, 0.16738339, 0.19307235, 0.24641435, 0.24641435,
-                0.19307235, 0.16738339, 0.21663034, 0.24931356, 0.22061279,
-                0.16976855, 0.18639393, 0.235723  , 0.23774675, 0.19306969,  # noqa: E203
-                0.1791784 , 0.22759284, 0.25377834, 0.21855863, 0.16472916,  # noqa: E203
-                0.18638008, 0.23902805, 0.23902805, 0.18638008, 0.16472916,
-                0.21855863, 0.25377834, 0.22759284, 0.1791784 , 0.19306969,  # noqa: E203
-                0.23774675])
+                0.32813719, 0.22211081, 0.17817623, 0.29246334, 0.34944401, 0.28274342,
+                0.16931736, 0.23705456, 0.35018994, 0.35018994, 0.23705456, 0.16931736,
+                0.28274342, 0.34944401, 0.29246334, 0.17817623, 0.22211081, 0.32813719,
+                0.3319468 , 0.23705309, 0.20273059, 0.30801095, 0.35908298, 0.28713307,  # noqa: E203
+                0.16174752, 0.22211238, 0.33652361, 0.33652361, 0.22211238, 0.16174752,  # noqa: E203
+                0.28713307, 0.35908298, 0.30801095, 0.20273059, 0.23705309, 0.3319468 ,  # noqa: E203
+            ])
         ),
-        base.FitType(region='background', orientation='out_of_plane'): base.FitResult(
+        base.FitType(region='background', orientation='out_of_plane'): base.BaseFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -310,18 +377,14 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
                 k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
             },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
-            x = x_component,
-            n_fit_data_points = 18,
-            minimum_val = 9.559659824619239,
             errors = np.array([
-                0.24979395, 0.2269838 , 0.20247939, 0.19254136, 0.18836174,  # noqa: E203
-                0.18163514, 0.1881116 , 0.21693021, 0.24380993, 0.24380993,  # noqa: E203
-                0.21693021, 0.1881116 , 0.18163514, 0.18836174, 0.19254136,  # noqa: E203
-                0.20247939, 0.2269838 , 0.24979395, 0.25079664, 0.23018009,  # noqa: E203
-                0.20785398, 0.19878404, 0.19344469, 0.18368386, 0.18606088,
-                0.2120099 , 0.23782647, 0.23782647, 0.2120099 , 0.18606088,  # noqa: E203
-                0.18368386, 0.19344469, 0.19878404, 0.20785398, 0.23018009,
-                0.25079664])
+                0.34368969, 0.29725271, 0.24622698, 0.22709399, 0.22168468, 0.21070458,
+                0.23040181, 0.29484674, 0.34926328, 0.34926328, 0.29484674, 0.23040181,
+                0.21070458, 0.22168468, 0.22709399, 0.24622698, 0.29725271, 0.34368969,
+                0.34730151, 0.30851602, 0.2644947 , 0.24679856, 0.23660525, 0.21656012,  # noqa: E203
+                0.22491218, 0.28304249, 0.33566777, 0.33566777, 0.28304249, 0.22491218,
+                0.21656012, 0.23660525, 0.24679856, 0.2644947 , 0.30851602, 0.34730151,  # noqa: E203
+            ])
         ),
     }
 
@@ -358,58 +421,81 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     sample_data_filename = setup_integration_tests
     # Setup the expected fit result. These values are extracted from an example fit.
     expected_fit_result = base.FitResult(
-        parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3'],
-        free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3'],
-        fixed_parameters = ['v1'],
-        values_at_minimum = {
-            'B': 74.19749807006653,
-            'v2_t': 2.1510320818984852e-07, 'v2_a': 0.04187686895800907,
-            'v4_t': 0.002154202588079246, 'v4_a': 0.0026027686260190197,
-            'v1': 0.0, 'v3': 0.004734080067730018
+        parameters=["B", "v2_t", "v2_a", "v4_t", "v4_a", "v1", "v3"],
+        free_parameters=["B", "v2_t", "v2_a", "v4_t", "v4_a", "v3"],
+        fixed_parameters=["v1"],
+        values_at_minimum={
+            "B": 176.33321411648893,
+            "v2_t": 0.0010001897811286388,
+            "v2_a": 0.04669637567679903,
+            "v4_t": 4.7683700662992656e-07,
+            "v4_a": 0.005909769311241236,
+            "v1": 0.0,
+            "v3": 0.007017169497204351,
         },
-        errors_on_parameters = {
-            'B': 0.2940144452610056,
-            'v2_t': 0.01945621214508514, 'v2_a': 0.003946265121221856,
-            'v4_t': 0.003220126599587231, 'v4_a': 0.004544297895328175,
-            'v1': 1.0, 'v3': 0.0027982058671116375
+        errors_on_parameters={
+            "B": 0.48082748291253097,
+            "v2_t": 0.00020980194133389562,
+            "v2_a": 0.002728782407465522,
+            "v4_t": 0.000921883930829856,
+            "v4_a": 0.003185271859029795,
+            "v1": 1.0,
+            "v3": 0.0019404574651313428,
         },
-        covariance_matrix = {
-            ('B', 'B'): 0.08644453056066083, ('B', 'v2_t'): -1.4931622683135787e-07,
-            ('B', 'v2_a'): -1.2408212424081687e-05, ('B', 'v4_t'): -1.8803445595574103e-06,
-            ('B', 'v4_a'): -5.2308644575833155e-06, ('B', 'v3'): 0.00024988796340065603,
-            ('v2_t', 'B'): -1.4931622683135787e-07, ('v2_t', 'v2_t'): 1.6962140371680398e-08,
-            ('v2_t', 'v2_a'): -1.770520725261621e-10, ('v2_t', 'v4_t'): -1.2586373334238697e-09,
-            ('v2_t', 'v4_a'): 3.3582302490263605e-10, ('v2_t', 'v3'): 1.8498515785940135e-10,
-            ('v2_a', 'B'): -1.2408212424081687e-05, ('v2_a', 'v2_t'): -1.770520725261621e-10,
-            ('v2_a', 'v2_a'): 1.557722396332187e-05, ('v2_a', 'v4_t'): -4.1004968685104585e-08,
-            ('v2_a', 'v4_a'): 3.2984592258523553e-07, ('v2_a', 'v3'): -5.027135478191435e-07,
-            ('v4_t', 'B'): -1.8803445595574103e-06, ('v4_t', 'v2_t'): -1.2586373334238697e-09,
-            ('v4_t', 'v2_a'): -4.1004968685104585e-08, ('v4_t', 'v4_t'): 1.0402807489396649e-05,
-            ('v4_t', 'v4_a'): -1.135195994956174e-08, ('v4_t', 'v3'): -6.546979210938196e-08,
-            ('v4_a', 'B'): -5.2308644575833155e-06, ('v4_a', 'v2_t'): 3.3582302490263605e-10,
-            ('v4_a', 'v2_a'): 3.2984592258523553e-07, ('v4_a', 'v4_t'): -1.135195994956174e-08,
-            ('v4_a', 'v4_a'): 2.076138823340561e-05, ('v4_a', 'v3'): -1.281475223558177e-07,
-            ('v3', 'B'): 0.00024988796340065603, ('v3', 'v2_t'): 1.8498515785940135e-10,
-            ('v3', 'v2_a'): -5.027135478191435e-07, ('v3', 'v4_t'): -6.546979210938196e-08,
-            ('v3', 'v4_a'): -1.281475223558177e-07, ('v3', 'v3'): 7.830350113052414e-06
+        covariance_matrix={
+            ("B", "B"): 0.23119519099746746,
+            ("B", "v2_t"): -1.4647482573912556e-09,
+            ("B", "v2_a"): -3.0751892773390162e-06,
+            ("B", "v4_t"): -1.560004669861541e-09,
+            ("B", "v4_a"): -1.3288172060078484e-06,
+            ("B", "v3"): 0.00028415169669183536,
+            ("v2_t", "B"): -1.4647482573912556e-09,
+            ("v2_t", "v2_t"): 1.5932195071257722e-10,
+            ("v2_t", "v2_a"): 3.5221606052087055e-14,
+            ("v2_t", "v4_t"): -1.2505615081980165e-15,
+            ("v2_t", "v4_a"): 7.127938489632922e-13,
+            ("v2_t", "v3"): 1.5508494510732615e-13,
+            ("v2_a", "B"): -3.0751892773390162e-06,
+            ("v2_a", "v2_t"): 3.5221606052087055e-14,
+            ("v2_a", "v2_a"): 7.4486966943423805e-06,
+            ("v2_a", "v4_t"): -1.0504595437166638e-11,
+            ("v2_a", "v4_a"): 1.9958812649761715e-07,
+            ("v2_a", "v3"): -8.911618790044292e-08,
+            ("v4_t", "B"): -1.560004669861541e-09,
+            ("v4_t", "v2_t"): -1.2505615081980165e-15,
+            ("v4_t", "v2_a"): -1.0504595437166638e-11,
+            ("v4_t", "v4_t"): 1.7594369052582678e-09,
+            ("v4_t", "v4_a"): 4.18443971580955e-12,
+            ("v4_t", "v3"): 2.2326619374354244e-13,
+            ("v4_a", "B"): -1.3288172060078484e-06,
+            ("v4_a", "v2_t"): 7.127938489632922e-13,
+            ("v4_a", "v2_a"): 1.9958812649761715e-07,
+            ("v4_a", "v4_t"): 4.18443971580955e-12,
+            ("v4_a", "v4_a"): 1.0157729997549444e-05,
+            ("v4_a", "v3"): -1.3797698330732505e-08,
+            ("v3", "B"): 0.00028415169669183536,
+            ("v3", "v2_t"): 1.5508494510732615e-13,
+            ("v3", "v2_a"): -8.911618790044292e-08,
+            ("v3", "v4_t"): 2.2326619374354244e-13,
+            ("v3", "v4_a"): -1.3797698330732505e-08,
+            ("v3", "v3"): 3.7667421273908302e-06,
         },
-        x = np.array([-1.48352986, -1.30899694, -1.13446401, -0.95993109, -0.78539816,  # noqa: E241
-                      -0.61086524, -0.43633231, -0.26179939, -0.08726646,  0.08726646,  # noqa: E241
-                       0.26179939,  0.43633231,  0.61086524,  0.78539816,  0.95993109,  # noqa: E241
-                       1.13446401,  1.30899694,  1.48352986,  1.65806279,  1.83259571,  # noqa: E241
-                       2.00712864,  2.18166156,  2.35619449,  2.53072742,  2.70526034,  # noqa: E241
-                       2.87979327,  3.05432619,  3.22885912,  3.40339204,  3.57792497,  # noqa: E241
-                       3.75245789,  3.92699082,  4.10152374,  4.27605667,  4.45058959,  # noqa: E241
-                       4.62512252]),
-        n_fit_data_points = 54,
-        minimum_val = 38.308756460200534,
-        errors = [],
+        errors=[],
+        x=np.array([
+            -1.48352986, -1.30899694, -1.13446401, -0.95993109, -0.78539816, -0.61086524,
+            -0.43633231, -0.26179939, -0.08726646, 0.08726646, 0.26179939, 0.43633231,
+            0.61086524, 0.78539816, 0.95993109, 1.13446401, 1.30899694, 1.48352986,
+            1.65806279, 1.83259571, 2.00712864, 2.18166156, 2.35619449, 2.53072742,
+            2.70526034, 2.87979327, 3.05432619, 3.22885912, 3.40339204, 3.57792497,
+            3.75245789, 3.92699082, 4.10152374, 4.27605667, 4.45058959, 4.62512252,
+        ]),
+        n_fit_data_points=54,
+        minimum_val=84.21205912913777,
     )
     expected_background_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v1', 'v3']
     expected_background_free_parameters = ['B', 'v2_t', 'v2_a', 'v4_t', 'v4_a', 'v3']
-    x_component = np.array(expected_fit_result.x[:int(len(expected_fit_result.x) / 2)])
     expected_components = {
-        base.FitType(region='background', orientation='in_plane'): base.FitResult(
+        base.FitType(region='background', orientation='in_plane'): base.BaseFitResult(
             parameters = expected_background_parameters,
             free_parameters=expected_background_free_parameters,
             fixed_parameters=['v1'],
@@ -418,20 +504,16 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
                 k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
             },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
-            x = x_component,
-            n_fit_data_points = expected_fit_result.n_fit_data_points / 3,
-            minimum_val = 16.73538215589725,
             errors = np.array([
-                0.2093359 , 0.19255153, 0.18174519, 0.17607629, 0.16211076,  # noqa: E203
-                0.14768848, 0.17124385, 0.22832949, 0.27169606, 0.27169606,
-                0.22832949, 0.17124385, 0.14768848, 0.16211076, 0.17607629,
-                0.18174519, 0.19255153, 0.2093359 , 0.22090577, 0.22490269,  # noqa: E203
-                0.22619674, 0.22037282, 0.19623391, 0.16124127, 0.15950035,
-                0.20546865, 0.2466069 , 0.2466069 , 0.20546865, 0.15950035,  # noqa: E203
-                0.16124127, 0.19623391, 0.22037282, 0.22619674, 0.22490269,
-                0.22090577])
+                0.3284827, 0.30117424, 0.28296194, 0.27178786, 0.24412456, 0.21539993,
+                0.25957565, 0.36262685, 0.43863545, 0.43863545, 0.36262685, 0.25957565,
+                0.21539993, 0.24412456, 0.27178786, 0.28296194, 0.30117424, 0.3284827,
+                0.34634315, 0.35159443, 0.35351492, 0.34448918, 0.30378086, 0.24147163,
+                0.23563421, 0.31501509, 0.38526347, 0.38526347, 0.31501509, 0.23563421,
+                0.24147163, 0.30378086, 0.34448918, 0.35351492, 0.35159443, 0.34634315,
+            ])
         ),
-        base.FitType(region='background', orientation='mid_plane'): base.FitResult(
+        base.FitType(region='background', orientation='mid_plane'): base.BaseFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -440,20 +522,16 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
                 k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
             },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
-            x = x_component,
-            n_fit_data_points = expected_fit_result.n_fit_data_points / 3,
-            minimum_val = 11.457530895031944,
             errors = np.array([
-                0.23699861, 0.19647139, 0.19316462, 0.23845882, 0.25528958,
-                0.21538816, 0.17786381, 0.22716874, 0.29022977, 0.29022977,
-                0.22716874, 0.17786381, 0.21538816, 0.25528958, 0.23845882,
-                0.19316462, 0.19647139, 0.23699861, 0.24705662, 0.22716873,
-                0.23335852, 0.27103529, 0.27778609, 0.22547584, 0.16444424,
-                0.19647136, 0.25702783, 0.25702783, 0.19647136, 0.16444424,
-                0.22547584, 0.27778609, 0.27103529, 0.23335852, 0.22716873,
-                0.24705662])
+                0.32806042, 0.24370903, 0.23525068, 0.33028055, 0.36348313, 0.28273384,
+                0.1952621, 0.30327089, 0.42572494, 0.42572494, 0.30327089, 0.1952621,
+                0.28273384, 0.36348313, 0.33028055, 0.23525068, 0.24370903, 0.32806042,
+                0.34578768, 0.30326988, 0.3157949, 0.39161668, 0.40559043, 0.3029897,
+                0.16197158, 0.24371055, 0.36967661, 0.36967661, 0.24371055, 0.16197158,
+                0.3029897, 0.40559043, 0.39161668, 0.3157949, 0.30326988, 0.34578768,
+            ])
         ),
-        base.FitType(region='background', orientation='out_of_plane'): base.FitResult(
+        base.FitType(region='background', orientation='out_of_plane'): base.BaseFitResult(
             parameters = expected_background_parameters,
             free_parameters = expected_background_free_parameters,
             fixed_parameters = ['v1'],
@@ -462,18 +540,14 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
                 k: expected_fit_result.errors_on_parameters[k] for k in expected_background_parameters
             },
             covariance_matrix = {(k1, k2): expected_fit_result.covariance_matrix[(k1, k2)] for k1 in expected_background_free_parameters for k2 in expected_background_free_parameters},
-            x = x_component,
-            n_fit_data_points = expected_fit_result.n_fit_data_points / 3,
-            minimum_val = 10.115864298085231,
             errors = np.array([
-                0.22106564, 0.20550612, 0.19201483, 0.18118305, 0.16215477,
-                0.14395781, 0.16678903, 0.22492152, 0.2689348 , 0.2689348 ,  # noqa: E203
-                0.22492152, 0.16678903, 0.14395781, 0.16215477, 0.18118305,
-                0.19201483, 0.20550612, 0.22106564, 0.22880924, 0.22835903,
-                0.22663356, 0.22011445, 0.19626572, 0.15946394, 0.15152662,
-                0.19257799, 0.23184201, 0.23184201, 0.19257799, 0.15152662,
-                0.15946394, 0.19626572, 0.22011445, 0.22663356, 0.22835903,
-                0.22880924])
+                0.34378357, 0.31394143, 0.29028637, 0.27406474, 0.24325095, 0.21082366,
+                0.25021672, 0.35040625, 0.42506549, 0.42506549, 0.35040625, 0.25021672,
+                0.21082366, 0.24325095, 0.27406474, 0.29028637, 0.31394143, 0.34378357,
+                0.36040536, 0.36140036, 0.35808058, 0.34535821, 0.30272333, 0.23742926,
+                0.2250676, 0.30014813, 0.36877646, 0.36877646, 0.30014813, 0.2250676,
+                0.23742926, 0.30272333, 0.34535821, 0.35808058, 0.36140036, 0.36040536,
+            ])
         ),
     }
 
