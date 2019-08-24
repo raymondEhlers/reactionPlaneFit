@@ -328,7 +328,7 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
     # Run the fit
     # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
     #       one to test the logic of how they are set.
-    rp_fit, data, minuit = example.run_inclusive_signal_fit(
+    rp_fit, full_componnents, data, minuit = example.run_inclusive_signal_fit(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
@@ -345,7 +345,7 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the residual plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the residual in test_background_fit(...)
-    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, filename = "")
+    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, fit_label = "Inclusive signal RP fit", filename = "")
     return fig
 
 @pytest.mark.slow  # type: ignore
@@ -480,7 +480,7 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     # Run the fit
     # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
     #       one to test the logic of how they are set.
-    rp_fit, data, minuit = example.run_background_fit(
+    rp_fit, full_componnents, data, minuit = example.run_background_fit(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
@@ -527,7 +527,7 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     # Draw and check the resulting image. It is checked by returning the figure.
     # We skip the fit plot because it is hard to compare multiple images from in the same test.
     # Instead, we get around this by comparing the fit in test_inclusive_signal_fit(...)
-    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, filename = "")
+    fig, ax = plot.draw_residual(rp_fit = rp_fit, data = data, fit_label = "Standard RP fit", filename = "")
     return fig
 
 @pytest.mark.slow  # type: ignore
@@ -548,7 +548,8 @@ def test_signal_fit(setup_integration_tests: Any) -> Figure:
     (example.run_background_fit, three_orientations.BackgroundFit),
     (example.run_inclusive_signal_fit, three_orientations.InclusiveSignalFit),
 ], ids = ["Background", "Inclusive signal"])
-def test_write_and_read_result_in_class(logging_mixin: Any, setup_integration_tests: Any, calculate_correlation_matrix_before_writing: bool,
+def test_write_and_read_result_in_class(logging_mixin: Any, setup_integration_tests: Any,
+                                        calculate_correlation_matrix_before_writing: bool,
                                         example_module_func: Any, fit_object: Any) -> None:
     """ Test storing results via the pachyderm `yaml` module.
 
@@ -559,7 +560,7 @@ def test_write_and_read_result_in_class(logging_mixin: Any, setup_integration_te
     # Setup
     sample_data_filename = setup_integration_tests
 
-    expected_rp_fit, data, minuit = example_module_func(
+    expected_rp_fit, full_componnents, data, minuit = example_module_func(
         input_filename = sample_data_filename,
         user_arguments = {"v2_t": 0.02},
     )
