@@ -14,7 +14,6 @@ time savings is worth it.
 import logging
 import numpy as np
 import pkg_resources
-import probfit
 import pytest
 import tempfile
 from typing import Any, Optional, Tuple, Union, TYPE_CHECKING
@@ -589,7 +588,7 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     # We want to compare against the fourier values.
     values_at_minimum["B"] = values_at_minimum["B"] / 3
     x = expected_fit_result.x
-    expected_inclusive_component_values = probfit.nputil.vector_apply(functions.fourier, x, *list(values_at_minimum.values()))
+    expected_inclusive_component_values = functions.fourier(x, *list(values_at_minimum.values()))
     np.testing.assert_allclose(inclusive_component.evaluate_fit(x), expected_inclusive_component_values)
 
     # Check that we've properly transfered the fit results to the summary components.
