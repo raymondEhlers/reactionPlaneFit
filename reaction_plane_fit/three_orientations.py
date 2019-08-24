@@ -232,6 +232,10 @@ class SignalFit(ReactionPlaneFit):
         if not hasattr(self, "fit_result"):
             raise RuntimeError("Must perform fit before attempt to retrieve all of the fit components.")
 
+        raise NotImplementedError(
+            "The exact procedure for extracting an inclusive width is unclear. So for now, this isn't implemented."
+        )
+
         # Determine the components to return
         components = {}
         # First copy the RP orientation components.
@@ -240,18 +244,18 @@ class SignalFit(ReactionPlaneFit):
 
         # We first need to extract the background parameters. An easy way to do this is
         # to pass a fake background component.
-        temp_bg_component = BackgroundFitComponent(
-            rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
-            use_log_likelihood = self.use_log_likelihood
-        )
-        temp_bg_component.determine_fit_function(
-            resolution_parameters = self.resolution_parameters,
-            reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
-        )
-        background_fit_result = base.component_fit_result_from_rp_fit_result(
-            fit_result = self.fit_result,
-            component = temp_bg_component,
-        )
+        #temp_bg_component = BackgroundFitComponent(
+        #    rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
+        #    use_log_likelihood = self.use_log_likelihood
+        #)
+        #temp_bg_component.determine_fit_function(
+        #    resolution_parameters = self.resolution_parameters,
+        #    reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
+        #)
+        #background_fit_result = base.component_fit_result_from_rp_fit_result(
+        #    fit_result = self.fit_result,
+        #    component = temp_bg_component,
+        #)
 
         # Create the inclusive component. We only want the background fit component.
         inclusive_component = SignalFitComponent(

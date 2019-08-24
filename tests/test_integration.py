@@ -605,16 +605,6 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     return fig
 
 @pytest.mark.slow  # type: ignore
-@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
-def test_signal_fit(setup_integration_tests: Any) -> Figure:
-    """ Integration test for the (differential) signal fit.
-
-    This uses the sample data in the ``testFiles`` directory.
-    """
-    # TODO: ...
-    assert False
-
-@pytest.mark.slow  # type: ignore
 @pytest.mark.parametrize("calculate_correlation_matrix_before_writing", [  # type: ignore
     False, True,
 ], ids = ["Don't calculate correlation matrix", "Calculate correlation matrix"])
