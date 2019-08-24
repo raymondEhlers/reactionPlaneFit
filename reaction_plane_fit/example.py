@@ -145,6 +145,8 @@ if __name__ == "__main__":  # pragma: nocover
     """
     # Setup logging
     logging.basicConfig(level = logging.INFO)
+    # Quiet down the matplotlib logging regardless of the base logging level.
+    logging.getLogger("matplotlib").setLevel(logging.INFO)
     # Setup parser
     parser = argparse.ArgumentParser(
         description = "Example Reaction Plane Fit using signal and background dominated sample data."
@@ -156,9 +158,9 @@ if __name__ == "__main__":  # pragma: nocover
                         type = str, default = sample_data_filename,
                         help="Path to input data")
     # Set the fit type (defaults to differential signal fit)
-    parser.add_argument("-s", "--inclusiveSignal",
+    parser.add_argument("-d", "--differentialSignal",
                         action = "store_true",
-                        help = "Fit the inclusive orientation signal region.")
+                        help = "Fit the differential signal regions.")
     parser.add_argument("-b", "--backgroundOnly",
                         action = "store_true",
                         help = "Only fit the background.")
@@ -166,9 +168,9 @@ if __name__ == "__main__":  # pragma: nocover
     args = parser.parse_args()
 
     # Execute the selected function
-    func = run_differential_signal_fit
-    if args.inclusiveSignal:
-        func = run_inclusive_signal_fit
+    func = run_inclusive_signal_fit
+    if args.differentialSignal:
+        func = run_differential_signal_fit
     if args.backgroundOnly:
         func = run_background_fit
     rp_fit, _, data, _ = func(
