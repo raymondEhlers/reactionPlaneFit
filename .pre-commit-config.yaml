@@ -6,7 +6,7 @@ repos:
           - id: flake8
             additional_dependencies: ["flake8-colors"]
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.16.0
+      rev: v1.17.0
       hooks:
           - id: yamllint
     - repo: https://github.com/pre-commit/mirrors-mypy
@@ -15,7 +15,7 @@ repos:
           - id: mypy
             args: ["--ignore-missing-imports"]
             # Ensures that pachyderm is available, which will avoid a number of typing issues
-            additional_dependencies: ["pachyderm"]
+            additional_dependencies: ["pachyderm>=2.2"]
     - repo: https://github.com/pre-commit/pygrep-hooks
       rev: v1.4.1
       hooks:
