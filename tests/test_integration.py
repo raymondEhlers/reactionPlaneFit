@@ -583,7 +583,7 @@ def test_background_fit(setup_integration_tests: Any) -> Figure:
     assert list(inclusive_component.fit_result.values_at_minimum) == list(values_at_minimum)
     np.testing.assert_allclose(
         list(inclusive_component.fit_result.values_at_minimum.values()), list(values_at_minimum.values()),
-        atol = 1e-5, rtol = 0,
+        atol = 2e-4, rtol = 0,
     )
     # We want to compare against the fourier values.
     values_at_minimum["B"] = values_at_minimum["B"] / 3
