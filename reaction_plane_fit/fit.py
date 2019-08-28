@@ -108,8 +108,8 @@ class ReactionPlaneFit(ABC):
     def _validate_settings(self) -> bool:
         """ Validate the passed settings. """
         # Check that there are sufficient resolution parameters.
-        resParams = set(["R22", "R42", "R62", "R82"])
-        good_params = resParams.issubset(self.resolution_parameters.keys())
+        res_params = set(["R22", "R42", "R62", "R82"])
+        good_params = res_params.issubset(self.resolution_parameters.keys())
         if not good_params:
             raise ValueError(f"Missing resolution parameters. Passed: {self.resolution_parameters.keys()}")
 
@@ -187,19 +187,15 @@ class ReactionPlaneFit(ABC):
         minuit.set_strategy(2)
 
         # Perform the fit
+        # NOTE: This will plot the parameters deteremined by the fit.
         minuit.migrad()
         # Run minos if requested.
         if self.use_minos:
             logger.info("Running MINOS. This may take a minute...")
             minuit.minos()
-        # TEMP
-        #minuit.print_matrix()
-        #minuit.print_param()
-        # ENDTEMP
         # Just in case (doesn't hurt anything, but may help in a few cases).
+        # NOTE: This will print the HESSE calculated errors and the correlation matrix.
         minuit.hesse()
-        # Plot the correlation matrix
-        minuit.print_matrix()
         return (minuit.migrad_ok(), minuit)
 
     def fit(self, data: Union[InputData, Data],
@@ -260,7 +256,7 @@ class ReactionPlaneFit(ABC):
             raise base.FitFailed("Minimization failed! The fit is invalid!")
         # Check covariance matrix accuracy. We need to check it explicitly because It appears that it is not
         # included in the migrad_ok status check.
-        if not minuit.matrix_accurate:
+        if not minuit.matrix_accurate():
             raise base.FitFailed("Corvairance matrix is not accurate!")
 
         # Determine some of the fit result parameters.
