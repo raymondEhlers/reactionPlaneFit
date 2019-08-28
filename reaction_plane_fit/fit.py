@@ -183,6 +183,8 @@ class ReactionPlaneFit(ABC):
         # ENDTEMP
         logger.debug(f"Minuit args: {arguments}")
         minuit = iminuit.Minuit(self._fit, **arguments)
+        # Improve minimization reliability
+        minuit.set_strategy(2)
 
         # Perform the fit
         minuit.migrad()
