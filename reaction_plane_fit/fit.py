@@ -55,7 +55,7 @@ class ReactionPlaneFit(ABC):
             the use can check that the Hesse and Minos errors are similar, which will indicate that the function is
             well approximated by a hyperparabola at the minima (and thus Hesse errors are okay to be used).
         fit_result: Result of the RP fit.
-        _fit (Callable): Fit function for the RP fit.
+        cost_func (Callable): Cost function for the RP fit.
     """
     # RP orientations (including inclusive). Should be overridden by the derived class.
     _rp_orientations: List[str] = []
@@ -73,7 +73,7 @@ class ReactionPlaneFit(ABC):
         self.use_minos = use_minos
 
         # Contains the simultaneous fit to all of the components.
-        self._fit = Callable[..., float]
+        self.cost_func = Callable[..., float]
         # Contains the fit results
         self.fit_result: base.FitResult
 
@@ -182,7 +182,7 @@ class ReactionPlaneFit(ABC):
         arguments["print_level"] = 1
         # ENDTEMP
         logger.debug(f"Minuit args: {arguments}")
-        minuit = iminuit.Minuit(self._fit, **arguments)
+        minuit = iminuit.Minuit(self.cost_func, **arguments)
         # Improve minimization reliability
         minuit.set_strategy(2)
 
@@ -245,8 +245,8 @@ class ReactionPlaneFit(ABC):
             fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type])
 
         # Setup the final fit to be performed simultaneously.
-        #self._fit = sum(reversed(list(component.cost_function for component in self.components.values())))
-        self._fit = sum(component.cost_function for component in self.components.values())
+        #self.cost_func = sum(reversed(list(component.cost_function for component in self.components.values())))
+        self.cost_func = sum(component.cost_function for component in self.components.values())
         arguments = self._determine_component_parameter_limits(user_arguments = user_arguments)
 
         # Perform the actual fit
@@ -261,7 +261,7 @@ class ReactionPlaneFit(ABC):
 
         # Determine some of the fit result parameters.
         fixed_parameters = [k for k, v in minuit.fixed.items() if v is True]
-        parameters = iminuit.util.describe(self._fit)
+        parameters = iminuit.util.describe(self.cost_func)
         # Can't just use set(parameters) - set(fixed_parameters) because set() is unordered!
         free_parameters = [p for p in parameters if p not in set(fixed_parameters)]
         # Determine the number of fit data points. This cannot just be the length of x because we need to count
