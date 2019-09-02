@@ -541,15 +541,15 @@ class FitComponent(ABC):
             # Signal default parameters
             # NOTE: The error should be approximately 10% of the value to ensure that the step size of the fit
             #       is correct.
-            ns_amplitude = 10
-            as_amplitude = 1
+            ns_amplitude = 1000
+            as_amplitude = 1000
             ns_sigma_init = 0.15
             as_sigma_init = 0.3
             sigma_lower_limit = 0.02
             sigma_upper_limit = 0.7
             signal_limits: FitArguments = {
-                "ns_amplitude": ns_amplitude, "limit_ns_amplitude": (0, 1000), "error_ns_amplitude": 0.1 * ns_amplitude,
-                "as_amplitude": as_amplitude, "limit_as_amplitude": (0, 1000), "error_as_amplitude": 0.1 * as_amplitude,
+                "ns_amplitude": ns_amplitude, "limit_ns_amplitude": (0, 1e7), "error_ns_amplitude": 0.1 * ns_amplitude,
+                "as_amplitude": as_amplitude, "limit_as_amplitude": (0, 1e7), "error_as_amplitude": 0.1 * as_amplitude,
                 "ns_sigma": ns_sigma_init,
                 "limit_ns_sigma": (sigma_lower_limit, sigma_upper_limit), "error_ns_sigma": 0.1 * ns_sigma_init,
                 "as_sigma": as_sigma_init,
@@ -579,7 +579,7 @@ class FitComponent(ABC):
         # Now update the actual background limits
         signal_background_parameter_limits: FitArguments = {
             f"{background_label}": 10,
-            f"limit_{background_label}": (0, 1000),
+            f"limit_{background_label}": (0, 1e6),
             f"error_{background_label}": 1
         }
         arguments.update(signal_background_parameter_limits)
@@ -595,8 +595,8 @@ class FitComponent(ABC):
             "v2_a": 0.10, "limit_v2_a": (0.03, 0.50), "error_v2_a": 0.001,
             "v4_t": 0.005, "limit_v4_t": (0, 0.50), "error_v4_t": 0.0005,
             "v4_a": 0.01, "limit_v4_a": (0, 0.50), "error_v4_a": 0.001,
-            # v3 is squared, so it always must be greater than 1
-            "v3": 0.001, "limit_v3": (0.0, 0.5), "error_v3": 0.0001,
+            # v3 is expected to be be 0. v3_t may be negative, so it's difficult to predict.
+            "v3": 0.001, "limit_v3": (-1.0, 1.0), "error_v3": 0.0001,
             "v1": 0.0, "fix_v1": True,
         }
         arguments.update(background_limits)
