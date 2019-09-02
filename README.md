@@ -57,9 +57,11 @@ success, _ = rp_fit.fit(data = data)
 print("Fit result: {fit_result}".format(fit_result = rp_fit.fit_result))
 ```
 
-Examples for fitting an inclusive reaction plane orientation signal alongside the background, or for fitting
-only the background are both available in `reaction_plane_fit.example`. This module can also be run directly
-in the terminal via:
+For best fit results, the data should **not** be normalized by the number of triggers before performing the
+fit. Afterwards, the fit needs to be scaled by the number of triggers in order to make it comparable to the
+scaled data. Examples for fitting an inclusive reaction plane orientation signal alongside the background, or
+for fitting only the background are both available in `reaction_plane_fit.example`. This module can also be
+run directly in the terminal via:
 
 ```
 $ python -m reaction_plane_fit.example [-b] [-i dataFilename]
