@@ -7,6 +7,7 @@
 
 from abc import ABC, abstractmethod
 import logging
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import iminuit
@@ -354,6 +355,9 @@ class ReactionPlaneFit(ABC):
         output: Dict[Union[str, base.FitType], Union[base.BaseFitResult, base.FitResult]] = {"full": self.fit_result}
         output.update({fit_type: fit_component.fit_result for fit_type, fit_component in self.components.items()})
         logger.debug(f"output: {output}")
+
+        # Create the directory if it doesn't exist, and then write the file.
+        Path(filename).parent.mkdir(parents = True, exist_ok = True)
         with open(filename, "w+") as f:
             y.dump(output, f)
 
