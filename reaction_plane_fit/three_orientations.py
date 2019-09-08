@@ -8,7 +8,7 @@
 import logging
 import numpy as np
 from numpy import sin, cos
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Union
 
 from reaction_plane_fit import base
 from reaction_plane_fit import fit
@@ -54,7 +54,7 @@ class BackgroundFitComponent(fit.BackgroundFitComponent):
             resolution_parameters = resolution_parameters,
             reaction_plane_parameter = reaction_plane_parameter,
             rp_background_function = background,
-            inclusive_background_function = constrained_inclusive_background,
+            inclusive_background_function = unconstrained_inclusive_background,
         )
         # This is identical to the fit function.
         self.background_function = self.fit_function
@@ -304,6 +304,28 @@ def constrained_inclusive_background(x: float, B: float, v2_t: float, v2_a: floa
         float: Values calculated by the function.
     """
     return functions.fourier(x, B / 3, v2_t, v2_a, v4_t, v4_a, v1, v3)
+
+def unconstrained_inclusive_background(x: Union[np.ndarray, float], B: float, v2_t: float, v2_a: float,
+                                       v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
+    """ Background function for inclusive signal compnent when performing the background fit.
+
+    Doesn't include the trivial scaling factor of ``B / 3``.
+
+    Args:
+        x: Delta phi value for which the background will be calculated.
+        B: Overall multiplicative background level.
+        v2_t: Trigger v_{2}.
+        v2_a: Associated v_{2}.
+        v4_t: Trigger v_{4}.
+        v4_a: Associated v_{4}
+        v1: v1 parameter.
+        v3: v3 parameter.
+        kwargs: Used to absorbs extra possible parameters from Minuit (especially when used in
+                conjunction with other functions).
+    Returns:
+        float: Values calculated by the function.
+    """
+    return functions.fourier(x, B, v2_t, v2_a, v4_t, v4_a, v1, v3)
 
 def background(x: float, phi: float, c: float, resolution_parameters: fit.ResolutionParameters,
                B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float, v1: float, v3: float,
