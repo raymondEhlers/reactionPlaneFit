@@ -169,6 +169,64 @@ class ReactionPlaneFit(ABC):
 
         return arguments
 
+    def _setup_fit(self, data: Union[InputData, Data],
+                   user_arguments: Optional[FitArguments] = None) -> Tuple[np.ndarray, Data, Data,
+                                                                           FitArguments, pachyderm.fit.SimultaneousFit]:
+        """ Complete all setup steps up to actually fitting the data.
+
+        This includes formatting the input data, setting up the cost function, and determining
+        the proper user arguments.
+
+        Args:
+            data: The input data.
+            user_arguments: The user arguments that will be passed to the fit.
+        Returns:
+            (x, formatted_data, fit_data, user_arguments, cost_func) where x is the x values where the fit
+                should be evaluated, formatted_data is the input data formatted into the proper format
+                for use with the fit, fit_data is the formatted_data restricted to the fit ranges,
+                user_arguments are the full set of user arguments for the fit, and cost_func is the
+                simultaneous fit cost function to be stored in the fit object.
+        """
+        # Validate settings.
+        if user_arguments is None:
+            user_arguments = {}
+        good_settings = self._validate_settings()
+        if not good_settings:
+            raise ValueError("Invalid settings! Please check the inputs.")
+
+        # Setup and validate data.
+        if not data:
+            raise ValueError("Must pass data to be fitted!")
+        formatted_data = self._format_input_data(data)
+        good_data = self._validate_data(formatted_data)
+        if not good_data:
+            raise ValueError(
+                f"Insufficient data provided for the fit components.\nComponent keys: {self.components.keys()}\n"
+                f"Data keys: {data.keys()}\n"
+                f"Formatted Data keys: {formatted_data.keys()}"
+            )
+
+        # Extract the x locations from where the fit should be evaluated.
+        # Must be set before setting up the fit, which can limit the histogram x.
+        data_temp = next(iter(formatted_data.values()))
+        # Help out mypy
+        assert isinstance(data_temp, histogram.Histogram1D)
+        x = data_temp.x
+
+        # Setup the fit components.
+        fit_data: Data = {}
+        for fit_type, component in self.components.items():
+            fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type])
+
+        # Setup the final fit to be performed simultaneously.
+        #self.cost_func = sum(reversed(list(component.cost_function for component in self.components.values())))
+        cost_func = sum(component.cost_function for component in self.components.values())
+        # Help out mypy...
+        assert isinstance(cost_func, pachyderm.fit.SimultaneousFit)
+        arguments = self._determine_component_parameter_limits(user_arguments = user_arguments)
+
+        return x, formatted_data, fit_data, arguments, cost_func
+
     def _run_fit(self, arguments: FitArguments) -> Tuple[bool, iminuit.Minuit]:
         """ Make the proper calls to ``iminuit`` to run the fit.
 
@@ -214,41 +272,8 @@ class ReactionPlaneFit(ABC):
                 specialized use cases. Note that the fit results (which contains most of the information in the minuit
                 object) are stored in the class.
         """
-        # Validate settings.
-        if user_arguments is None:
-            user_arguments = {}
-        good_settings = self._validate_settings()
-        if not good_settings:
-            raise ValueError("Invalid settings! Please check the inputs.")
-
-        # Setup and validate data.
-        if not data:
-            raise ValueError("Must pass data to be fitted!")
-        formatted_data = self._format_input_data(data)
-        good_data = self._validate_data(formatted_data)
-        if not good_data:
-            raise ValueError(
-                f"Insufficient data provided for the fit components.\nComponent keys: {self.components.keys()}\n"
-                f"Data keys: {data.keys()}\n"
-                f"Formatted Data keys: {formatted_data.keys()}"
-            )
-
-        # Extract the x locations from where the fit should be evaluated.
-        # Must be set before setting up the fit, which can limit the histogram x.
-        data_temp = next(iter(formatted_data.values()))
-        # Help out mypy
-        assert isinstance(data_temp, histogram.Histogram1D)
-        x = data_temp.x
-
-        # Setup the fit components.
-        fit_data: Data = {}
-        for fit_type, component in self.components.items():
-            fit_data[fit_type] = component._setup_fit(input_hist = formatted_data[fit_type])
-
-        # Setup the final fit to be performed simultaneously.
-        #self.cost_func = sum(reversed(list(component.cost_function for component in self.components.values())))
-        self.cost_func = sum(component.cost_function for component in self.components.values())
-        arguments = self._determine_component_parameter_limits(user_arguments = user_arguments)
+        # Validte and setup the fit, storing the simultaneous fit cost function
+        x, formatted_data, fit_data, arguments, self.cost_func = self._setup_fit(data = data, user_arguments = user_arguments)
 
         # Perform the actual fit
         (good_fit, minuit) = self._run_fit(arguments = arguments)
@@ -298,12 +323,43 @@ class ReactionPlaneFit(ABC):
         # Return true to note success.
         return (True, formatted_data, minuit)
 
+    def read_fit_object(self, filename: str, data: Union[InputData, Data],
+                        user_arguments: Optional[FitArguments] = None,
+                        y: yaml.ruamel.yaml.YAML = None) -> Tuple[bool, Data]:
+        """ Read the fit results and setup the entire RPF object.
+
+        Using this method, the RPF object should be fully setup. The only step that isn't performed
+        is actually running the fit using Minuit. To read just the fit results into the object,
+        use ``read_fit_results(...)``.
+
+        Args:
+            filename: Name of the file under which the fit results are saved.
+            data: Input data that was used for the fit. The keys should either be of the form
+                ``[region][orientation]`` or ``[FitType]``. The values can be uproot or ROOT 1D histograms.
+            user_arguments: User arguments to override the arguments to the fit. Default: None.
+            y: YAML object to be used for reading the result. If none is specified, one will be created automatically.
+        Returns:
+            (read_success, formatted_data) where read_success is True if the reading was successful, and formatted_data
+                is the input data reformatted according to the fit object format (ie. same as formatted_data
+                returned when performing the fit). The results will be read into the fit object.
+        """
+        read_results = self.read_fit_results(filename = filename, y = y)
+        if not read_results:
+            raise RuntimeError(f"Unable to read fit results from {filename}. Check the input file.")
+
+        # Fully setup the fit object.
+        x, formatted_data, fit_data, arguments, self.cost_func = self._setup_fit(data = data, user_arguments = user_arguments)
+
+        return True, formatted_data
+
     def read_fit_results(self, filename: str, y: yaml.ruamel.yaml.YAML = None) -> bool:
         """ Read all fit results from the specified filename using YAML.
 
         We don't read the entire object from YAML because they we would have to deal with
         serializing many classes. Instead, we read the fit results, with the expectation
         that the fit object will be created independently, and then the results will be loaded.
+
+        To reconstruct the entire fit object, use ``read_fit_object(...)``.
 
         Args:
             filename: Name of the file under which the fit results are saved.
