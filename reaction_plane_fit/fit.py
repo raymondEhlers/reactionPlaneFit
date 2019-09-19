@@ -657,7 +657,7 @@ class FitComponent(ABC):
             "v4_a": 0.01, "limit_v4_a": (0, 0.50), "error_v4_a": 0.001,
             # v3 is expected to be be 0. v3_t may be negative, so it's difficult to predict.
             "v3": 0.001, "limit_v3": (-1.0, 1.0), "error_v3": 0.0001,
-            "v1": 0.0, "fix_v1": True,
+            "v1": 0.0, "limit_v1": (-1.0, 1.0), "error_v1": 1e-4, "fix_v1": True,
         }
         arguments.update(background_limits)
 
