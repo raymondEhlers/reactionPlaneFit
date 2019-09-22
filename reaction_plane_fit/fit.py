@@ -234,16 +234,22 @@ class ReactionPlaneFit(ABC):
 
         return x, formatted_data, fit_data, arguments, cost_func
 
-    def _run_fit(self, arguments: FitArguments) -> Tuple[bool, iminuit.Minuit]:
+    def _run_fit(self, arguments: FitArguments, skip_hesse: bool) -> Tuple[bool, iminuit.Minuit]:
         """ Make the proper calls to ``iminuit`` to run the fit.
 
         Args:
             arguments: Arguments for the ``minuit`` object based on seed values and limits specified in
                 the fit components.
+            skip_hesse: This should be used rarely and only with care! True if the hesse should _not_ be explicitly run.
+                This is useful because sometimes it fails without a clear reason. If skipped, Minos will automatically
+                be run, and it's up to the user to ensure that the symmetric error estimates from Hesse run during the
+                minimization are close to the Minos errors. If they're not, it indicates that something went wrong in
+                the error calculation and Hesse was failing for good reason. Default: False.
         Returns:
             tuple: (fitOkay, minuit) where fitOkay (bool) is ``True`` if the fit is okay, and
                 ``minuit`` (``iminuit.minuit``) is the Minuit object which was used to perform the fit.
         """
+        # Setup the fit
         logger.debug(f"Minuit args: {arguments}")
         minuit = iminuit.Minuit(self.cost_func, **arguments)
         # Improve minimization reliability
@@ -252,23 +258,33 @@ class ReactionPlaneFit(ABC):
         # Perform the fit
         # NOTE: This will plot the parameters deteremined by the fit.
         minuit.migrad()
-        # Run minos if requested.
-        if self.use_minos:
+        # Run minos if requested (or if HESSE is skipped so a cross check is available).
+        if self.use_minos or skip_hesse:
             logger.info("Running MINOS. This may take a minute...")
             minuit.minos()
-        # Just in case (doesn't hurt anything, but may help in a few cases).
-        # NOTE: This will print the HESSE calculated errors and the correlation matrix.
-        minuit.hesse()
+        # Just in case (usually doesn't hurt anything, but may help in a few cases).
+        if not skip_hesse:
+            # NOTE: This will print the HESSE calculated errors and the correlation matrix.
+            minuit.hesse()
+        else:
+            # Since HESSE won't run and consequently print the final result, we call it be hand.
+            minuit.print_param()
+
         return (minuit.migrad_ok(), minuit)
 
-    def fit(self, data: Union[InputData, Data],
-            user_arguments: Optional[FitArguments] = None) -> Tuple[bool, Data, iminuit.Minuit]:
+    def fit(self, data: Union[InputData, Data], user_arguments: Optional[FitArguments] = None,
+            skip_hesse: bool = False) -> Tuple[bool, Data, iminuit.Minuit]:
         """ Perform the actual fit.
 
         Args:
             data: Input data to be used for the fit. The keys should either be of the form
                 ``[region][orientation]`` or ``[FitType]``. The values can be uproot or ROOT 1D histograms.
             user_arguments: User arguments to override the arguments to the fit. Default: None.
+            skip_hesse: This should be used rarely and only with care! True if the hesse should _not_ be explicitly run.
+                This is useful because sometimes it fails without a clear reason. If skipped, Minos will automatically
+                be run, and it's up to the user to ensure that the symmetric error estimates from Hesse run during the
+                minimization are close to the Minos errors. If they're not, it indicates that something went wrong in
+                the error calculation and Hesse was failing for good reason. Default: False.
         Returns:
             tuple: (fit_success, formatted_data, minuit) where fit_success (bool) is ``True`` if the fitting
                 procedure was successful, formatted_data (dict) is the data reformatted in the preferred format for
@@ -280,7 +296,7 @@ class ReactionPlaneFit(ABC):
         x, formatted_data, fit_data, arguments, self.cost_func = self._setup_fit(data = data, user_arguments = user_arguments)
 
         # Perform the actual fit
-        (good_fit, minuit) = self._run_fit(arguments = arguments)
+        (good_fit, minuit) = self._run_fit(arguments = arguments, skip_hesse = skip_hesse)
         # Check if fit is considered valid
         if good_fit is False:
             raise base.FitFailed("Minimization failed! The fit is invalid!")
