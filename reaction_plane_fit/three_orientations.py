@@ -281,8 +281,8 @@ class SignalFit(ReactionPlaneFit):
 
         return components
 
-def constrained_inclusive_background(x: float, B: float, v2_t: float, v2_a: float, v4_t: float, v4_a: float,
-                                     v1: float, v3: float, **kwargs: float) -> float:
+def constrained_inclusive_background(x: Union[np.ndarray, float], B: float, v2_t: float, v2_a: float,
+                                     v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
     """ Background function for inclusive signal compnent when performing the background fit.
 
     Include the trivial scaling factor of ``B / 3`` because there are 3 RP orientations and that background
