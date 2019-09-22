@@ -772,6 +772,14 @@ class BackgroundFitComponent(FitComponent):
         bin_edges = hist.bin_edges[:ns_range + 1]
         y = hist.y[:ns_range]
         errors_squared = hist.errors_squared[:ns_range]
+        ## This can be used to select a range between a specific set of values.
+        #min_x, max_x = -np.pi / 2, np.pi / 2
+        #selected_range = slice(hist.find_bin(min_x + epsilon), hist.find_bin(max_x - epsilon) + 1)
+        #bin_edges_selected_range = ((hist.bin_edges >= min_x) & (hist.bin_edges <= max_x))
+        ## Drop the furthest out bin
+        #bin_edges = hist.bin_edges[bin_edges_selected_range]
+        #y = hist.y[selected_range]
+        #errors_squared = hist.errors_squared[selected_range]
 
         # Return a data limits histogram
         return histogram.Histogram1D(bin_edges = bin_edges, y = y, errors_squared = errors_squared)
