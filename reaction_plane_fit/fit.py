@@ -40,6 +40,8 @@ class ReactionPlaneFit(ABC):
         background_region: Min and max extraction range for the background dominated region. Should
             be provided as the absolute value (ex: (0.8, 1.2)).
         use_minos: Calculate the errors using Minos in addition to Hesse.
+        verbosity: Minuit verbosity level. Default: 3. This is extremely verbose, but it's quite useful.
+                1 is commonly when you would like less verbose output.
 
     Attributes:
         resolution_parameters (dict): Maps resolution parameters of the form "R22" (for the R_{2,2} parameter)
@@ -66,12 +68,14 @@ class ReactionPlaneFit(ABC):
                  use_log_likelihood: bool,
                  signal_region: Optional[Tuple[float, float]] = None,
                  background_region: Optional[Tuple[float, float]] = None,
-                 use_minos: bool = False):
+                 use_minos: bool = False,
+                 verbosity: int = 3):
         self.resolution_parameters = resolution_parameters
         self.use_log_likelihood = use_log_likelihood
         self.components: Dict[base.FitType, FitComponent] = {}
         self.regions = {"signal": signal_region, "background": background_region}
         self.use_minos = use_minos
+        self.verbosity = verbosity
 
         # Contains the simultaneous fit to all of the components.
         self.cost_func = Callable[..., float]
@@ -150,9 +154,12 @@ class ReactionPlaneFit(ABC):
         Returns:
             dict: Parameter values and limits in a dictionary suitable to be used as Minuit args.
         """
+        # Determine the initial set of arguments
         arguments: FitArguments = {}
         for component in self.components.values():
             arguments.update(component.determine_parameters_limits())
+        # Set the Minuit verbosity. It can always be overridden by the user arguments
+        arguments["print_level"] = self.verbosity
 
         # Handle the user arguments
         # First, ensure that all user passed arguments are already in the argument keys. If not, the user probably
@@ -237,9 +244,6 @@ class ReactionPlaneFit(ABC):
             tuple: (fitOkay, minuit) where fitOkay (bool) is ``True`` if the fit is okay, and
                 ``minuit`` (``iminuit.minuit``) is the Minuit object which was used to perform the fit.
         """
-        # TEMP
-        arguments["print_level"] = 1
-        # ENDTEMP
         logger.debug(f"Minuit args: {arguments}")
         minuit = iminuit.Minuit(self.cost_func, **arguments)
         # Improve minimization reliability
