@@ -211,7 +211,7 @@ class SignalFit(ReactionPlaneFit):
                 fit_type = base.FitType(region = region, orientation = orientation)
                 # Determine the proper arguments
                 component_args: Dict[str, Any] = {
-                    "inclusive_background_function": constrained_inclusive_background,
+                    "inclusive_background_function": functions.fourier,
                     "rp_orientation": fit_type.orientation,
                     "resolution_parameters": self.resolution_parameters,
                     "use_log_likelihood": self.use_log_likelihood,
@@ -232,34 +232,21 @@ class SignalFit(ReactionPlaneFit):
         if not hasattr(self, "fit_result"):
             raise RuntimeError("Must perform fit before attempt to retrieve all of the fit components.")
 
-        raise NotImplementedError(
-            "The exact procedure for extracting an inclusive width is unclear. So for now, this isn't implemented."
-        )
-
         # Determine the components to return
         components = {}
         # First copy the RP orientation components.
         for fit_type, c in self.components.items():
+            # We only want the signal components
+            if fit_type.region == "background":
+                continue
             components[fit_type.orientation] = c
 
-        # We first need to extract the background parameters. An easy way to do this is
-        # to pass a fake background component.
-        #temp_bg_component = BackgroundFitComponent(
-        #    rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
-        #    use_log_likelihood = self.use_log_likelihood
-        #)
-        #temp_bg_component.determine_fit_function(
-        #    resolution_parameters = self.resolution_parameters,
-        #    reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
-        #)
-        #background_fit_result = base.component_fit_result_from_rp_fit_result(
-        #    fit_result = self.fit_result,
-        #    component = temp_bg_component,
-        #)
+        # We then return a background inclusive fit because extracting a signal inclusive fit isn't
+        # straightforward to determine because gaussians don't add when they are dependent.
 
         # Create the inclusive component. We only want the background fit component.
-        inclusive_component = SignalFitComponent(
-            inclusive_background_function = constrained_inclusive_background,
+        logger.warning("Creating background inclusive component. Be aware of the implications!")
+        inclusive_component = BackgroundFitComponent(
             rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
             use_log_likelihood = self.use_log_likelihood
         )
@@ -268,10 +255,14 @@ class SignalFit(ReactionPlaneFit):
             resolution_parameters = self.resolution_parameters,
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
         )
+        inclusive_component._setup_fit(
+            input_hist = input_data[base.FitType(region = "background", orientation = "inclusive")]
+        )
         # Extract the relevant information into the component
-        # TODO: Extract yield, sigma from the RPF signal fits.
-
-        #inclusive_component.fit_result
+        inclusive_component.fit_result = base.component_fit_result_from_rp_fit_result(
+            fit_result = self.fit_result,
+            component = inclusive_component,
+        )
         # We need to caluclate the fit errors.
         x = self.fit_result.x
         inclusive_component.fit_result.errors = inclusive_component.calculate_fit_errors(x)
