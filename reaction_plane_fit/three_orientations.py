@@ -274,11 +274,12 @@ class SignalFit(ReactionPlaneFit):
 
 def constrained_inclusive_background(x: Union[np.ndarray, float], B: float, v2_t: float, v2_a: float,
                                      v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
-    """ Background function for inclusive signal compnent when performing the background fit.
+    """ Background function for inclusive signal component when performing the background fit.
 
-    Include the trivial scaling factor of ``B / 3`` because there are 3 RP orientations and that background
+    Includes the trivial scaling factor of ``B / 3`` because there are 3 RP orientations and that background
     level is set by the individual RP orientations. So when they are added together, they are (approximately)
-    3 times more.
+    3 times more. This constrain is not included by default because there is additional information in the relative
+    scaling of the various EP orientations.
 
     Args:
         x (float): Delta phi value for which the background will be calculated.
@@ -298,9 +299,12 @@ def constrained_inclusive_background(x: Union[np.ndarray, float], B: float, v2_t
 
 def unconstrained_inclusive_background(x: Union[np.ndarray, float], B: float, v2_t: float, v2_a: float,
                                        v4_t: float, v4_a: float, v1: float, v3: float, **kwargs: float) -> float:
-    """ Background function for inclusive signal compnent when performing the background fit.
+    """ Background function for inclusive signal component when performing the background fit.
 
-    Doesn't include the trivial scaling factor of ``B / 3``.
+    This basically just forwards the arguments onto the Fourier series, but it renames the background variable.
+    It doesn't include the trivial scaling factor of approximately ``B / 3`` that occurs when adding the three
+    event plane orientations to compare against the inclusive because that information can be useful to further
+    constrain the fits.
 
     Args:
         x: Delta phi value for which the background will be calculated.
