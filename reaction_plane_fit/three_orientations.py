@@ -125,7 +125,7 @@ class BackgroundFit(ReactionPlaneFit):
             rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
             use_log_likelihood = self.use_log_likelihood
         )
-        # Fully setup the component and retrieve the appropraite fit result values.
+        # Fully setup the component and retrieve the appropriate fit result values.
         inclusive_component.determine_fit_function(
             resolution_parameters = self.resolution_parameters,
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
@@ -138,7 +138,7 @@ class BackgroundFit(ReactionPlaneFit):
             fit_result = self.fit_result,
             component = inclusive_component,
         )
-        # We need to caluclate the fit errors.
+        # We need to calculate the fit errors.
         x = self.fit_result.x
         inclusive_component.fit_result.errors = inclusive_component.calculate_fit_errors(x)
 
@@ -185,7 +185,7 @@ class InclusiveSignalFit(ReactionPlaneFit):
         if not hasattr(self, "fit_result"):
             raise RuntimeError("Must perform fit before attempt to retrieve all of the fit components.")
 
-        # We just return a component of the existing components, but with a simplied key.
+        # We just return a component of the existing components, but with a simplified key.
         components = {}
         for fit_type, c in self.components.items():
             components[fit_type.orientation] = c
@@ -250,7 +250,7 @@ class SignalFit(ReactionPlaneFit):
             rp_orientation = "inclusive", resolution_parameters = self.resolution_parameters,
             use_log_likelihood = self.use_log_likelihood
         )
-        # Fully setup the component and retrieve the appropraite fit result values.
+        # Fully setup the component and retrieve the appropriate fit result values.
         inclusive_component.determine_fit_function(
             resolution_parameters = self.resolution_parameters,
             reaction_plane_parameter = self.reaction_plane_parameters["inclusive"],
@@ -263,7 +263,7 @@ class SignalFit(ReactionPlaneFit):
             fit_result = self.fit_result,
             component = inclusive_component,
         )
-        # We need to caluclate the fit errors.
+        # We need to calculate the fit errors.
         x = self.fit_result.x
         inclusive_component.fit_result.errors = inclusive_component.calculate_fit_errors(x)
 
