@@ -170,6 +170,52 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
 
 @pytest.mark.slow  # type: ignore
 @pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
+def test_differential_signal_fit(setup_integration_tests: Any) -> Figure:
+    """ Integration test for the differential signal fit.
+
+    This uses the sample data in the ``sample_data`` directory.
+    """
+    sample_data_filename = setup_integration_tests
+    # Setup the expected fit result. These values are extracted from an example fit.
+    # NOTE: They are not calculated independently (they use the same method, just at a particular time), so there
+    #       are more like regression tests.
+    expected_rp_fit = three_orientations.SignalFit(
+        resolution_parameters = {"R22": 1, "R42": 1, "R62": 1, "R82": 1},
+        use_log_likelihood = False,
+        signal_region = (0, 0.6),
+        background_region = (0.8, 1.2),
+    )
+    expected_yaml_filename = Path(__file__).parent / "testFiles" / "expected_differential_signal_fit.yaml"
+    expected_rp_fit.read_fit_results(str(expected_yaml_filename))
+    expected_fit_result = expected_rp_fit.fit_result
+
+    # Run the fit
+    # NOTE: The user_arguments are the same as the defaults to ensure that they don't change the fit, but we specify
+    #       one to test the logic of how they are set.
+    rp_fit, full_componnents, data, minuit = example.run_differential_signal_fit(
+        input_filename = sample_data_filename,
+        user_arguments = {"v2_t": 0.02},
+    )
+
+    # Check the result
+    assert compare_fit_result_to_expected(fit_result = rp_fit.fit_result,
+                                          expected_fit_result = expected_fit_result,
+                                          minuit = minuit) is True
+    # Check the components
+    for fit_type, fit_component in rp_fit.components.items():
+        assert compare_fit_result_to_expected(
+            fit_result = fit_component.fit_result,
+            expected_fit_result = expected_rp_fit.components[fit_type].fit_result
+        ) is True
+
+    # Draw and check the resulting image. It is checked by returning the figure.
+    # We skip the residual plot because it is hard to compare multiple images from in the same test.
+    # Instead, we get around this by comparing the residual in test_background_fit(...)
+    fig, ax = plot.draw_fit(rp_fit = rp_fit, data = data, fit_label = "Differential signal RP fit", filename = "")
+    return fig
+
+@pytest.mark.slow  # type: ignore
+@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
 def test_background_fit(setup_integration_tests: Any) -> Figure:
     """ Integration test for the background fit.
 

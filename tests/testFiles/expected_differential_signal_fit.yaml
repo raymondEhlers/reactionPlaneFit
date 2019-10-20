@@ -1,0 +1,2640 @@
+# yamllint disable rule:indentation
+---
+full: !FitResult
+  parameters:
+  - in_plane_ns_amplitude
+  - in_plane_as_amplitude
+  - in_plane_ns_sigma
+  - in_plane_as_sigma
+  - in_plane_signal_pedestal
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  - mid_plane_ns_amplitude
+  - mid_plane_as_amplitude
+  - mid_plane_ns_sigma
+  - mid_plane_as_sigma
+  - mid_plane_signal_pedestal
+  - out_of_plane_ns_amplitude
+  - out_of_plane_as_amplitude
+  - out_of_plane_ns_sigma
+  - out_of_plane_as_sigma
+  - out_of_plane_signal_pedestal
+  free_parameters:
+  - in_plane_ns_amplitude
+  - in_plane_as_amplitude
+  - in_plane_ns_sigma
+  - in_plane_as_sigma
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  - mid_plane_ns_amplitude
+  - mid_plane_as_amplitude
+  - mid_plane_ns_sigma
+  - mid_plane_as_sigma
+  - out_of_plane_ns_amplitude
+  - out_of_plane_as_amplitude
+  - out_of_plane_ns_sigma
+  - out_of_plane_as_sigma
+  fixed_parameters:
+  - in_plane_signal_pedestal
+  - v1
+  - mid_plane_signal_pedestal
+  - out_of_plane_signal_pedestal
+  values_at_minimum:
+    in_plane_ns_amplitude: 320.24828054588727
+    in_plane_as_amplitude: 184.72980327144396
+    in_plane_ns_sigma: 0.27405087404196543
+    in_plane_as_sigma: 0.5242893321689385
+    in_plane_signal_pedestal: 0.0
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+    mid_plane_ns_amplitude: 239.21472153853873
+    mid_plane_as_amplitude: 164.85111091812942
+    mid_plane_ns_sigma: 0.25098993745527226
+    mid_plane_as_sigma: 0.6063203740251057
+    mid_plane_signal_pedestal: 0.0
+    out_of_plane_ns_amplitude: 247.0036539253817
+    out_of_plane_as_amplitude: 67.45776926553316
+    out_of_plane_ns_sigma: 0.2549818741420072
+    out_of_plane_as_sigma: 0.599164862430801
+    out_of_plane_signal_pedestal: 0.0
+  errors_on_parameters:
+    in_plane_ns_amplitude: 29.448341117843682
+    in_plane_as_amplitude: 36.57831269154866
+    in_plane_ns_sigma: 0.021074121768065418
+    in_plane_as_sigma: 0.08681463766696693
+    in_plane_signal_pedestal: 1.0
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+    mid_plane_ns_amplitude: 17.946648968592
+    mid_plane_as_amplitude: 27.477482683613275
+    mid_plane_ns_sigma: 0.021185638390535985
+    mid_plane_as_sigma: 0.0858169145004497
+    mid_plane_signal_pedestal: 1.0
+    out_of_plane_ns_amplitude: 20.825740025542927
+    out_of_plane_as_amplitude: 26.392474221093035
+    out_of_plane_ns_sigma: 0.022724202544014097
+    out_of_plane_as_sigma: 0.15536311480985987
+    out_of_plane_signal_pedestal: 1.0
+  covariance_matrix:
+    ? - in_plane_ns_amplitude
+      - in_plane_ns_amplitude
+    : 867.2048728623049
+    ? - in_plane_ns_amplitude
+      - in_plane_as_amplitude
+    : 729.1256549275158
+    ? - in_plane_ns_amplitude
+      - in_plane_ns_sigma
+    : 0.42956219332658735
+    ? - in_plane_ns_amplitude
+      - in_plane_as_sigma
+    : 0.548176491927505
+    ? - in_plane_ns_amplitude
+      - B
+    : -173.50368597584685
+    ? - in_plane_ns_amplitude
+      - v2_t
+    : -0.07281059271595562
+    ? - in_plane_ns_amplitude
+      - v2_a
+    : -0.0783719102908296
+    ? - in_plane_ns_amplitude
+      - v4_t
+    : -0.020402823017749896
+    ? - in_plane_ns_amplitude
+      - v4_a
+    : -0.0036902409119311664
+    ? - in_plane_ns_amplitude
+      - v3
+    : -0.015483120926969823
+    ? - in_plane_ns_amplitude
+      - mid_plane_ns_amplitude
+    : 51.364077895209206
+    ? - in_plane_ns_amplitude
+      - mid_plane_as_amplitude
+    : 67.7689758580997
+    ? - in_plane_ns_amplitude
+      - mid_plane_ns_sigma
+    : 0.02445613605662317
+    ? - in_plane_ns_amplitude
+      - mid_plane_as_sigma
+    : 0.28889306280429944
+    ? - in_plane_ns_amplitude
+      - out_of_plane_ns_amplitude
+    : -218.80376788248617
+    ? - in_plane_ns_amplitude
+      - out_of_plane_as_amplitude
+    : -245.81366656787804
+    ? - in_plane_ns_amplitude
+      - out_of_plane_ns_sigma
+    : -0.1831721240335232
+    ? - in_plane_ns_amplitude
+      - out_of_plane_as_sigma
+    : 0.7394636281537466
+    ? - in_plane_as_amplitude
+      - in_plane_ns_amplitude
+    : 729.1256549275158
+    ? - in_plane_as_amplitude
+      - in_plane_as_amplitude
+    : 1337.973282386669
+    ? - in_plane_as_amplitude
+      - in_plane_ns_sigma
+    : 0.36129442061924655
+    ? - in_plane_as_amplitude
+      - in_plane_as_sigma
+    : 1.5969618790714621
+    ? - in_plane_as_amplitude
+      - B
+    : -254.24088684346842
+    ? - in_plane_as_amplitude
+      - v2_t
+    : -0.08847994246312191
+    ? - in_plane_as_amplitude
+      - v2_a
+    : -0.07753695954434862
+    ? - in_plane_as_amplitude
+      - v4_t
+    : -0.03069641297521258
+    ? - in_plane_as_amplitude
+      - v4_a
+    : 0.004436631698129255
+    ? - in_plane_as_amplitude
+      - v3
+    : -0.02301950845300292
+    ? - in_plane_as_amplitude
+      - mid_plane_ns_amplitude
+    : 74.78303108275051
+    ? - in_plane_as_amplitude
+      - mid_plane_as_amplitude
+    : 89.52952157374575
+    ? - in_plane_as_amplitude
+      - mid_plane_ns_sigma
+    : 0.017755331847421913
+    ? - in_plane_as_amplitude
+      - mid_plane_as_sigma
+    : 0.3741320734787152
+    ? - in_plane_as_amplitude
+      - out_of_plane_ns_amplitude
+    : -202.2564266101698
+    ? - in_plane_as_amplitude
+      - out_of_plane_as_amplitude
+    : -229.62061514983642
+    ? - in_plane_as_amplitude
+      - out_of_plane_ns_sigma
+    : -0.17267679316563767
+    ? - in_plane_as_amplitude
+      - out_of_plane_as_sigma
+    : 1.0086438208891397
+    ? - in_plane_ns_sigma
+      - in_plane_ns_amplitude
+    : 0.42956219332658735
+    ? - in_plane_ns_sigma
+      - in_plane_as_amplitude
+    : 0.36129442061924655
+    ? - in_plane_ns_sigma
+      - in_plane_ns_sigma
+    : 0.00044472751442296214
+    ? - in_plane_ns_sigma
+      - in_plane_as_sigma
+    : 0.00026147347727738696
+    ? - in_plane_ns_sigma
+      - B
+    : -0.08348628828348136
+    ? - in_plane_ns_sigma
+      - v2_t
+    : -3.633678148487827e-05
+    ? - in_plane_ns_sigma
+      - v2_a
+    : -3.5206374302983554e-05
+    ? - in_plane_ns_sigma
+      - v4_t
+    : -1.258523124325806e-05
+    ? - in_plane_ns_sigma
+      - v4_a
+    : 6.553189408145161e-06
+    ? - in_plane_ns_sigma
+      - v3
+    : -2.308194355008659e-06
+    ? - in_plane_ns_sigma
+      - mid_plane_ns_amplitude
+    : 0.012696828731138369
+    ? - in_plane_ns_sigma
+      - mid_plane_as_amplitude
+    : 0.008604740577723575
+    ? - in_plane_ns_sigma
+      - mid_plane_ns_sigma
+    : -5.6000925736275235e-06
+    ? - in_plane_ns_sigma
+      - mid_plane_as_sigma
+    : -3.327473174554319e-06
+    ? - in_plane_ns_sigma
+      - out_of_plane_ns_amplitude
+    : -0.10747548207192717
+    ? - in_plane_ns_sigma
+      - out_of_plane_as_amplitude
+    : -0.11491186963950314
+    ? - in_plane_ns_sigma
+      - out_of_plane_ns_sigma
+    : -7.537187992370684e-05
+    ? - in_plane_ns_sigma
+      - out_of_plane_as_sigma
+    : 0.00025409230857506544
+    ? - in_plane_as_sigma
+      - in_plane_ns_amplitude
+    : 0.548176491927505
+    ? - in_plane_as_sigma
+      - in_plane_as_amplitude
+    : 1.5969618790714621
+    ? - in_plane_as_sigma
+      - in_plane_ns_sigma
+    : 0.00026147347727738696
+    ? - in_plane_as_sigma
+      - in_plane_as_sigma
+    : 0.007760723415493685
+    ? - in_plane_as_sigma
+      - B
+    : -0.5206145865671602
+    ? - in_plane_as_sigma
+      - v2_t
+    : -4.07340996575697e-05
+    ? - in_plane_as_sigma
+      - v2_a
+    : 6.891667652555533e-05
+    ? - in_plane_as_sigma
+      - v4_t
+    : -4.027179924970428e-05
+    ? - in_plane_as_sigma
+      - v4_a
+    : 6.194605319516486e-05
+    ? - in_plane_as_sigma
+      - v3
+    : -0.00010822058425457144
+    ? - in_plane_as_sigma
+      - mid_plane_ns_amplitude
+    : 0.3028850522266275
+    ? - in_plane_as_sigma
+      - mid_plane_as_amplitude
+    : 0.3301006348125334
+    ? - in_plane_as_sigma
+      - mid_plane_ns_sigma
+    : -2.121779678095071e-05
+    ? - in_plane_as_sigma
+      - mid_plane_as_sigma
+    : 0.0015773454660443188
+    ? - in_plane_as_sigma
+      - out_of_plane_ns_amplitude
+    : 0.42306272230377867
+    ? - in_plane_as_sigma
+      - out_of_plane_as_amplitude
+    : 0.41422994242418476
+    ? - in_plane_as_sigma
+      - out_of_plane_ns_sigma
+    : 0.00023488864137550538
+    ? - in_plane_as_sigma
+      - out_of_plane_as_sigma
+    : 0.0032621873451489764
+    ? - B
+      - in_plane_ns_amplitude
+    : -173.50368597584685
+    ? - B
+      - in_plane_as_amplitude
+    : -254.24088684346842
+    ? - B
+      - in_plane_ns_sigma
+    : -0.08348628828348136
+    ? - B
+      - in_plane_as_sigma
+    : -0.5206145865671602
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - B
+      - mid_plane_ns_amplitude
+    : -97.44068530309218
+    ? - B
+      - mid_plane_as_amplitude
+    : -163.47947208123247
+    ? - B
+      - mid_plane_ns_sigma
+    : -0.05985370159763645
+    ? - B
+      - mid_plane_as_sigma
+    : -0.43615470240629084
+    ? - B
+      - out_of_plane_ns_amplitude
+    : -51.245478445972125
+    ? - B
+      - out_of_plane_as_amplitude
+    : -80.38765147856937
+    ? - B
+      - out_of_plane_ns_sigma
+    : -0.03495459548055205
+    ? - B
+      - out_of_plane_as_sigma
+    : -0.7558449586965416
+    ? - v2_t
+      - in_plane_ns_amplitude
+    : -0.07281059271595562
+    ? - v2_t
+      - in_plane_as_amplitude
+    : -0.08847994246312191
+    ? - v2_t
+      - in_plane_ns_sigma
+    : -3.633678148487827e-05
+    ? - v2_t
+      - in_plane_as_sigma
+    : -4.07340996575697e-05
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_t
+      - mid_plane_ns_amplitude
+    : -0.002110694938702325
+    ? - v2_t
+      - mid_plane_as_amplitude
+    : -0.0024929253346964706
+    ? - v2_t
+      - mid_plane_ns_sigma
+    : -1.8648736389622455e-06
+    ? - v2_t
+      - mid_plane_as_sigma
+    : -8.69900081297665e-06
+    ? - v2_t
+      - out_of_plane_ns_amplitude
+    : 0.043026610624475436
+    ? - v2_t
+      - out_of_plane_as_amplitude
+    : 0.05563933221665589
+    ? - v2_t
+      - out_of_plane_ns_sigma
+    : 3.5954782656818716e-05
+    ? - v2_t
+      - out_of_plane_as_sigma
+    : 4.161774809321038e-05
+    ? - v2_a
+      - in_plane_ns_amplitude
+    : -0.0783719102908296
+    ? - v2_a
+      - in_plane_as_amplitude
+    : -0.07753695954434862
+    ? - v2_a
+      - in_plane_ns_sigma
+    : -3.5206374302983554e-05
+    ? - v2_a
+      - in_plane_as_sigma
+    : 6.891667652555533e-05
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v2_a
+      - mid_plane_ns_amplitude
+    : -0.0004049317008282747
+    ? - v2_a
+      - mid_plane_as_amplitude
+    : -0.0024065208984056044
+    ? - v2_a
+      - mid_plane_ns_sigma
+    : -4.388174116766971e-06
+    ? - v2_a
+      - mid_plane_as_sigma
+    : -1.5785387685737873e-06
+    ? - v2_a
+      - out_of_plane_ns_amplitude
+    : 0.05804761981371259
+    ? - v2_a
+      - out_of_plane_as_amplitude
+    : 0.06292419470474983
+    ? - v2_a
+      - out_of_plane_ns_sigma
+    : 4.3723281980536416e-05
+    ? - v2_a
+      - out_of_plane_as_sigma
+    : -4.3195138351301406e-05
+    ? - v4_t
+      - in_plane_ns_amplitude
+    : -0.020402823017749896
+    ? - v4_t
+      - in_plane_as_amplitude
+    : -0.03069641297521258
+    ? - v4_t
+      - in_plane_ns_sigma
+    : -1.258523124325806e-05
+    ? - v4_t
+      - in_plane_as_sigma
+    : -4.027179924970428e-05
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_t
+      - mid_plane_ns_amplitude
+    : 0.02098144602742543
+    ? - v4_t
+      - mid_plane_as_amplitude
+    : 0.041766649414530996
+    ? - v4_t
+      - mid_plane_ns_sigma
+    : 1.9521004320603057e-05
+    ? - v4_t
+      - mid_plane_as_sigma
+    : 8.000167755688307e-05
+    ? - v4_t
+      - out_of_plane_ns_amplitude
+    : -0.004756909999108045
+    ? - v4_t
+      - out_of_plane_as_amplitude
+    : -0.010912488485967277
+    ? - v4_t
+      - out_of_plane_ns_sigma
+    : -6.0679202900577385e-06
+    ? - v4_t
+      - out_of_plane_as_sigma
+    : -6.500802304311678e-05
+    ? - v4_a
+      - in_plane_ns_amplitude
+    : -0.0036902409119311664
+    ? - v4_a
+      - in_plane_as_amplitude
+    : 0.004436631698129255
+    ? - v4_a
+      - in_plane_ns_sigma
+    : 6.553189408145161e-06
+    ? - v4_a
+      - in_plane_as_sigma
+    : 6.194605319516486e-05
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v4_a
+      - mid_plane_ns_amplitude
+    : 0.002582847733965678
+    ? - v4_a
+      - mid_plane_as_amplitude
+    : -0.0057920447093268365
+    ? - v4_a
+      - mid_plane_ns_sigma
+    : -1.4607549593013248e-05
+    ? - v4_a
+      - mid_plane_as_sigma
+    : -4.467604536688743e-05
+    ? - v4_a
+      - out_of_plane_ns_amplitude
+    : 0.007073347437273895
+    ? - v4_a
+      - out_of_plane_as_amplitude
+    : 0.010347654485106291
+    ? - v4_a
+      - out_of_plane_ns_sigma
+    : 1.3102688233912527e-05
+    ? - v4_a
+      - out_of_plane_as_sigma
+    : 6.814832980997303e-05
+    ? - v3
+      - in_plane_ns_amplitude
+    : -0.015483120926969823
+    ? - v3
+      - in_plane_as_amplitude
+    : -0.02301950845300292
+    ? - v3
+      - in_plane_ns_sigma
+    : -2.308194355008659e-06
+    ? - v3
+      - in_plane_as_sigma
+    : -0.00010822058425457144
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+    ? - v3
+      - mid_plane_ns_amplitude
+    : -0.013228606477751191
+    ? - v3
+      - mid_plane_as_amplitude
+    : -0.01664105862254981
+    ? - v3
+      - mid_plane_ns_sigma
+    : -2.7549606401641154e-06
+    ? - v3
+      - mid_plane_as_sigma
+    : -8.53225230063562e-05
+    ? - v3
+      - out_of_plane_ns_amplitude
+    : -0.011169780892527776
+    ? - v3
+      - out_of_plane_as_amplitude
+    : -0.009389880435284742
+    ? - v3
+      - out_of_plane_ns_sigma
+    : -2.5942543246532477e-06
+    ? - v3
+      - out_of_plane_as_sigma
+    : -0.00014286724896912575
+    ? - mid_plane_ns_amplitude
+      - in_plane_ns_amplitude
+    : 51.364077895209206
+    ? - mid_plane_ns_amplitude
+      - in_plane_as_amplitude
+    : 74.78303108275051
+    ? - mid_plane_ns_amplitude
+      - in_plane_ns_sigma
+    : 0.012696828731138369
+    ? - mid_plane_ns_amplitude
+      - in_plane_as_sigma
+    : 0.3028850522266275
+    ? - mid_plane_ns_amplitude
+      - B
+    : -97.44068530309218
+    ? - mid_plane_ns_amplitude
+      - v2_t
+    : -0.002110694938702325
+    ? - mid_plane_ns_amplitude
+      - v2_a
+    : -0.0004049317008282747
+    ? - mid_plane_ns_amplitude
+      - v4_t
+    : 0.02098144602742543
+    ? - mid_plane_ns_amplitude
+      - v4_a
+    : 0.002582847733965678
+    ? - mid_plane_ns_amplitude
+      - v3
+    : -0.013228606477751191
+    ? - mid_plane_ns_amplitude
+      - mid_plane_ns_amplitude
+    : 322.08222365756825
+    ? - mid_plane_ns_amplitude
+      - mid_plane_as_amplitude
+    : 216.35021117187537
+    ? - mid_plane_ns_amplitude
+      - mid_plane_ns_sigma
+    : 0.233684377354407
+    ? - mid_plane_ns_amplitude
+      - mid_plane_as_sigma
+    : 0.5342259752958151
+    ? - mid_plane_ns_amplitude
+      - out_of_plane_ns_amplitude
+    : 24.710552280868995
+    ? - mid_plane_ns_amplitude
+      - out_of_plane_as_amplitude
+    : 19.12023380227678
+    ? - mid_plane_ns_amplitude
+      - out_of_plane_ns_sigma
+    : 0.004298708877506585
+    ? - mid_plane_ns_amplitude
+      - out_of_plane_as_sigma
+    : 0.3915275197517284
+    ? - mid_plane_as_amplitude
+      - in_plane_ns_amplitude
+    : 67.7689758580997
+    ? - mid_plane_as_amplitude
+      - in_plane_as_amplitude
+    : 89.52952157374575
+    ? - mid_plane_as_amplitude
+      - in_plane_ns_sigma
+    : 0.008604740577723575
+    ? - mid_plane_as_amplitude
+      - in_plane_as_sigma
+    : 0.3301006348125334
+    ? - mid_plane_as_amplitude
+      - B
+    : -163.47947208123247
+    ? - mid_plane_as_amplitude
+      - v2_t
+    : -0.0024929253346964706
+    ? - mid_plane_as_amplitude
+      - v2_a
+    : -0.0024065208984056044
+    ? - mid_plane_as_amplitude
+      - v4_t
+    : 0.041766649414530996
+    ? - mid_plane_as_amplitude
+      - v4_a
+    : -0.0057920447093268365
+    ? - mid_plane_as_amplitude
+      - v3
+    : -0.01664105862254981
+    ? - mid_plane_as_amplitude
+      - mid_plane_ns_amplitude
+    : 216.35021117187537
+    ? - mid_plane_as_amplitude
+      - mid_plane_as_amplitude
+    : 755.0121698937924
+    ? - mid_plane_as_amplitude
+      - mid_plane_ns_sigma
+    : 0.1726160999259161
+    ? - mid_plane_as_amplitude
+      - mid_plane_as_sigma
+    : 1.5959881679559478
+    ? - mid_plane_as_amplitude
+      - out_of_plane_ns_amplitude
+    : 26.675248151563583
+    ? - mid_plane_as_amplitude
+      - out_of_plane_as_amplitude
+    : 16.49786812119476
+    ? - mid_plane_as_amplitude
+      - out_of_plane_ns_sigma
+    : -0.0061757161777665
+    ? - mid_plane_as_amplitude
+      - out_of_plane_as_sigma
+    : 0.44038443272805744
+    ? - mid_plane_ns_sigma
+      - in_plane_ns_amplitude
+    : 0.02445613605662317
+    ? - mid_plane_ns_sigma
+      - in_plane_as_amplitude
+    : 0.017755331847421913
+    ? - mid_plane_ns_sigma
+      - in_plane_ns_sigma
+    : -5.6000925736275235e-06
+    ? - mid_plane_ns_sigma
+      - in_plane_as_sigma
+    : -2.121779678095071e-05
+    ? - mid_plane_ns_sigma
+      - B
+    : -0.05985370159763645
+    ? - mid_plane_ns_sigma
+      - v2_t
+    : -1.8648736389622455e-06
+    ? - mid_plane_ns_sigma
+      - v2_a
+    : -4.388174116766971e-06
+    ? - mid_plane_ns_sigma
+      - v4_t
+    : 1.9521004320603057e-05
+    ? - mid_plane_ns_sigma
+      - v4_a
+    : -1.4607549593013248e-05
+    ? - mid_plane_ns_sigma
+      - v3
+    : -2.7549606401641154e-06
+    ? - mid_plane_ns_sigma
+      - mid_plane_ns_amplitude
+    : 0.233684377354407
+    ? - mid_plane_ns_sigma
+      - mid_plane_as_amplitude
+    : 0.1726160999259161
+    ? - mid_plane_ns_sigma
+      - mid_plane_ns_sigma
+    : 0.00044948020694194116
+    ? - mid_plane_ns_sigma
+      - mid_plane_as_sigma
+    : 0.0004099861157256516
+    ? - mid_plane_ns_sigma
+      - out_of_plane_ns_amplitude
+    : -0.007685221566409231
+    ? - mid_plane_ns_sigma
+      - out_of_plane_as_amplitude
+    : -0.015339700621554403
+    ? - mid_plane_ns_sigma
+      - out_of_plane_ns_sigma
+    : -2.297897451646889e-05
+    ? - mid_plane_ns_sigma
+      - out_of_plane_as_sigma
+    : -9.358202654606853e-06
+    ? - mid_plane_as_sigma
+      - in_plane_ns_amplitude
+    : 0.28889306280429944
+    ? - mid_plane_as_sigma
+      - in_plane_as_amplitude
+    : 0.3741320734787152
+    ? - mid_plane_as_sigma
+      - in_plane_ns_sigma
+    : -3.327473174554319e-06
+    ? - mid_plane_as_sigma
+      - in_plane_as_sigma
+    : 0.0015773454660443188
+    ? - mid_plane_as_sigma
+      - B
+    : -0.43615470240629084
+    ? - mid_plane_as_sigma
+      - v2_t
+    : -8.69900081297665e-06
+    ? - mid_plane_as_sigma
+      - v2_a
+    : -1.5785387685737873e-06
+    ? - mid_plane_as_sigma
+      - v4_t
+    : 8.000167755688307e-05
+    ? - mid_plane_as_sigma
+      - v4_a
+    : -4.467604536688743e-05
+    ? - mid_plane_as_sigma
+      - v3
+    : -8.53225230063562e-05
+    ? - mid_plane_as_sigma
+      - mid_plane_ns_amplitude
+    : 0.5342259752958151
+    ? - mid_plane_as_sigma
+      - mid_plane_as_amplitude
+    : 1.5959881679559478
+    ? - mid_plane_as_sigma
+      - mid_plane_ns_sigma
+    : 0.0004099861157256516
+    ? - mid_plane_as_sigma
+      - mid_plane_as_sigma
+    : 0.007719471429805333
+    ? - mid_plane_as_sigma
+      - out_of_plane_ns_amplitude
+    : 0.16707632118509175
+    ? - mid_plane_as_sigma
+      - out_of_plane_as_amplitude
+    : 0.11723265770080249
+    ? - mid_plane_as_sigma
+      - out_of_plane_ns_sigma
+    : -2.4625816071505408e-05
+    ? - mid_plane_as_sigma
+      - out_of_plane_as_sigma
+    : 0.0021714395241828354
+    ? - out_of_plane_ns_amplitude
+      - in_plane_ns_amplitude
+    : -218.80376788248617
+    ? - out_of_plane_ns_amplitude
+      - in_plane_as_amplitude
+    : -202.2564266101698
+    ? - out_of_plane_ns_amplitude
+      - in_plane_ns_sigma
+    : -0.10747548207192717
+    ? - out_of_plane_ns_amplitude
+      - in_plane_as_sigma
+    : 0.42306272230377867
+    ? - out_of_plane_ns_amplitude
+      - B
+    : -51.245478445972125
+    ? - out_of_plane_ns_amplitude
+      - v2_t
+    : 0.043026610624475436
+    ? - out_of_plane_ns_amplitude
+      - v2_a
+    : 0.05804761981371259
+    ? - out_of_plane_ns_amplitude
+      - v4_t
+    : -0.004756909999108045
+    ? - out_of_plane_ns_amplitude
+      - v4_a
+    : 0.007073347437273895
+    ? - out_of_plane_ns_amplitude
+      - v3
+    : -0.011169780892527776
+    ? - out_of_plane_ns_amplitude
+      - mid_plane_ns_amplitude
+    : 24.710552280868995
+    ? - out_of_plane_ns_amplitude
+      - mid_plane_as_amplitude
+    : 26.675248151563583
+    ? - out_of_plane_ns_amplitude
+      - mid_plane_ns_sigma
+    : -0.007685221566409231
+    ? - out_of_plane_ns_amplitude
+      - mid_plane_as_sigma
+    : 0.16707632118509175
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_ns_amplitude
+    : 433.7114729921159
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_as_amplitude
+    : 318.5266978136399
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_ns_sigma
+    : 0.3471737965309558
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_as_sigma
+    : 0.5825477347095159
+    ? - out_of_plane_as_amplitude
+      - in_plane_ns_amplitude
+    : -245.81366656787804
+    ? - out_of_plane_as_amplitude
+      - in_plane_as_amplitude
+    : -229.62061514983642
+    ? - out_of_plane_as_amplitude
+      - in_plane_ns_sigma
+    : -0.11491186963950314
+    ? - out_of_plane_as_amplitude
+      - in_plane_as_sigma
+    : 0.41422994242418476
+    ? - out_of_plane_as_amplitude
+      - B
+    : -80.38765147856937
+    ? - out_of_plane_as_amplitude
+      - v2_t
+    : 0.05563933221665589
+    ? - out_of_plane_as_amplitude
+      - v2_a
+    : 0.06292419470474983
+    ? - out_of_plane_as_amplitude
+      - v4_t
+    : -0.010912488485967277
+    ? - out_of_plane_as_amplitude
+      - v4_a
+    : 0.010347654485106291
+    ? - out_of_plane_as_amplitude
+      - v3
+    : -0.009389880435284742
+    ? - out_of_plane_as_amplitude
+      - mid_plane_ns_amplitude
+    : 19.12023380227678
+    ? - out_of_plane_as_amplitude
+      - mid_plane_as_amplitude
+    : 16.49786812119476
+    ? - out_of_plane_as_amplitude
+      - mid_plane_ns_sigma
+    : -0.015339700621554403
+    ? - out_of_plane_as_amplitude
+      - mid_plane_as_sigma
+    : 0.11723265770080249
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_ns_amplitude
+    : 318.5266978136399
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_as_amplitude
+    : 696.5629352729733
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_ns_sigma
+    : 0.25901188218356835
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_as_sigma
+    : 2.158110150006544
+    ? - out_of_plane_ns_sigma
+      - in_plane_ns_amplitude
+    : -0.1831721240335232
+    ? - out_of_plane_ns_sigma
+      - in_plane_as_amplitude
+    : -0.17267679316563767
+    ? - out_of_plane_ns_sigma
+      - in_plane_ns_sigma
+    : -7.537187992370684e-05
+    ? - out_of_plane_ns_sigma
+      - in_plane_as_sigma
+    : 0.00023488864137550538
+    ? - out_of_plane_ns_sigma
+      - B
+    : -0.03495459548055205
+    ? - out_of_plane_ns_sigma
+      - v2_t
+    : 3.5954782656818716e-05
+    ? - out_of_plane_ns_sigma
+      - v2_a
+    : 4.3723281980536416e-05
+    ? - out_of_plane_ns_sigma
+      - v4_t
+    : -6.0679202900577385e-06
+    ? - out_of_plane_ns_sigma
+      - v4_a
+    : 1.3102688233912527e-05
+    ? - out_of_plane_ns_sigma
+      - v3
+    : -2.5942543246532477e-06
+    ? - out_of_plane_ns_sigma
+      - mid_plane_ns_amplitude
+    : 0.004298708877506585
+    ? - out_of_plane_ns_sigma
+      - mid_plane_as_amplitude
+    : -0.0061757161777665
+    ? - out_of_plane_ns_sigma
+      - mid_plane_ns_sigma
+    : -2.297897451646889e-05
+    ? - out_of_plane_ns_sigma
+      - mid_plane_as_sigma
+    : -2.4625816071505408e-05
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_ns_amplitude
+    : 0.3471737965309558
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_as_amplitude
+    : 0.25901188218356835
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_ns_sigma
+    : 0.0005172416316612608
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_as_sigma
+    : 0.00043452246108031625
+    ? - out_of_plane_as_sigma
+      - in_plane_ns_amplitude
+    : 0.7394636281537466
+    ? - out_of_plane_as_sigma
+      - in_plane_as_amplitude
+    : 1.0086438208891397
+    ? - out_of_plane_as_sigma
+      - in_plane_ns_sigma
+    : 0.00025409230857506544
+    ? - out_of_plane_as_sigma
+      - in_plane_as_sigma
+    : 0.0032621873451489764
+    ? - out_of_plane_as_sigma
+      - B
+    : -0.7558449586965416
+    ? - out_of_plane_as_sigma
+      - v2_t
+    : 4.161774809321038e-05
+    ? - out_of_plane_as_sigma
+      - v2_a
+    : -4.3195138351301406e-05
+    ? - out_of_plane_as_sigma
+      - v4_t
+    : -6.500802304311678e-05
+    ? - out_of_plane_as_sigma
+      - v4_a
+    : 6.814832980997303e-05
+    ? - out_of_plane_as_sigma
+      - v3
+    : -0.00014286724896912575
+    ? - out_of_plane_as_sigma
+      - mid_plane_ns_amplitude
+    : 0.3915275197517284
+    ? - out_of_plane_as_sigma
+      - mid_plane_as_amplitude
+    : 0.44038443272805744
+    ? - out_of_plane_as_sigma
+      - mid_plane_ns_sigma
+    : -9.358202654606853e-06
+    ? - out_of_plane_as_sigma
+      - mid_plane_as_sigma
+    : 0.0021714395241828354
+    ? - out_of_plane_as_sigma
+      - out_of_plane_ns_amplitude
+    : 0.5825477347095159
+    ? - out_of_plane_as_sigma
+      - out_of_plane_as_amplitude
+    : 2.158110150006544
+    ? - out_of_plane_as_sigma
+      - out_of_plane_ns_sigma
+    : 0.00043452246108031625
+    ? - out_of_plane_as_sigma
+      - out_of_plane_as_sigma
+    : 0.02847509633939825
+  errors: []
+  x: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIArQuJXPibz3vz7QOMam8fS/rufbvMMm8r86/v1mwbfuvxgtRFT7Iem/9luK\n\
+    QTWM47+qFaFd3uzbv2ZzLThSwdC/iETnShhXtr+IROdKGFe2P2ZzLThSwdA/qBWhXd7s2z/2W4pB\n\
+    NYzjPxgtRFT7Iek/Ov79ZsG37j+u59u8wybyPz7QOMam8fQ/z7iVz4m89z9gofLYbIf6P/GJT+JP\n\
+    Uv0/QTnWdZkOAECKrYT6CnQBQNIhM3982QJAGpbhA+4+BEBiCpCIX6QFQKt+Pg3RCQdA9PLskUJv\n\
+    CEA8Z5sWtNQJQITbSZslOgtAzU/4H5efDEAWxKakCAUOQF44VSl6ag9AU9YB1/VnEEB3EFmZrhoR\n\
+    QJxKsFtnzRFAwIQHHiCAEkA=\n"
+  n_fit_data_points: 162
+  minimum_val: 161.70848637405197
+? !FitType
+  region: signal
+  orientation: in_plane
+: !BaseFitResult
+  parameters:
+  - in_plane_ns_amplitude
+  - in_plane_as_amplitude
+  - in_plane_ns_sigma
+  - in_plane_as_sigma
+  - in_plane_signal_pedestal
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - in_plane_ns_amplitude
+  - in_plane_as_amplitude
+  - in_plane_ns_sigma
+  - in_plane_as_sigma
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - in_plane_signal_pedestal
+  - v1
+  values_at_minimum:
+    in_plane_ns_amplitude: 320.24828054588727
+    in_plane_as_amplitude: 184.72980327144396
+    in_plane_ns_sigma: 0.27405087404196543
+    in_plane_as_sigma: 0.5242893321689385
+    in_plane_signal_pedestal: 0.0
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+  errors_on_parameters:
+    in_plane_ns_amplitude: 29.448341117843682
+    in_plane_as_amplitude: 36.57831269154866
+    in_plane_ns_sigma: 0.021074121768065418
+    in_plane_as_sigma: 0.08681463766696693
+    in_plane_signal_pedestal: 1.0
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+  covariance_matrix:
+    ? - in_plane_ns_amplitude
+      - in_plane_ns_amplitude
+    : 867.2048728623049
+    ? - in_plane_ns_amplitude
+      - in_plane_as_amplitude
+    : 729.1256549275158
+    ? - in_plane_ns_amplitude
+      - in_plane_ns_sigma
+    : 0.42956219332658735
+    ? - in_plane_ns_amplitude
+      - in_plane_as_sigma
+    : 0.548176491927505
+    ? - in_plane_ns_amplitude
+      - B
+    : -173.50368597584685
+    ? - in_plane_ns_amplitude
+      - v2_t
+    : -0.07281059271595562
+    ? - in_plane_ns_amplitude
+      - v2_a
+    : -0.0783719102908296
+    ? - in_plane_ns_amplitude
+      - v4_t
+    : -0.020402823017749896
+    ? - in_plane_ns_amplitude
+      - v4_a
+    : -0.0036902409119311664
+    ? - in_plane_ns_amplitude
+      - v3
+    : -0.015483120926969823
+    ? - in_plane_as_amplitude
+      - in_plane_ns_amplitude
+    : 729.1256549275158
+    ? - in_plane_as_amplitude
+      - in_plane_as_amplitude
+    : 1337.973282386669
+    ? - in_plane_as_amplitude
+      - in_plane_ns_sigma
+    : 0.36129442061924655
+    ? - in_plane_as_amplitude
+      - in_plane_as_sigma
+    : 1.5969618790714621
+    ? - in_plane_as_amplitude
+      - B
+    : -254.24088684346842
+    ? - in_plane_as_amplitude
+      - v2_t
+    : -0.08847994246312191
+    ? - in_plane_as_amplitude
+      - v2_a
+    : -0.07753695954434862
+    ? - in_plane_as_amplitude
+      - v4_t
+    : -0.03069641297521258
+    ? - in_plane_as_amplitude
+      - v4_a
+    : 0.004436631698129255
+    ? - in_plane_as_amplitude
+      - v3
+    : -0.02301950845300292
+    ? - in_plane_ns_sigma
+      - in_plane_ns_amplitude
+    : 0.42956219332658735
+    ? - in_plane_ns_sigma
+      - in_plane_as_amplitude
+    : 0.36129442061924655
+    ? - in_plane_ns_sigma
+      - in_plane_ns_sigma
+    : 0.00044472751442296214
+    ? - in_plane_ns_sigma
+      - in_plane_as_sigma
+    : 0.00026147347727738696
+    ? - in_plane_ns_sigma
+      - B
+    : -0.08348628828348136
+    ? - in_plane_ns_sigma
+      - v2_t
+    : -3.633678148487827e-05
+    ? - in_plane_ns_sigma
+      - v2_a
+    : -3.5206374302983554e-05
+    ? - in_plane_ns_sigma
+      - v4_t
+    : -1.258523124325806e-05
+    ? - in_plane_ns_sigma
+      - v4_a
+    : 6.553189408145161e-06
+    ? - in_plane_ns_sigma
+      - v3
+    : -2.308194355008659e-06
+    ? - in_plane_as_sigma
+      - in_plane_ns_amplitude
+    : 0.548176491927505
+    ? - in_plane_as_sigma
+      - in_plane_as_amplitude
+    : 1.5969618790714621
+    ? - in_plane_as_sigma
+      - in_plane_ns_sigma
+    : 0.00026147347727738696
+    ? - in_plane_as_sigma
+      - in_plane_as_sigma
+    : 0.007760723415493685
+    ? - in_plane_as_sigma
+      - B
+    : -0.5206145865671602
+    ? - in_plane_as_sigma
+      - v2_t
+    : -4.07340996575697e-05
+    ? - in_plane_as_sigma
+      - v2_a
+    : 6.891667652555533e-05
+    ? - in_plane_as_sigma
+      - v4_t
+    : -4.027179924970428e-05
+    ? - in_plane_as_sigma
+      - v4_a
+    : 6.194605319516486e-05
+    ? - in_plane_as_sigma
+      - v3
+    : -0.00010822058425457144
+    ? - B
+      - in_plane_ns_amplitude
+    : -173.50368597584685
+    ? - B
+      - in_plane_as_amplitude
+    : -254.24088684346842
+    ? - B
+      - in_plane_ns_sigma
+    : -0.08348628828348136
+    ? - B
+      - in_plane_as_sigma
+    : -0.5206145865671602
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - v2_t
+      - in_plane_ns_amplitude
+    : -0.07281059271595562
+    ? - v2_t
+      - in_plane_as_amplitude
+    : -0.08847994246312191
+    ? - v2_t
+      - in_plane_ns_sigma
+    : -3.633678148487827e-05
+    ? - v2_t
+      - in_plane_as_sigma
+    : -4.07340996575697e-05
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_a
+      - in_plane_ns_amplitude
+    : -0.0783719102908296
+    ? - v2_a
+      - in_plane_as_amplitude
+    : -0.07753695954434862
+    ? - v2_a
+      - in_plane_ns_sigma
+    : -3.5206374302983554e-05
+    ? - v2_a
+      - in_plane_as_sigma
+    : 6.891667652555533e-05
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v4_t
+      - in_plane_ns_amplitude
+    : -0.020402823017749896
+    ? - v4_t
+      - in_plane_as_amplitude
+    : -0.03069641297521258
+    ? - v4_t
+      - in_plane_ns_sigma
+    : -1.258523124325806e-05
+    ? - v4_t
+      - in_plane_as_sigma
+    : -4.027179924970428e-05
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_a
+      - in_plane_ns_amplitude
+    : -0.0036902409119311664
+    ? - v4_a
+      - in_plane_as_amplitude
+    : 0.004436631698129255
+    ? - v4_a
+      - in_plane_ns_sigma
+    : 6.553189408145161e-06
+    ? - v4_a
+      - in_plane_as_sigma
+    : 6.194605319516486e-05
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v3
+      - in_plane_ns_amplitude
+    : -0.015483120926969823
+    ? - v3
+      - in_plane_as_amplitude
+    : -0.02301950845300292
+    ? - v3
+      - in_plane_ns_sigma
+    : -2.308194355008659e-06
+    ? - v3
+      - in_plane_as_sigma
+    : -0.00010822058425457144
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAr3BlfZa+wdQOQ6TsnLoBtA6k8XX4bVG0Bz2ERWiw0eQBWFPftoBR9Au0Jn\n\
+    N1skJkBfuwNLWI0xQO2InFeozC1ABp+4RXnDN0ARH9UzecM3QKDosdipzC1A0Muw11uNMUD7hH2o\n\
+    OiQmQJwaJ4LQAR9AqWsnc2wBHkCAdnTr37IbQFLObKY3KRtAVQjBihRLHEDSKbGYWb0cQP7mJqQv\n\
+    JxxAGs6snvcSHkDxP9gAakciQJmlzJa89iRAgPvLySdEJEAxb1sM0HojQHiLgdNEbilAi84xQmo3\n\
+    MECKzjFCajcwQIeDgdNEbilAgYxbDNB6I0CE+8vJJ0QkQEelzJa89iRAZSfYAGpHIkC67a2e9xIe\n\
+    QEsxqqMvJxxAN0Dqb1m9HEA=\n"
+? !FitType
+  region: signal
+  orientation: mid_plane
+: !BaseFitResult
+  parameters:
+  - mid_plane_ns_amplitude
+  - mid_plane_as_amplitude
+  - mid_plane_ns_sigma
+  - mid_plane_as_sigma
+  - mid_plane_signal_pedestal
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - mid_plane_ns_amplitude
+  - mid_plane_as_amplitude
+  - mid_plane_ns_sigma
+  - mid_plane_as_sigma
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - mid_plane_signal_pedestal
+  - v1
+  values_at_minimum:
+    mid_plane_ns_amplitude: 239.21472153853873
+    mid_plane_as_amplitude: 164.85111091812942
+    mid_plane_ns_sigma: 0.25098993745527226
+    mid_plane_as_sigma: 0.6063203740251057
+    mid_plane_signal_pedestal: 0.0
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+  errors_on_parameters:
+    mid_plane_ns_amplitude: 17.946648968592
+    mid_plane_as_amplitude: 27.477482683613275
+    mid_plane_ns_sigma: 0.021185638390535985
+    mid_plane_as_sigma: 0.0858169145004497
+    mid_plane_signal_pedestal: 1.0
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+  covariance_matrix:
+    ? - mid_plane_ns_amplitude
+      - mid_plane_ns_amplitude
+    : 322.08222365756825
+    ? - mid_plane_ns_amplitude
+      - mid_plane_as_amplitude
+    : 216.35021117187537
+    ? - mid_plane_ns_amplitude
+      - mid_plane_ns_sigma
+    : 0.233684377354407
+    ? - mid_plane_ns_amplitude
+      - mid_plane_as_sigma
+    : 0.5342259752958151
+    ? - mid_plane_ns_amplitude
+      - B
+    : -97.44068530309218
+    ? - mid_plane_ns_amplitude
+      - v2_t
+    : -0.002110694938702325
+    ? - mid_plane_ns_amplitude
+      - v2_a
+    : -0.0004049317008282747
+    ? - mid_plane_ns_amplitude
+      - v4_t
+    : 0.02098144602742543
+    ? - mid_plane_ns_amplitude
+      - v4_a
+    : 0.002582847733965678
+    ? - mid_plane_ns_amplitude
+      - v3
+    : -0.013228606477751191
+    ? - mid_plane_as_amplitude
+      - mid_plane_ns_amplitude
+    : 216.35021117187537
+    ? - mid_plane_as_amplitude
+      - mid_plane_as_amplitude
+    : 755.0121698937924
+    ? - mid_plane_as_amplitude
+      - mid_plane_ns_sigma
+    : 0.1726160999259161
+    ? - mid_plane_as_amplitude
+      - mid_plane_as_sigma
+    : 1.5959881679559478
+    ? - mid_plane_as_amplitude
+      - B
+    : -163.47947208123247
+    ? - mid_plane_as_amplitude
+      - v2_t
+    : -0.0024929253346964706
+    ? - mid_plane_as_amplitude
+      - v2_a
+    : -0.0024065208984056044
+    ? - mid_plane_as_amplitude
+      - v4_t
+    : 0.041766649414530996
+    ? - mid_plane_as_amplitude
+      - v4_a
+    : -0.0057920447093268365
+    ? - mid_plane_as_amplitude
+      - v3
+    : -0.01664105862254981
+    ? - mid_plane_ns_sigma
+      - mid_plane_ns_amplitude
+    : 0.233684377354407
+    ? - mid_plane_ns_sigma
+      - mid_plane_as_amplitude
+    : 0.1726160999259161
+    ? - mid_plane_ns_sigma
+      - mid_plane_ns_sigma
+    : 0.00044948020694194116
+    ? - mid_plane_ns_sigma
+      - mid_plane_as_sigma
+    : 0.0004099861157256516
+    ? - mid_plane_ns_sigma
+      - B
+    : -0.05985370159763645
+    ? - mid_plane_ns_sigma
+      - v2_t
+    : -1.8648736389622455e-06
+    ? - mid_plane_ns_sigma
+      - v2_a
+    : -4.388174116766971e-06
+    ? - mid_plane_ns_sigma
+      - v4_t
+    : 1.9521004320603057e-05
+    ? - mid_plane_ns_sigma
+      - v4_a
+    : -1.4607549593013248e-05
+    ? - mid_plane_ns_sigma
+      - v3
+    : -2.7549606401641154e-06
+    ? - mid_plane_as_sigma
+      - mid_plane_ns_amplitude
+    : 0.5342259752958151
+    ? - mid_plane_as_sigma
+      - mid_plane_as_amplitude
+    : 1.5959881679559478
+    ? - mid_plane_as_sigma
+      - mid_plane_ns_sigma
+    : 0.0004099861157256516
+    ? - mid_plane_as_sigma
+      - mid_plane_as_sigma
+    : 0.007719471429805333
+    ? - mid_plane_as_sigma
+      - B
+    : -0.43615470240629084
+    ? - mid_plane_as_sigma
+      - v2_t
+    : -8.69900081297665e-06
+    ? - mid_plane_as_sigma
+      - v2_a
+    : -1.5785387685737873e-06
+    ? - mid_plane_as_sigma
+      - v4_t
+    : 8.000167755688307e-05
+    ? - mid_plane_as_sigma
+      - v4_a
+    : -4.467604536688743e-05
+    ? - mid_plane_as_sigma
+      - v3
+    : -8.53225230063562e-05
+    ? - B
+      - mid_plane_ns_amplitude
+    : -97.44068530309218
+    ? - B
+      - mid_plane_as_amplitude
+    : -163.47947208123247
+    ? - B
+      - mid_plane_ns_sigma
+    : -0.05985370159763645
+    ? - B
+      - mid_plane_as_sigma
+    : -0.43615470240629084
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - v2_t
+      - mid_plane_ns_amplitude
+    : -0.002110694938702325
+    ? - v2_t
+      - mid_plane_as_amplitude
+    : -0.0024929253346964706
+    ? - v2_t
+      - mid_plane_ns_sigma
+    : -1.8648736389622455e-06
+    ? - v2_t
+      - mid_plane_as_sigma
+    : -8.69900081297665e-06
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_a
+      - mid_plane_ns_amplitude
+    : -0.0004049317008282747
+    ? - v2_a
+      - mid_plane_as_amplitude
+    : -0.0024065208984056044
+    ? - v2_a
+      - mid_plane_ns_sigma
+    : -4.388174116766971e-06
+    ? - v2_a
+      - mid_plane_as_sigma
+    : -1.5785387685737873e-06
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v4_t
+      - mid_plane_ns_amplitude
+    : 0.02098144602742543
+    ? - v4_t
+      - mid_plane_as_amplitude
+    : 0.041766649414530996
+    ? - v4_t
+      - mid_plane_ns_sigma
+    : 1.9521004320603057e-05
+    ? - v4_t
+      - mid_plane_as_sigma
+    : 8.000167755688307e-05
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_a
+      - mid_plane_ns_amplitude
+    : 0.002582847733965678
+    ? - v4_a
+      - mid_plane_as_amplitude
+    : -0.0057920447093268365
+    ? - v4_a
+      - mid_plane_ns_sigma
+    : -1.4607549593013248e-05
+    ? - v4_a
+      - mid_plane_as_sigma
+    : -4.467604536688743e-05
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v3
+      - mid_plane_ns_amplitude
+    : -0.013228606477751191
+    ? - v3
+      - mid_plane_as_amplitude
+    : -0.01664105862254981
+    ? - v3
+      - mid_plane_ns_sigma
+    : -2.7549606401641154e-06
+    ? - v3
+      - mid_plane_as_sigma
+    : -8.53225230063562e-05
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAp33vKPrA8gQBl7wOpFwRtAV7buDJLqHEBggm/2Kh8hQLD78T444yBAMXYu\n\
+    tY/CIUBz44E0OFswQBxUe0FEwSxASthEyGUXNUCredz/YRc1QPMcKfiDwSxAunq33n5bMECVQbZA\n\
+    Db8hQFHEQeEB0SBAtUJhbkn5IEC0W5FSqGQcQAQnlrBjARtAsz/TlzPxHkB9hsQUv0MgQM0qxN6K\n\
+    bR5AyTnTR05MHkCTr1I4zxIhQApY95dHAyJAZVLx7O7HIEB3n3rwi+UgQDeYB4YpJiVARitLBc5U\n\
+    KUBGK0sFzlQpQIeIB4YpJiVAFIp68IvlIEBiUvHs7scgQApY95dHAyJAlLJSOM8SIUCqRdNHTkwe\n\
+    QICWyN6KbR5Aofh+Fb9DIEA=\n"
+? !FitType
+  region: signal
+  orientation: out_of_plane
+: !BaseFitResult
+  parameters:
+  - out_of_plane_ns_amplitude
+  - out_of_plane_as_amplitude
+  - out_of_plane_ns_sigma
+  - out_of_plane_as_sigma
+  - out_of_plane_signal_pedestal
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - out_of_plane_ns_amplitude
+  - out_of_plane_as_amplitude
+  - out_of_plane_ns_sigma
+  - out_of_plane_as_sigma
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - out_of_plane_signal_pedestal
+  - v1
+  values_at_minimum:
+    out_of_plane_ns_amplitude: 247.0036539253817
+    out_of_plane_as_amplitude: 67.45776926553316
+    out_of_plane_ns_sigma: 0.2549818741420072
+    out_of_plane_as_sigma: 0.599164862430801
+    out_of_plane_signal_pedestal: 0.0
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+  errors_on_parameters:
+    out_of_plane_ns_amplitude: 20.825740025542927
+    out_of_plane_as_amplitude: 26.392474221093035
+    out_of_plane_ns_sigma: 0.022724202544014097
+    out_of_plane_as_sigma: 0.15536311480985987
+    out_of_plane_signal_pedestal: 1.0
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+  covariance_matrix:
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_ns_amplitude
+    : 433.7114729921159
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_as_amplitude
+    : 318.5266978136399
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_ns_sigma
+    : 0.3471737965309558
+    ? - out_of_plane_ns_amplitude
+      - out_of_plane_as_sigma
+    : 0.5825477347095159
+    ? - out_of_plane_ns_amplitude
+      - B
+    : -51.245478445972125
+    ? - out_of_plane_ns_amplitude
+      - v2_t
+    : 0.043026610624475436
+    ? - out_of_plane_ns_amplitude
+      - v2_a
+    : 0.05804761981371259
+    ? - out_of_plane_ns_amplitude
+      - v4_t
+    : -0.004756909999108045
+    ? - out_of_plane_ns_amplitude
+      - v4_a
+    : 0.007073347437273895
+    ? - out_of_plane_ns_amplitude
+      - v3
+    : -0.011169780892527776
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_ns_amplitude
+    : 318.5266978136399
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_as_amplitude
+    : 696.5629352729733
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_ns_sigma
+    : 0.25901188218356835
+    ? - out_of_plane_as_amplitude
+      - out_of_plane_as_sigma
+    : 2.158110150006544
+    ? - out_of_plane_as_amplitude
+      - B
+    : -80.38765147856937
+    ? - out_of_plane_as_amplitude
+      - v2_t
+    : 0.05563933221665589
+    ? - out_of_plane_as_amplitude
+      - v2_a
+    : 0.06292419470474983
+    ? - out_of_plane_as_amplitude
+      - v4_t
+    : -0.010912488485967277
+    ? - out_of_plane_as_amplitude
+      - v4_a
+    : 0.010347654485106291
+    ? - out_of_plane_as_amplitude
+      - v3
+    : -0.009389880435284742
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_ns_amplitude
+    : 0.3471737965309558
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_as_amplitude
+    : 0.25901188218356835
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_ns_sigma
+    : 0.0005172416316612608
+    ? - out_of_plane_ns_sigma
+      - out_of_plane_as_sigma
+    : 0.00043452246108031625
+    ? - out_of_plane_ns_sigma
+      - B
+    : -0.03495459548055205
+    ? - out_of_plane_ns_sigma
+      - v2_t
+    : 3.5954782656818716e-05
+    ? - out_of_plane_ns_sigma
+      - v2_a
+    : 4.3723281980536416e-05
+    ? - out_of_plane_ns_sigma
+      - v4_t
+    : -6.0679202900577385e-06
+    ? - out_of_plane_ns_sigma
+      - v4_a
+    : 1.3102688233912527e-05
+    ? - out_of_plane_ns_sigma
+      - v3
+    : -2.5942543246532477e-06
+    ? - out_of_plane_as_sigma
+      - out_of_plane_ns_amplitude
+    : 0.5825477347095159
+    ? - out_of_plane_as_sigma
+      - out_of_plane_as_amplitude
+    : 2.158110150006544
+    ? - out_of_plane_as_sigma
+      - out_of_plane_ns_sigma
+    : 0.00043452246108031625
+    ? - out_of_plane_as_sigma
+      - out_of_plane_as_sigma
+    : 0.02847509633939825
+    ? - out_of_plane_as_sigma
+      - B
+    : -0.7558449586965416
+    ? - out_of_plane_as_sigma
+      - v2_t
+    : 4.161774809321038e-05
+    ? - out_of_plane_as_sigma
+      - v2_a
+    : -4.3195138351301406e-05
+    ? - out_of_plane_as_sigma
+      - v4_t
+    : -6.500802304311678e-05
+    ? - out_of_plane_as_sigma
+      - v4_a
+    : 6.814832980997303e-05
+    ? - out_of_plane_as_sigma
+      - v3
+    : -0.00014286724896912575
+    ? - B
+      - out_of_plane_ns_amplitude
+    : -51.245478445972125
+    ? - B
+      - out_of_plane_as_amplitude
+    : -80.38765147856937
+    ? - B
+      - out_of_plane_ns_sigma
+    : -0.03495459548055205
+    ? - B
+      - out_of_plane_as_sigma
+    : -0.7558449586965416
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - v2_t
+      - out_of_plane_ns_amplitude
+    : 0.043026610624475436
+    ? - v2_t
+      - out_of_plane_as_amplitude
+    : 0.05563933221665589
+    ? - v2_t
+      - out_of_plane_ns_sigma
+    : 3.5954782656818716e-05
+    ? - v2_t
+      - out_of_plane_as_sigma
+    : 4.161774809321038e-05
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_a
+      - out_of_plane_ns_amplitude
+    : 0.05804761981371259
+    ? - v2_a
+      - out_of_plane_as_amplitude
+    : 0.06292419470474983
+    ? - v2_a
+      - out_of_plane_ns_sigma
+    : 4.3723281980536416e-05
+    ? - v2_a
+      - out_of_plane_as_sigma
+    : -4.3195138351301406e-05
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v4_t
+      - out_of_plane_ns_amplitude
+    : -0.004756909999108045
+    ? - v4_t
+      - out_of_plane_as_amplitude
+    : -0.010912488485967277
+    ? - v4_t
+      - out_of_plane_ns_sigma
+    : -6.0679202900577385e-06
+    ? - v4_t
+      - out_of_plane_as_sigma
+    : -6.500802304311678e-05
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_a
+      - out_of_plane_ns_amplitude
+    : 0.007073347437273895
+    ? - v4_a
+      - out_of_plane_as_amplitude
+    : 0.010347654485106291
+    ? - v4_a
+      - out_of_plane_ns_sigma
+    : 1.3102688233912527e-05
+    ? - v4_a
+      - out_of_plane_as_sigma
+    : 6.814832980997303e-05
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v3
+      - out_of_plane_ns_amplitude
+    : -0.011169780892527776
+    ? - v3
+      - out_of_plane_as_amplitude
+    : -0.009389880435284742
+    ? - v3
+      - out_of_plane_ns_sigma
+    : -2.5942543246532477e-06
+    ? - v3
+      - out_of_plane_as_sigma
+    : -0.00014286724896912575
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAoR2ujAKDogQC/fZiZ+zh5A25EV9LDHHUBfrsT2LG4dQBaC6D8XFBtAZTN5\n\
+    EYZBIUA+/iSfJ6IwQMqFApKN/SpATMc/5JbzM0CONIgFlfMzQHG0/1Wo/SpAflmX6VCiMEBF6b05\n\
+    30AhQLKeVqcEBRtAR3wjV7VIHUAptF4HNHMdQPGS6LQZDB5Ajj3ORy/JHkBzCmWQ7JceQKqfzT47\n\
+    6B1A3ToIjv4+HkAnpL0QyUMfQNJTaLmlpR5AxTOV7V5bHEAkygM8/1kdQK+KUv66CyJAbVXsA30p\n\
+    JUBuVewDfSklQNqKUv66CyJA1ckDPP9ZHUCxM5XtXlscQNJTaLmlpR5AVqS9EMlDH0CLYAiO/j4e\n\
+    QPbU1z476B1AFjvzkuyXHkA=\n"
+? !FitType
+  region: background
+  orientation: in_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+  errors_on_parameters:
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+  covariance_matrix:
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIApYgfo5b+wdQA/ixnXLoRtAFafvMXL1G0BagtY/WZkfQD4/Ah71KCNAam3+\n\
+    lAs/KEA4cn+ebbguQB1oI2RCejJAdcz1gypmNEB1zPWDKmY0QB1oI2RCejJAPXJ/nm24LkBqbf6U\n\
+    Cz8oQD4/Ah71KCNAWoLWP1mZH0AVp+8xcvUbQA/ixnXLoRtAU4H6OW/sHUCi5MZOmZ0gQNIlppQw\n\
+    dCJAVBWD2X1fJEBppZCJbgAmQA7lR6r4WSdAtfK5/AyPKUAcfIfQn6otQB6RQIEPTzFAi9UkyvP8\n\
+    MkCI1STK8/wyQKiSQIEPTzFATICH0J+qLUC78rn8DI8pQA3lR6r4WSdAaqWQiW4AJkAoFYPZfV8k\n\
+    QNIlppQwdCJApeTGTpmdIEA=\n"
+? !FitType
+  region: background
+  orientation: mid_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+  errors_on_parameters:
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+  covariance_matrix:
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAqxVCs1rQ8gQM1ISuKPwRtAM2VOB2nzHECZsnRF/VohQBFWE9v8TCJA8eLO\n\
+    ykQwIEASrCVMvn8dQAmkIBP92CFAZid/OHKJJUBmJ384coklQAmkIBP92CFAFKwlTL5/HUDx4s7K\n\
+    RDAgQBFWE9v8TCJAmbJ0Rf1aIUAzZU4HafMcQM1ISuKPwRtA4FQrNa0PIEBv1t2wBIchQP4By4bZ\n\
+    0iFAu5p855f9IkDPbZ+nqtskQPjWW+7FsCRAMVGSMk1EIUB0F09HTZUaQKHufJawthtA4pJTv9qq\n\
+    IEDiklO/2qogQKnufJawthtAth5PR02VGkAuUZIyTUQhQPfWW+7FsCRAz22fp6rbJEAWmnznl/0i\n\
+    QP0By4bZ0iFAb9bdsASHIUA=\n"
+? !FitType
+  region: background
+  orientation: out_of_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3492.552784706837
+    v2_t: 0.04476221840080472
+    v2_a: 0.1518075113625495
+    v4_t: 0.010975616556351958
+    v4_a: 0.01897063520792794
+    v1: 0.0
+    v3: 0.0013013786743643063
+  errors_on_parameters:
+    B: 12.942039148977756
+    v2_t: 0.003429820924232902
+    v2_a: 0.004242708736836659
+    v4_t: 0.0027669994732734127
+    v4_a: 0.0029787783175578703
+    v1: 0.0001
+    v3: 0.002215767533790547
+  covariance_matrix:
+    ? - B
+      - B
+    : 167.49638002115492
+    ? - B
+      - v2_t
+    : 0.009618551276077332
+    ? - B
+      - v2_a
+    : 0.005337961013904591
+    ? - B
+      - v4_t
+    : 0.0006446988494281001
+    ? - B
+      - v4_a
+    : -0.0021782739735504626
+    ? - B
+      - v3
+    : 0.013121142039724611
+    ? - v2_t
+      - B
+    : 0.009618551276077332
+    ? - v2_t
+      - v2_t
+    : 1.1770467818613249e-05
+    ? - v2_t
+      - v2_a
+    : 1.0228400423833185e-05
+    ? - v2_t
+      - v4_t
+    : 1.3890733912045878e-06
+    ? - v2_t
+      - v4_a
+    : 6.655142361834981e-07
+    ? - v2_t
+      - v3
+    : 5.202368308432755e-07
+    ? - v2_a
+      - B
+    : 0.005337961013904591
+    ? - v2_a
+      - v2_t
+    : 1.0228400423833185e-05
+    ? - v2_a
+      - v2_a
+    : 1.8003124587067334e-05
+    ? - v2_a
+      - v4_t
+    : 6.24521870707217e-07
+    ? - v2_a
+      - v4_a
+    : 1.9450881472713734e-06
+    ? - v2_a
+      - v3
+    : -5.517039217113657e-07
+    ? - v4_t
+      - B
+    : 0.0006446988494281001
+    ? - v4_t
+      - v2_t
+    : 1.3890733912045878e-06
+    ? - v4_t
+      - v2_a
+    : 6.24521870707217e-07
+    ? - v4_t
+      - v4_t
+    : 7.659929311740671e-06
+    ? - v4_t
+      - v4_a
+    : -6.817637511946359e-07
+    ? - v4_t
+      - v3
+    : -5.0586547568806724e-08
+    ? - v4_a
+      - B
+    : -0.0021782739735504626
+    ? - v4_a
+      - v2_t
+    : 6.655142361834981e-07
+    ? - v4_a
+      - v2_a
+    : 1.9450881472713734e-06
+    ? - v4_a
+      - v4_t
+    : -6.817637511946359e-07
+    ? - v4_a
+      - v4_a
+    : 8.87599768557152e-06
+    ? - v4_a
+      - v3
+    : -5.195467627363698e-07
+    ? - v3
+      - B
+    : 0.013121142039724611
+    ? - v3
+      - v2_t
+    : 5.202368308432755e-07
+    ? - v3
+      - v2_a
+    : -5.517039217113657e-07
+    ? - v3
+      - v4_t
+    : -5.0586547568806724e-08
+    ? - v3
+      - v4_a
+    : -5.195467627363698e-07
+    ? - v3
+      - v3
+    : 4.909633798643179e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAqokyd6KTogQOFM9WXFzh5Al6GMV/zQHUA+PiFjgQseQIIGKZhpTR9Ag0sN\n\
+    nO0gIUD/1Q/hZO0jQOn+FFMyUidAdSPT2fOjKUB1I9PZ86MpQOn+FFMyUidA/dUP4WTtI0CDSw2c\n\
+    7SAhQIIGKZhpTR9APj4hY4ELHkCXoYxX/NAdQOFM9WXFzh5Aw5Mneik6IEAhiXBJWeQgQAIn51yr\n\
+    ZiFA0tvMtFr7IUAxhHPvt2EiQBy9/ozkNiJAz0ua1qgHIkCOrnN4AygjQFv8LN4LnSVAjhUEoWSe\n\
+    J0COFQShZJ4nQGP8LN4LnSVA8a5zeAMoI0B/SprWqAciQBq9/ozkNiJAb4Rz77dhIkDX28y0Wvsh\n\
+    QAIn51yrZiFA4YhwSVnkIEA=\n"
