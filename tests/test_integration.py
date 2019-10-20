@@ -74,7 +74,7 @@ def compare_fit_result_to_expected(fit_result: Union[base.FitResult, base.BaseFi
     np.testing.assert_allclose(
         list(fit_result.values_at_minimum.values()),
         list(expected_fit_result.values_at_minimum.values()),
-        atol = 1e-2, rtol = 0
+        atol = 0, rtol = 5e-3,
     )
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.errors_on_parameters.keys()) == list(expected_fit_result.errors_on_parameters.keys())
@@ -82,7 +82,7 @@ def compare_fit_result_to_expected(fit_result: Union[base.FitResult, base.BaseFi
     np.testing.assert_allclose(
         list(fit_result.errors_on_parameters.values()),
         list(expected_fit_result.errors_on_parameters.values()),
-        atol = 1e-3, rtol = 0
+        atol = 1e-2, rtol = 0
     )
     # Need to compare separately the keys and values so we can use np.allclose() for the values
     assert list(fit_result.covariance_matrix.keys()) == list(expected_fit_result.covariance_matrix.keys())
@@ -90,7 +90,7 @@ def compare_fit_result_to_expected(fit_result: Union[base.FitResult, base.BaseFi
     np.testing.assert_allclose(
         list(fit_result.covariance_matrix.values()),
         list(expected_fit_result.covariance_matrix.values()),
-        atol = 1e-3, rtol = 0
+        atol = 0, rtol = 5e-2,
     )
     # Compare correlation matrices to minuit
     if minuit:
@@ -123,7 +123,7 @@ def compare_fit_result_to_expected(fit_result: Union[base.FitResult, base.BaseFi
     return True
 
 @pytest.mark.slow  # type: ignore
-@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
+@pytest.mark.mpl_image_compare(tolerance = 6.5)  # type: ignore
 def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
     """ Integration test for the inclusive signal fit.
 
@@ -169,7 +169,7 @@ def test_inclusive_signal_fit(setup_integration_tests: Any) -> Figure:
     return fig
 
 @pytest.mark.slow  # type: ignore
-@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
+@pytest.mark.mpl_image_compare(tolerance = 6.5)  # type: ignore
 def test_differential_signal_fit(setup_integration_tests: Any) -> Figure:
     """ Integration test for the differential signal fit.
 
@@ -215,7 +215,7 @@ def test_differential_signal_fit(setup_integration_tests: Any) -> Figure:
     return fig
 
 @pytest.mark.slow  # type: ignore
-@pytest.mark.mpl_image_compare(tolerance = 5)  # type: ignore
+@pytest.mark.mpl_image_compare(tolerance = 6.5)  # type: ignore
 def test_background_fit(setup_integration_tests: Any) -> Figure:
     """ Integration test for the background fit.
 
