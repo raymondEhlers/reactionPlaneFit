@@ -51,3 +51,6 @@ htmlcov/
 
 # mypy
 .mypy_cache/
+
+# Ignore example files
+example.yaml

@@ -177,6 +177,8 @@ if __name__ == "__main__":  # pragma: nocover
         input_filename = args.inputData,
         user_arguments = {},
     )
+    # Save to YAML.
+    rp_fit.write_fit_results("example.yaml")
 
     # Determine fit label
     fit_label_map = {
