@@ -1,0 +1,1263 @@
+# yamllint disable rule:indentation
+---
+full: !FitResult
+  parameters:
+  - ns_amplitude
+  - as_amplitude
+  - ns_sigma
+  - as_sigma
+  - signal_pedestal
+  - BG
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  - B
+  free_parameters:
+  - ns_amplitude
+  - as_amplitude
+  - ns_sigma
+  - as_sigma
+  - BG
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  - B
+  fixed_parameters:
+  - signal_pedestal
+  - v1
+  values_at_minimum:
+    ns_amplitude: 804.2428086424413
+    as_amplitude: 420.63183407548
+    ns_sigma: 0.2613499767163626
+    as_sigma: 0.5932594435952933
+    signal_pedestal: 0.0
+    BG: 3492.4193882962527
+    v2_t: 0.04931395212363025
+    v2_a: 0.15962775977614674
+    v4_t: 0.007904209998414402
+    v4_a: 0.009961423987538326
+    v1: 0.0
+    v3: 0.00085392537183826
+    B: 3502.082290766373
+  errors_on_parameters:
+    ns_amplitude: 42.44257029994975
+    as_amplitude: 62.496939497169734
+    ns_sigma: 0.012763891052408508
+    as_sigma: 0.08000815192155303
+    signal_pedestal: 1.0
+    BG: 16.746116354243668
+    v2_t: 0.004569321717969137
+    v2_a: 0.006348435636678557
+    v4_t: 0.005259748024440472
+    v4_a: 0.007629131372573705
+    v1: 0.0001
+    v3: 0.002349620858895174
+    B: 21.934438997228654
+  covariance_matrix:
+    ? - ns_amplitude
+      - ns_amplitude
+    : 1801.3719081755796
+    ? - ns_amplitude
+      - as_amplitude
+    : 1749.122863679784
+    ? - ns_amplitude
+      - ns_sigma
+    : 0.3641290363185107
+    ? - ns_amplitude
+      - as_sigma
+    : 1.9094028652742672
+    ? - ns_amplitude
+      - BG
+    : -541.2306198536742
+    ? - ns_amplitude
+      - v2_t
+    : -0.05885456272961028
+    ? - ns_amplitude
+      - v2_a
+    : -0.03380687302974454
+    ? - ns_amplitude
+      - v4_t
+    : -0.0009434344330454462
+    ? - ns_amplitude
+      - v4_a
+    : -0.0008324035304927287
+    ? - ns_amplitude
+      - v3
+    : -0.05284246213992273
+    ? - ns_amplitude
+      - B
+    : -80.87211411882167
+    ? - as_amplitude
+      - ns_amplitude
+    : 1749.122863679784
+    ? - as_amplitude
+      - as_amplitude
+    : 3905.868655537079
+    ? - as_amplitude
+      - ns_sigma
+    : 0.3358821948666049
+    ? - as_amplitude
+      - as_sigma
+    : 3.8061220551896953
+    ? - as_amplitude
+      - BG
+    : -876.6352723345699
+    ? - as_amplitude
+      - v2_t
+    : -0.06885616331487121
+    ? - as_amplitude
+      - v2_a
+    : -0.03861624453125765
+    ? - as_amplitude
+      - v4_t
+    : 0.00023425989662639738
+    ? - as_amplitude
+      - v4_a
+    : 0.0016803223111677148
+    ? - as_amplitude
+      - v3
+    : -0.07476120850285352
+    ? - as_amplitude
+      - B
+    : -115.08644453304062
+    ? - ns_sigma
+      - ns_amplitude
+    : 0.3641290363185107
+    ? - ns_sigma
+      - as_amplitude
+    : 0.3358821948666049
+    ? - ns_sigma
+      - ns_sigma
+    : 0.00016300055254484173
+    ? - ns_sigma
+      - as_sigma
+    : 0.00028608216051092714
+    ? - ns_sigma
+      - BG
+    : -0.10987860067120699
+    ? - ns_sigma
+      - v2_t
+    : -1.1721724526519721e-05
+    ? - ns_sigma
+      - v2_a
+    : -7.078118969168567e-06
+    ? - ns_sigma
+      - v4_t
+    : 3.142486542313652e-07
+    ? - ns_sigma
+      - v4_a
+    : 5.356488307638358e-07
+    ? - ns_sigma
+      - v3
+    : -4.905291062247441e-06
+    ? - ns_sigma
+      - B
+    : -0.00718398979711274
+    ? - as_sigma
+      - ns_amplitude
+    : 1.9094028652742672
+    ? - as_sigma
+      - as_amplitude
+    : 3.8061220551896953
+    ? - as_sigma
+      - ns_sigma
+    : 0.00028608216051092714
+    ? - as_sigma
+      - as_sigma
+    : 0.006637884992111243
+    ? - as_sigma
+      - BG
+    : -0.881924650133906
+    ? - as_sigma
+      - v2_t
+    : -8.913604457881039e-06
+    ? - as_sigma
+      - v2_a
+    : 3.6909304678277606e-06
+    ? - as_sigma
+      - v4_t
+    : 4.878801946160935e-06
+    ? - as_sigma
+      - v4_a
+    : 1.2078209235646785e-05
+    ? - as_sigma
+      - v3
+    : -0.00013629705112542623
+    ? - as_sigma
+      - B
+    : -0.2154770057490469
+    ? - BG
+      - ns_amplitude
+    : -541.2306198536742
+    ? - BG
+      - as_amplitude
+    : -876.6352723345699
+    ? - BG
+      - ns_sigma
+    : -0.10987860067120699
+    ? - BG
+      - as_sigma
+    : -0.881924650133906
+    ? - BG
+      - BG
+    : 280.43242048189984
+    ? - BG
+      - v2_t
+    : 0.02033264549622826
+    ? - BG
+      - v2_a
+    : 0.011570766303553913
+    ? - BG
+      - v4_t
+    : 0.00011743492768318789
+    ? - BG
+      - v4_a
+    : -0.000110267245307889
+    ? - BG
+      - v3
+    : 0.01971213637311887
+    ? - BG
+      - B
+    : 30.24176979872111
+    ? - v2_t
+      - ns_amplitude
+    : -0.05885456272961028
+    ? - v2_t
+      - as_amplitude
+    : -0.06885616331487121
+    ? - v2_t
+      - ns_sigma
+    : -1.1721724526519721e-05
+    ? - v2_t
+      - as_sigma
+    : -8.913604457881039e-06
+    ? - v2_t
+      - BG
+    : 0.02033264549622826
+    ? - v2_t
+      - v2_t
+    : 2.0898690606702876e-05
+    ? - v2_t
+      - v2_a
+    : 9.612697499480608e-07
+    ? - v2_t
+      - v4_t
+    : 1.0154178672163735e-06
+    ? - v2_t
+      - v4_a
+    : 2.7032536665915854e-07
+    ? - v2_t
+      - v3
+    : 6.850248460247114e-07
+    ? - v2_t
+      - B
+    : 9.794360772406219e-05
+    ? - v2_a
+      - ns_amplitude
+    : -0.03380687302974454
+    ? - v2_a
+      - as_amplitude
+    : -0.03861624453125765
+    ? - v2_a
+      - ns_sigma
+    : -7.078118969168567e-06
+    ? - v2_a
+      - as_sigma
+    : 3.6909304678277606e-06
+    ? - v2_a
+      - BG
+    : 0.011570766303553913
+    ? - v2_a
+      - v2_t
+    : 9.612697499480608e-07
+    ? - v2_a
+      - v2_a
+    : 4.0314912396931296e-05
+    ? - v2_a
+      - v4_t
+    : -9.083137991890528e-07
+    ? - v2_a
+      - v4_a
+    : 3.952979764678816e-06
+    ? - v2_a
+      - v3
+    : 6.302466642826595e-08
+    ? - v2_a
+      - B
+    : -4.096103373579695e-05
+    ? - v4_t
+      - ns_amplitude
+    : -0.0009434344330454462
+    ? - v4_t
+      - as_amplitude
+    : 0.00023425989662639738
+    ? - v4_t
+      - ns_sigma
+    : 3.142486542313652e-07
+    ? - v4_t
+      - as_sigma
+    : 4.878801946160935e-06
+    ? - v4_t
+      - BG
+    : 0.00011743492768318789
+    ? - v4_t
+      - v2_t
+    : 1.0154178672163735e-06
+    ? - v4_t
+      - v2_a
+    : -9.083137991890528e-07
+    ? - v4_t
+      - v4_t
+    : 2.773078812955454e-05
+    ? - v4_t
+      - v4_a
+    : -3.1109492912151954e-06
+    ? - v4_t
+      - v3
+    : -6.709348226595047e-08
+    ? - v4_t
+      - B
+    : 0.00044694923477561906
+    ? - v4_a
+      - ns_amplitude
+    : -0.0008324035304927287
+    ? - v4_a
+      - as_amplitude
+    : 0.0016803223111677148
+    ? - v4_a
+      - ns_sigma
+    : 5.356488307638358e-07
+    ? - v4_a
+      - as_sigma
+    : 1.2078209235646785e-05
+    ? - v4_a
+      - BG
+    : -0.000110267245307889
+    ? - v4_a
+      - v2_t
+    : 2.7032536665915854e-07
+    ? - v4_a
+      - v2_a
+    : 3.952979764678816e-06
+    ? - v4_a
+      - v4_t
+    : -3.1109492912151954e-06
+    ? - v4_a
+      - v4_a
+    : 5.843645549788032e-05
+    ? - v4_a
+      - v3
+    : -2.619451600158704e-07
+    ? - v4_a
+      - B
+    : -0.00022849324909479348
+    ? - v3
+      - ns_amplitude
+    : -0.05284246213992273
+    ? - v3
+      - as_amplitude
+    : -0.07476120850285352
+    ? - v3
+      - ns_sigma
+    : -4.905291062247441e-06
+    ? - v3
+      - as_sigma
+    : -0.00013629705112542623
+    ? - v3
+      - BG
+    : 0.01971213637311887
+    ? - v3
+      - v2_t
+    : 6.850248460247114e-07
+    ? - v3
+      - v2_a
+    : 6.302466642826595e-08
+    ? - v3
+      - v4_t
+    : -6.709348226595047e-08
+    ? - v3
+      - v4_a
+    : -2.619451600158704e-07
+    ? - v3
+      - v3
+    : 5.5207283400355765e-06
+    ? - v3
+      - B
+    : 0.008715756276278694
+    ? - B
+      - ns_amplitude
+    : -80.87211411882167
+    ? - B
+      - as_amplitude
+    : -115.08644453304062
+    ? - B
+      - ns_sigma
+    : -0.00718398979711274
+    ? - B
+      - as_sigma
+    : -0.2154770057490469
+    ? - B
+      - BG
+    : 30.24176979872111
+    ? - B
+      - v2_t
+    : 9.794360772406219e-05
+    ? - B
+      - v2_a
+    : -4.096103373579695e-05
+    ? - B
+      - v4_t
+    : 0.00044694923477561906
+    ? - B
+      - v4_a
+    : -0.00022849324909479348
+    ? - B
+      - v3
+    : 0.008715756276278694
+    ? - B
+      - B
+    : 481.11963623348043
+  errors: []
+  x: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIArQuJXPibz3vz7QOMam8fS/rufbvMMm8r86/v1mwbfuvxgtRFT7Iem/9luK\n\
+    QTWM47+qFaFd3uzbv2ZzLThSwdC/iETnShhXtr+IROdKGFe2P2ZzLThSwdA/qBWhXd7s2z/2W4pB\n\
+    NYzjPxgtRFT7Iek/Ov79ZsG37j+u59u8wybyPz7QOMam8fQ/z7iVz4m89z9gofLYbIf6P/GJT+JP\n\
+    Uv0/QTnWdZkOAECKrYT6CnQBQNIhM3982QJAGpbhA+4+BEBiCpCIX6QFQKt+Pg3RCQdA9PLskUJv\n\
+    CEA8Z5sWtNQJQITbSZslOgtAzU/4H5efDEAWxKakCAUOQF44VSl6ag9AU9YB1/VnEEB3EFmZrhoR\n\
+    QJxKsFtnzRFAwIQHHiCAEkA=\n"
+  n_fit_data_points: 90
+  minimum_val: 82.95622064422288
+? !FitType
+  region: signal
+  orientation: inclusive
+: !BaseFitResult
+  parameters:
+  - ns_amplitude
+  - as_amplitude
+  - ns_sigma
+  - as_sigma
+  - signal_pedestal
+  - BG
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - ns_amplitude
+  - as_amplitude
+  - ns_sigma
+  - as_sigma
+  - BG
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - signal_pedestal
+  - v1
+  values_at_minimum:
+    ns_amplitude: 804.2428086424413
+    as_amplitude: 420.63183407548
+    ns_sigma: 0.2613499767163626
+    as_sigma: 0.5932594435952933
+    signal_pedestal: 0.0
+    BG: 3492.4193882962527
+    v2_t: 0.04931395212363025
+    v2_a: 0.15962775977614674
+    v4_t: 0.007904209998414402
+    v4_a: 0.009961423987538326
+    v1: 0.0
+    v3: 0.00085392537183826
+  errors_on_parameters:
+    ns_amplitude: 42.44257029994975
+    as_amplitude: 62.496939497169734
+    ns_sigma: 0.012763891052408508
+    as_sigma: 0.08000815192155303
+    signal_pedestal: 1.0
+    BG: 16.746116354243668
+    v2_t: 0.004569321717969137
+    v2_a: 0.006348435636678557
+    v4_t: 0.005259748024440472
+    v4_a: 0.007629131372573705
+    v1: 0.0001
+    v3: 0.002349620858895174
+  covariance_matrix:
+    ? - ns_amplitude
+      - ns_amplitude
+    : 1801.3719081755796
+    ? - ns_amplitude
+      - as_amplitude
+    : 1749.122863679784
+    ? - ns_amplitude
+      - ns_sigma
+    : 0.3641290363185107
+    ? - ns_amplitude
+      - as_sigma
+    : 1.9094028652742672
+    ? - ns_amplitude
+      - BG
+    : -541.2306198536742
+    ? - ns_amplitude
+      - v2_t
+    : -0.05885456272961028
+    ? - ns_amplitude
+      - v2_a
+    : -0.03380687302974454
+    ? - ns_amplitude
+      - v4_t
+    : -0.0009434344330454462
+    ? - ns_amplitude
+      - v4_a
+    : -0.0008324035304927287
+    ? - ns_amplitude
+      - v3
+    : -0.05284246213992273
+    ? - as_amplitude
+      - ns_amplitude
+    : 1749.122863679784
+    ? - as_amplitude
+      - as_amplitude
+    : 3905.868655537079
+    ? - as_amplitude
+      - ns_sigma
+    : 0.3358821948666049
+    ? - as_amplitude
+      - as_sigma
+    : 3.8061220551896953
+    ? - as_amplitude
+      - BG
+    : -876.6352723345699
+    ? - as_amplitude
+      - v2_t
+    : -0.06885616331487121
+    ? - as_amplitude
+      - v2_a
+    : -0.03861624453125765
+    ? - as_amplitude
+      - v4_t
+    : 0.00023425989662639738
+    ? - as_amplitude
+      - v4_a
+    : 0.0016803223111677148
+    ? - as_amplitude
+      - v3
+    : -0.07476120850285352
+    ? - ns_sigma
+      - ns_amplitude
+    : 0.3641290363185107
+    ? - ns_sigma
+      - as_amplitude
+    : 0.3358821948666049
+    ? - ns_sigma
+      - ns_sigma
+    : 0.00016300055254484173
+    ? - ns_sigma
+      - as_sigma
+    : 0.00028608216051092714
+    ? - ns_sigma
+      - BG
+    : -0.10987860067120699
+    ? - ns_sigma
+      - v2_t
+    : -1.1721724526519721e-05
+    ? - ns_sigma
+      - v2_a
+    : -7.078118969168567e-06
+    ? - ns_sigma
+      - v4_t
+    : 3.142486542313652e-07
+    ? - ns_sigma
+      - v4_a
+    : 5.356488307638358e-07
+    ? - ns_sigma
+      - v3
+    : -4.905291062247441e-06
+    ? - as_sigma
+      - ns_amplitude
+    : 1.9094028652742672
+    ? - as_sigma
+      - as_amplitude
+    : 3.8061220551896953
+    ? - as_sigma
+      - ns_sigma
+    : 0.00028608216051092714
+    ? - as_sigma
+      - as_sigma
+    : 0.006637884992111243
+    ? - as_sigma
+      - BG
+    : -0.881924650133906
+    ? - as_sigma
+      - v2_t
+    : -8.913604457881039e-06
+    ? - as_sigma
+      - v2_a
+    : 3.6909304678277606e-06
+    ? - as_sigma
+      - v4_t
+    : 4.878801946160935e-06
+    ? - as_sigma
+      - v4_a
+    : 1.2078209235646785e-05
+    ? - as_sigma
+      - v3
+    : -0.00013629705112542623
+    ? - BG
+      - ns_amplitude
+    : -541.2306198536742
+    ? - BG
+      - as_amplitude
+    : -876.6352723345699
+    ? - BG
+      - ns_sigma
+    : -0.10987860067120699
+    ? - BG
+      - as_sigma
+    : -0.881924650133906
+    ? - BG
+      - BG
+    : 280.43242048189984
+    ? - BG
+      - v2_t
+    : 0.02033264549622826
+    ? - BG
+      - v2_a
+    : 0.011570766303553913
+    ? - BG
+      - v4_t
+    : 0.00011743492768318789
+    ? - BG
+      - v4_a
+    : -0.000110267245307889
+    ? - BG
+      - v3
+    : 0.01971213637311887
+    ? - v2_t
+      - ns_amplitude
+    : -0.05885456272961028
+    ? - v2_t
+      - as_amplitude
+    : -0.06885616331487121
+    ? - v2_t
+      - ns_sigma
+    : -1.1721724526519721e-05
+    ? - v2_t
+      - as_sigma
+    : -8.913604457881039e-06
+    ? - v2_t
+      - BG
+    : 0.02033264549622826
+    ? - v2_t
+      - v2_t
+    : 2.0898690606702876e-05
+    ? - v2_t
+      - v2_a
+    : 9.612697499480608e-07
+    ? - v2_t
+      - v4_t
+    : 1.0154178672163735e-06
+    ? - v2_t
+      - v4_a
+    : 2.7032536665915854e-07
+    ? - v2_t
+      - v3
+    : 6.850248460247114e-07
+    ? - v2_a
+      - ns_amplitude
+    : -0.03380687302974454
+    ? - v2_a
+      - as_amplitude
+    : -0.03861624453125765
+    ? - v2_a
+      - ns_sigma
+    : -7.078118969168567e-06
+    ? - v2_a
+      - as_sigma
+    : 3.6909304678277606e-06
+    ? - v2_a
+      - BG
+    : 0.011570766303553913
+    ? - v2_a
+      - v2_t
+    : 9.612697499480608e-07
+    ? - v2_a
+      - v2_a
+    : 4.0314912396931296e-05
+    ? - v2_a
+      - v4_t
+    : -9.083137991890528e-07
+    ? - v2_a
+      - v4_a
+    : 3.952979764678816e-06
+    ? - v2_a
+      - v3
+    : 6.302466642826595e-08
+    ? - v4_t
+      - ns_amplitude
+    : -0.0009434344330454462
+    ? - v4_t
+      - as_amplitude
+    : 0.00023425989662639738
+    ? - v4_t
+      - ns_sigma
+    : 3.142486542313652e-07
+    ? - v4_t
+      - as_sigma
+    : 4.878801946160935e-06
+    ? - v4_t
+      - BG
+    : 0.00011743492768318789
+    ? - v4_t
+      - v2_t
+    : 1.0154178672163735e-06
+    ? - v4_t
+      - v2_a
+    : -9.083137991890528e-07
+    ? - v4_t
+      - v4_t
+    : 2.773078812955454e-05
+    ? - v4_t
+      - v4_a
+    : -3.1109492912151954e-06
+    ? - v4_t
+      - v3
+    : -6.709348226595047e-08
+    ? - v4_a
+      - ns_amplitude
+    : -0.0008324035304927287
+    ? - v4_a
+      - as_amplitude
+    : 0.0016803223111677148
+    ? - v4_a
+      - ns_sigma
+    : 5.356488307638358e-07
+    ? - v4_a
+      - as_sigma
+    : 1.2078209235646785e-05
+    ? - v4_a
+      - BG
+    : -0.000110267245307889
+    ? - v4_a
+      - v2_t
+    : 2.7032536665915854e-07
+    ? - v4_a
+      - v2_a
+    : 3.952979764678816e-06
+    ? - v4_a
+      - v4_t
+    : -3.1109492912151954e-06
+    ? - v4_a
+      - v4_a
+    : 5.843645549788032e-05
+    ? - v4_a
+      - v3
+    : -2.619451600158704e-07
+    ? - v3
+      - ns_amplitude
+    : -0.05284246213992273
+    ? - v3
+      - as_amplitude
+    : -0.07476120850285352
+    ? - v3
+      - ns_sigma
+    : -4.905291062247441e-06
+    ? - v3
+      - as_sigma
+    : -0.00013629705112542623
+    ? - v3
+      - BG
+    : 0.01971213637311887
+    ? - v3
+      - v2_t
+    : 6.850248460247114e-07
+    ? - v3
+      - v2_a
+    : 6.302466642826595e-08
+    ? - v3
+      - v4_t
+    : -6.709348226595047e-08
+    ? - v3
+      - v4_a
+    : -2.619451600158704e-07
+    ? - v3
+      - v3
+    : 5.5207283400355765e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIArHFbi4j18sQBK7mvSiRixA04WOIHt0L0BOk0s9zzQvQNDqKRqXVCpA4PEG\n\
+    KaHgMEBk/26PEwU+QJ/1pMn24jhAJLo1MQo1Q0AObjU6BzVDQFvFOr4j4zhALrlgiI8FPkDDwTv7\n\
+    od8wQDlqpQU8TCpAbJPoBIpCL0CnIm/3rZ0vQANXaE9LsStALyewfcmkJ0BOYMSDZlIoQABYXYeg\n\
+    JyxAmhmVNd/kLkCtVTExukIvQDtOWooosC1A+p4rbfTPK0CYiUByrh8uQBa7zDrh/jJAdnkv++5v\n\
+    NkB3eS/77m82QKDJzDrh/jJAKy08cq4fLkD6nitt9M8rQDhOWooosC1AN1YxMbpCL0Aw+5U13+Qu\n\
+    QAI0/oegJyxAE7D0vWZSKEA=\n"
+? !FitType
+  region: background
+  orientation: in_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3502.082290766373
+    v2_t: 0.04931395212363025
+    v2_a: 0.15962775977614674
+    v4_t: 0.007904209998414402
+    v4_a: 0.009961423987538326
+    v1: 0.0
+    v3: 0.00085392537183826
+  errors_on_parameters:
+    B: 21.934438997228654
+    v2_t: 0.004569321717969137
+    v2_a: 0.006348435636678557
+    v4_t: 0.005259748024440472
+    v4_a: 0.007629131372573705
+    v1: 0.0001
+    v3: 0.002349620858895174
+  covariance_matrix:
+    ? - B
+      - B
+    : 481.11963623348043
+    ? - B
+      - v2_t
+    : 9.794360772406219e-05
+    ? - B
+      - v2_a
+    : -4.096103373579695e-05
+    ? - B
+      - v4_t
+    : 0.00044694923477561906
+    ? - B
+      - v4_a
+    : -0.00022849324909479348
+    ? - B
+      - v3
+    : 0.008715756276278694
+    ? - v2_t
+      - B
+    : 9.794360772406219e-05
+    ? - v2_t
+      - v2_t
+    : 2.0898690606702876e-05
+    ? - v2_t
+      - v2_a
+    : 9.612697499480608e-07
+    ? - v2_t
+      - v4_t
+    : 1.0154178672163735e-06
+    ? - v2_t
+      - v4_a
+    : 2.7032536665915854e-07
+    ? - v2_t
+      - v3
+    : 6.850248460247114e-07
+    ? - v2_a
+      - B
+    : -4.096103373579695e-05
+    ? - v2_a
+      - v2_t
+    : 9.612697499480608e-07
+    ? - v2_a
+      - v2_a
+    : 4.0314912396931296e-05
+    ? - v2_a
+      - v4_t
+    : -9.083137991890528e-07
+    ? - v2_a
+      - v4_a
+    : 3.952979764678816e-06
+    ? - v2_a
+      - v3
+    : 6.302466642826595e-08
+    ? - v4_t
+      - B
+    : 0.00044694923477561906
+    ? - v4_t
+      - v2_t
+    : 1.0154178672163735e-06
+    ? - v4_t
+      - v2_a
+    : -9.083137991890528e-07
+    ? - v4_t
+      - v4_t
+    : 2.773078812955454e-05
+    ? - v4_t
+      - v4_a
+    : -3.1109492912151954e-06
+    ? - v4_t
+      - v3
+    : -6.709348226595047e-08
+    ? - v4_a
+      - B
+    : -0.00022849324909479348
+    ? - v4_a
+      - v2_t
+    : 2.7032536665915854e-07
+    ? - v4_a
+      - v2_a
+    : 3.952979764678816e-06
+    ? - v4_a
+      - v4_t
+    : -3.1109492912151954e-06
+    ? - v4_a
+      - v4_a
+    : 5.843645549788032e-05
+    ? - v4_a
+      - v3
+    : -2.619451600158704e-07
+    ? - v3
+      - B
+    : 0.008715756276278694
+    ? - v3
+      - v2_t
+    : 6.850248460247114e-07
+    ? - v3
+      - v2_a
+    : 6.302466642826595e-08
+    ? - v3
+      - v4_t
+    : -6.709348226595047e-08
+    ? - v3
+      - v4_a
+    : -2.619451600158704e-07
+    ? - v3
+      - v3
+    : 5.5207283400355765e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAqfG43EBF8xQP+RNEXcUS9AuhADozvDLEBmbQYu14QtQNv5oJPPDy9AeeN4\n\
+    A7UeMEDAAEPMbwYyQFtaXvKFhzVAM91REchQOEAz3VERyFA4QFtaXvKFhzVAwABDzG8GMkB543gD\n\
+    tR4wQNv5oJPPDy9AZm0GLteELUC6EAOjO8MsQP+RNEXcUS9AbxuNxARfMUCa0q+QbZgxQJnfLWBf\n\
+    YzBAQs3v2ZcxL0DLgh8dOh0wQNeHZ49wmTBAUHaL7YOJMECBu2zLrp8xQIR+H+LpkzRA1LxJAc0m\n\
+    N0D7uUkBzSY3QHx+H+LpkzRAKbtsy66fMUB9dovtg4kwQNaHZ49wmTBA44IfHTodMEA/ze/ZlzEv\n\
+    QJnfLWBfYzBA8tKvkG2YMUA=\n"
+? !FitType
+  region: background
+  orientation: mid_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3502.082290766373
+    v2_t: 0.04931395212363025
+    v2_a: 0.15962775977614674
+    v4_t: 0.007904209998414402
+    v4_a: 0.009961423987538326
+    v1: 0.0
+    v3: 0.00085392537183826
+  errors_on_parameters:
+    B: 21.934438997228654
+    v2_t: 0.004569321717969137
+    v2_a: 0.006348435636678557
+    v4_t: 0.005259748024440472
+    v4_a: 0.007629131372573705
+    v1: 0.0001
+    v3: 0.002349620858895174
+  covariance_matrix:
+    ? - B
+      - B
+    : 481.11963623348043
+    ? - B
+      - v2_t
+    : 9.794360772406219e-05
+    ? - B
+      - v2_a
+    : -4.096103373579695e-05
+    ? - B
+      - v4_t
+    : 0.00044694923477561906
+    ? - B
+      - v4_a
+    : -0.00022849324909479348
+    ? - B
+      - v3
+    : 0.008715756276278694
+    ? - v2_t
+      - B
+    : 9.794360772406219e-05
+    ? - v2_t
+      - v2_t
+    : 2.0898690606702876e-05
+    ? - v2_t
+      - v2_a
+    : 9.612697499480608e-07
+    ? - v2_t
+      - v4_t
+    : 1.0154178672163735e-06
+    ? - v2_t
+      - v4_a
+    : 2.7032536665915854e-07
+    ? - v2_t
+      - v3
+    : 6.850248460247114e-07
+    ? - v2_a
+      - B
+    : -4.096103373579695e-05
+    ? - v2_a
+      - v2_t
+    : 9.612697499480608e-07
+    ? - v2_a
+      - v2_a
+    : 4.0314912396931296e-05
+    ? - v2_a
+      - v4_t
+    : -9.083137991890528e-07
+    ? - v2_a
+      - v4_a
+    : 3.952979764678816e-06
+    ? - v2_a
+      - v3
+    : 6.302466642826595e-08
+    ? - v4_t
+      - B
+    : 0.00044694923477561906
+    ? - v4_t
+      - v2_t
+    : 1.0154178672163735e-06
+    ? - v4_t
+      - v2_a
+    : -9.083137991890528e-07
+    ? - v4_t
+      - v4_t
+    : 2.773078812955454e-05
+    ? - v4_t
+      - v4_a
+    : -3.1109492912151954e-06
+    ? - v4_t
+      - v3
+    : -6.709348226595047e-08
+    ? - v4_a
+      - B
+    : -0.00022849324909479348
+    ? - v4_a
+      - v2_t
+    : 2.7032536665915854e-07
+    ? - v4_a
+      - v2_a
+    : 3.952979764678816e-06
+    ? - v4_a
+      - v4_t
+    : -3.1109492912151954e-06
+    ? - v4_a
+      - v4_a
+    : 5.843645549788032e-05
+    ? - v4_a
+      - v3
+    : -2.619451600158704e-07
+    ? - v3
+      - B
+    : 0.008715756276278694
+    ? - v3
+      - v2_t
+    : 6.850248460247114e-07
+    ? - v3
+      - v2_a
+    : 6.302466642826595e-08
+    ? - v3
+      - v4_t
+    : -6.709348226595047e-08
+    ? - v3
+      - v4_a
+    : -2.619451600158704e-07
+    ? - v3
+      - v3
+    : 5.5207283400355765e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAqQbd7M4LsxQMfroFX8JyxAAXMrYGPWKkB1cticfsUxQFjziFLwBjRAGD4m\n\
+    c0dPMUAY1fYJyTgqQFF1qsA1pi1AmM/1JND1MkCYz/Uk0PUyQFF1qsA1pi1AGNX2Cck4KkAYPiZz\n\
+    R08xQFjziFLwBjRAdXLYnH7FMUABcytgY9YqQMfroFX8JyxAkG3ezOC7MUAymj0qRPcxQBqsrDBQ\n\
+    oy1ALyDDzHnCLECJa7mg93IyQGf2o5ISdTRAPYJ8rkiAMUCn4sIFQKgpQNVPfRcTICxAz/YvndkZ\n\
+    MkDM9i+d2RkyQEhUfRcTICxAseLCBUCoKUA9gnyuSIAxQGf2o5ISdTRAiWu5oPdyMkAvIMPMecIs\n\
+    QBisrDBQoy1ANZo9KkT3MUA=\n"
+? !FitType
+  region: background
+  orientation: out_of_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3502.082290766373
+    v2_t: 0.04931395212363025
+    v2_a: 0.15962775977614674
+    v4_t: 0.007904209998414402
+    v4_a: 0.009961423987538326
+    v1: 0.0
+    v3: 0.00085392537183826
+  errors_on_parameters:
+    B: 21.934438997228654
+    v2_t: 0.004569321717969137
+    v2_a: 0.006348435636678557
+    v4_t: 0.005259748024440472
+    v4_a: 0.007629131372573705
+    v1: 0.0001
+    v3: 0.002349620858895174
+  covariance_matrix:
+    ? - B
+      - B
+    : 481.11963623348043
+    ? - B
+      - v2_t
+    : 9.794360772406219e-05
+    ? - B
+      - v2_a
+    : -4.096103373579695e-05
+    ? - B
+      - v4_t
+    : 0.00044694923477561906
+    ? - B
+      - v4_a
+    : -0.00022849324909479348
+    ? - B
+      - v3
+    : 0.008715756276278694
+    ? - v2_t
+      - B
+    : 9.794360772406219e-05
+    ? - v2_t
+      - v2_t
+    : 2.0898690606702876e-05
+    ? - v2_t
+      - v2_a
+    : 9.612697499480608e-07
+    ? - v2_t
+      - v4_t
+    : 1.0154178672163735e-06
+    ? - v2_t
+      - v4_a
+    : 2.7032536665915854e-07
+    ? - v2_t
+      - v3
+    : 6.850248460247114e-07
+    ? - v2_a
+      - B
+    : -4.096103373579695e-05
+    ? - v2_a
+      - v2_t
+    : 9.612697499480608e-07
+    ? - v2_a
+      - v2_a
+    : 4.0314912396931296e-05
+    ? - v2_a
+      - v4_t
+    : -9.083137991890528e-07
+    ? - v2_a
+      - v4_a
+    : 3.952979764678816e-06
+    ? - v2_a
+      - v3
+    : 6.302466642826595e-08
+    ? - v4_t
+      - B
+    : 0.00044694923477561906
+    ? - v4_t
+      - v2_t
+    : 1.0154178672163735e-06
+    ? - v4_t
+      - v2_a
+    : -9.083137991890528e-07
+    ? - v4_t
+      - v4_t
+    : 2.773078812955454e-05
+    ? - v4_t
+      - v4_a
+    : -3.1109492912151954e-06
+    ? - v4_t
+      - v3
+    : -6.709348226595047e-08
+    ? - v4_a
+      - B
+    : -0.00022849324909479348
+    ? - v4_a
+      - v2_t
+    : 2.7032536665915854e-07
+    ? - v4_a
+      - v2_a
+    : 3.952979764678816e-06
+    ? - v4_a
+      - v4_t
+    : -3.1109492912151954e-06
+    ? - v4_a
+      - v4_a
+    : 5.843645549788032e-05
+    ? - v4_a
+      - v3
+    : -2.619451600158704e-07
+    ? - v3
+      - B
+    : 0.008715756276278694
+    ? - v3
+      - v2_t
+    : 6.850248460247114e-07
+    ? - v3
+      - v2_a
+    : 6.302466642826595e-08
+    ? - v3
+      - v4_t
+    : -6.709348226595047e-08
+    ? - v3
+      - v4_a
+    : -2.619451600158704e-07
+    ? - v3
+      - v3
+    : 5.5207283400355765e-06
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAqtLhxMXOczQLCQ/ApTOzJAs/KQdRxLMEDrDeqBiEcuQOxq3pYGdyxAtC7y\n\
+    we8PKkAyb/fgSIQpQHPymPlzyyxAozAR8G8yMECjMBHwbzIwQHPymPlzyyxAMm/34EiEKUC0LvLB\n\
+    7w8qQOxq3pYGdyxA6w3qgYhHLkCz8pB1HEswQLCQ/ApTOzJArC4cTFznM0AwOld5Of8zQM/hUTL5\n\
+    gzJAfQCNeZi8MEDt6OdtVDovQCs5XmMcKS1Ah62VLl5OKkBmYlxVUFApQG6xOWVPaSxAsa++3ycB\n\
+    MECyr77fJwEwQIexOWVPaSxAz2NcVVBQKUCGrZUuXk4qQCg5XmMcKS1A5+jnbVQ6L0AT/Ix5mLww\n\
+    QM/hUTL5gzJAMTpXeTn/M0A=\n"

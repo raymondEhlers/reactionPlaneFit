@@ -1,0 +1,618 @@
+# yamllint disable rule:indentation
+---
+full: !FitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3512.9224050974294
+    v2_t: 0.046671736486480486
+    v2_a: 0.1576105410048044
+    v4_t: 0.008235197909199854
+    v4_a: 0.01028732716570982
+    v1: 0.0
+    v3: 0.007806880904086322
+  errors_on_parameters:
+    B: 22.741499002859427
+    v2_t: 0.004581461407536073
+    v2_a: 0.0063348752680016385
+    v4_t: 0.005247960060737855
+    v4_a: 0.007599344496419302
+    v1: 0.0001
+    v3: 0.004553954439948549
+  covariance_matrix:
+    ? - B
+      - B
+    : 517.1758023656174
+    ? - B
+      - v2_t
+    : -0.0004749315533248978
+    ? - B
+      - v2_a
+    : -0.0016673283122377242
+    ? - B
+      - v4_t
+    : 9.943642663809211e-05
+    ? - B
+      - v4_a
+    : -0.0013197469308384641
+    ? - B
+      - v3
+    : 0.031225445953257304
+    ? - v2_t
+      - B
+    : -0.0004749315533248978
+    ? - v2_t
+      - v2_t
+    : 2.1010793507402913e-05
+    ? - v2_t
+      - v2_a
+    : -8.972571277856022e-09
+    ? - v2_t
+      - v4_t
+    : 9.992325441343337e-07
+    ? - v2_t
+      - v4_a
+    : 2.3190807549322114e-07
+    ? - v2_t
+      - v3
+    : -1.1608291084413296e-07
+    ? - v2_a
+      - B
+    : -0.0016673283122377242
+    ? - v2_a
+      - v2_t
+    : -8.972571277856022e-09
+    ? - v2_a
+      - v2_a
+    : 4.014293706717957e-05
+    ? - v2_a
+      - v4_t
+    : -6.91417307584729e-07
+    ? - v2_a
+      - v4_a
+    : 3.838710832679473e-06
+    ? - v2_a
+      - v3
+    : -1.3179132528847885e-06
+    ? - v4_t
+      - B
+    : 9.943642663809211e-05
+    ? - v4_t
+      - v2_t
+    : 9.992325441343337e-07
+    ? - v4_t
+      - v2_a
+    : -6.91417307584729e-07
+    ? - v4_t
+      - v4_t
+    : 2.760374453821469e-05
+    ? - v4_t
+      - v4_a
+    : -5.519255671893636e-07
+    ? - v4_t
+      - v3
+    : -2.3765972341076347e-07
+    ? - v4_a
+      - B
+    : -0.0013197469308384641
+    ? - v4_a
+      - v2_t
+    : 2.3190807549322114e-07
+    ? - v4_a
+      - v2_a
+    : 3.838710832679473e-06
+    ? - v4_a
+      - v4_t
+    : -5.519255671893636e-07
+    ? - v4_a
+      - v4_a
+    : 5.797206391733145e-05
+    ? - v4_a
+      - v3
+    : -9.277309469389755e-07
+    ? - v3
+      - B
+    : 0.031225445953257304
+    ? - v3
+      - v2_t
+    : -1.1608291084413296e-07
+    ? - v3
+      - v2_a
+    : -1.3179132528847885e-06
+    ? - v3
+      - v4_t
+    : -2.3765972341076347e-07
+    ? - v3
+      - v4_a
+    : -9.277309469389755e-07
+    ? - v3
+      - v3
+    : 2.0738644413259974e-05
+  errors: []
+  x: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIArQuJXPibz3vz7QOMam8fS/rufbvMMm8r86/v1mwbfuvxgtRFT7Iem/9luK\n\
+    QTWM47+qFaFd3uzbv2ZzLThSwdC/iETnShhXtr+IROdKGFe2P2ZzLThSwdA/qBWhXd7s2z/2W4pB\n\
+    NYzjPxgtRFT7Iek/Ov79ZsG37j+u59u8wybyPz7QOMam8fQ/z7iVz4m89z9gofLYbIf6P/GJT+JP\n\
+    Uv0/QTnWdZkOAECKrYT6CnQBQNIhM3982QJAGpbhA+4+BEBiCpCIX6QFQKt+Pg3RCQdA9PLskUJv\n\
+    CEA8Z5sWtNQJQITbSZslOgtAzU/4H5efDEAWxKakCAUOQF44VSl6ag9AU9YB1/VnEEB3EFmZrhoR\n\
+    QJxKsFtnzRFAwIQHHiCAEkA=\n"
+  n_fit_data_points: 54
+  minimum_val: 39.636741134920065
+? !FitType
+  region: background
+  orientation: in_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3512.9224050974294
+    v2_t: 0.046671736486480486
+    v2_a: 0.1576105410048044
+    v4_t: 0.008235197909199854
+    v4_a: 0.01028732716570982
+    v1: 0.0
+    v3: 0.007806880904086322
+  errors_on_parameters:
+    B: 22.741499002859427
+    v2_t: 0.004581461407536073
+    v2_a: 0.0063348752680016385
+    v4_t: 0.005247960060737855
+    v4_a: 0.007599344496419302
+    v1: 0.0001
+    v3: 0.004553954439948549
+  covariance_matrix:
+    ? - B
+      - B
+    : 517.1758023656174
+    ? - B
+      - v2_t
+    : -0.0004749315533248978
+    ? - B
+      - v2_a
+    : -0.0016673283122377242
+    ? - B
+      - v4_t
+    : 9.943642663809211e-05
+    ? - B
+      - v4_a
+    : -0.0013197469308384641
+    ? - B
+      - v3
+    : 0.031225445953257304
+    ? - v2_t
+      - B
+    : -0.0004749315533248978
+    ? - v2_t
+      - v2_t
+    : 2.1010793507402913e-05
+    ? - v2_t
+      - v2_a
+    : -8.972571277856022e-09
+    ? - v2_t
+      - v4_t
+    : 9.992325441343337e-07
+    ? - v2_t
+      - v4_a
+    : 2.3190807549322114e-07
+    ? - v2_t
+      - v3
+    : -1.1608291084413296e-07
+    ? - v2_a
+      - B
+    : -0.0016673283122377242
+    ? - v2_a
+      - v2_t
+    : -8.972571277856022e-09
+    ? - v2_a
+      - v2_a
+    : 4.014293706717957e-05
+    ? - v2_a
+      - v4_t
+    : -6.91417307584729e-07
+    ? - v2_a
+      - v4_a
+    : 3.838710832679473e-06
+    ? - v2_a
+      - v3
+    : -1.3179132528847885e-06
+    ? - v4_t
+      - B
+    : 9.943642663809211e-05
+    ? - v4_t
+      - v2_t
+    : 9.992325441343337e-07
+    ? - v4_t
+      - v2_a
+    : -6.91417307584729e-07
+    ? - v4_t
+      - v4_t
+    : 2.760374453821469e-05
+    ? - v4_t
+      - v4_a
+    : -5.519255671893636e-07
+    ? - v4_t
+      - v3
+    : -2.3765972341076347e-07
+    ? - v4_a
+      - B
+    : -0.0013197469308384641
+    ? - v4_a
+      - v2_t
+    : 2.3190807549322114e-07
+    ? - v4_a
+      - v2_a
+    : 3.838710832679473e-06
+    ? - v4_a
+      - v4_t
+    : -5.519255671893636e-07
+    ? - v4_a
+      - v4_a
+    : 5.797206391733145e-05
+    ? - v4_a
+      - v3
+    : -9.277309469389755e-07
+    ? - v3
+      - B
+    : 0.031225445953257304
+    ? - v3
+      - v2_t
+    : -1.1608291084413296e-07
+    ? - v3
+      - v2_a
+    : -1.3179132528847885e-06
+    ? - v3
+      - v4_t
+    : -2.3765972341076347e-07
+    ? - v3
+      - v4_a
+    : -9.277309469389755e-07
+    ? - v3
+      - v3
+    : 2.0738644413259974e-05
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAq0M3wFcpwxQDACupDYojBAu0jnBrRTMECrZuSsdoQwQMLebwGwJjBApwuv\n\
+    qybVL0DF5Nd0flkyQC5FMkroDTdARWaKb2OdOkBFZopvY506QC5FMkroDTdA0JzYdH5ZMkCnC6+r\n\
+    JtUvQMLebwGwJjBAq2bkrHaEMEC7SOcGtFMwQDACupDYojBAtTN8BXKcMUBO9ydUSmUyQN/R8cNE\n\
+    5TJAFJfuXSKRM0DoOw4TruEzQEq6tlJjyDJAjHae38PuMEA4NltJ6nIxQPDMDZzeJTVAo0VRQpZt\n\
+    OECjRVFClm04QPDMDZzeJTVAMzZbSepyMUD9dp7fw+4wQDu6tlJjyDJA/jsOE67hM0Bfle5dIpEz\n\
+    QN7R8cNE5TJATvcnVEplMkA=\n"
+? !FitType
+  region: background
+  orientation: mid_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3512.9224050974294
+    v2_t: 0.046671736486480486
+    v2_a: 0.1576105410048044
+    v4_t: 0.008235197909199854
+    v4_a: 0.01028732716570982
+    v1: 0.0
+    v3: 0.007806880904086322
+  errors_on_parameters:
+    B: 22.741499002859427
+    v2_t: 0.004581461407536073
+    v2_a: 0.0063348752680016385
+    v4_t: 0.005247960060737855
+    v4_a: 0.007599344496419302
+    v1: 0.0001
+    v3: 0.004553954439948549
+  covariance_matrix:
+    ? - B
+      - B
+    : 517.1758023656174
+    ? - B
+      - v2_t
+    : -0.0004749315533248978
+    ? - B
+      - v2_a
+    : -0.0016673283122377242
+    ? - B
+      - v4_t
+    : 9.943642663809211e-05
+    ? - B
+      - v4_a
+    : -0.0013197469308384641
+    ? - B
+      - v3
+    : 0.031225445953257304
+    ? - v2_t
+      - B
+    : -0.0004749315533248978
+    ? - v2_t
+      - v2_t
+    : 2.1010793507402913e-05
+    ? - v2_t
+      - v2_a
+    : -8.972571277856022e-09
+    ? - v2_t
+      - v4_t
+    : 9.992325441343337e-07
+    ? - v2_t
+      - v4_a
+    : 2.3190807549322114e-07
+    ? - v2_t
+      - v3
+    : -1.1608291084413296e-07
+    ? - v2_a
+      - B
+    : -0.0016673283122377242
+    ? - v2_a
+      - v2_t
+    : -8.972571277856022e-09
+    ? - v2_a
+      - v2_a
+    : 4.014293706717957e-05
+    ? - v2_a
+      - v4_t
+    : -6.91417307584729e-07
+    ? - v2_a
+      - v4_a
+    : 3.838710832679473e-06
+    ? - v2_a
+      - v3
+    : -1.3179132528847885e-06
+    ? - v4_t
+      - B
+    : 9.943642663809211e-05
+    ? - v4_t
+      - v2_t
+    : 9.992325441343337e-07
+    ? - v4_t
+      - v2_a
+    : -6.91417307584729e-07
+    ? - v4_t
+      - v4_t
+    : 2.760374453821469e-05
+    ? - v4_t
+      - v4_a
+    : -5.519255671893636e-07
+    ? - v4_t
+      - v3
+    : -2.3765972341076347e-07
+    ? - v4_a
+      - B
+    : -0.0013197469308384641
+    ? - v4_a
+      - v2_t
+    : 2.3190807549322114e-07
+    ? - v4_a
+      - v2_a
+    : 3.838710832679473e-06
+    ? - v4_a
+      - v4_t
+    : -5.519255671893636e-07
+    ? - v4_a
+      - v4_a
+    : 5.797206391733145e-05
+    ? - v4_a
+      - v3
+    : -9.277309469389755e-07
+    ? - v3
+      - B
+    : 0.031225445953257304
+    ? - v3
+      - v2_t
+    : -1.1608291084413296e-07
+    ? - v3
+      - v2_a
+    : -1.3179132528847885e-06
+    ? - v3
+      - v4_t
+    : -2.3765972341076347e-07
+    ? - v3
+      - v4_a
+    : -9.277309469389755e-07
+    ? - v3
+      - v3
+    : 2.0738644413259974e-05
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAqRqmDGJS4yQBqKb6rB3S1AkWKL6RSjLUDUek7YjpoyQA1QGtSsBjRArXZo\n\
+    9GzdMEBBv1BtnXQrQHW2WEwMdzFAFRbFOK9lNkAVFsU4r2U2QHW2WEwMdzFARL9QbZ10K0Ctdmj0\n\
+    bN0wQA1QGtSsBjRA1HpO2I6aMkCRYovpFKMtQBqKb6rB3S1AjqpgxiUuMkDfuqDRlAgzQOXYlEi7\n\
+    eDFASNOZBrX1MUDyxi1xuv40QAKYFkjooTVAS9WJ+NCZMUDJsVX+HV4pQFUsmtbq2i1AV1YydoeT\n\
+    M0BYVjJ2h5MzQGUsmtbq2i1AxrFV/h1eKUBH1Yn40JkxQP+XFkjooTVA8sYtcbr+NEBI05kGtfUx\n\
+    QObYlEi7eDFA37qg0ZQIM0A=\n"
+? !FitType
+  region: background
+  orientation: out_of_plane
+: !BaseFitResult
+  parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v1
+  - v3
+  free_parameters:
+  - B
+  - v2_t
+  - v2_a
+  - v4_t
+  - v4_a
+  - v3
+  fixed_parameters:
+  - v1
+  values_at_minimum:
+    B: 3512.9224050974294
+    v2_t: 0.046671736486480486
+    v2_a: 0.1576105410048044
+    v4_t: 0.008235197909199854
+    v4_a: 0.01028732716570982
+    v1: 0.0
+    v3: 0.007806880904086322
+  errors_on_parameters:
+    B: 22.741499002859427
+    v2_t: 0.004581461407536073
+    v2_a: 0.0063348752680016385
+    v4_t: 0.005247960060737855
+    v4_a: 0.007599344496419302
+    v1: 0.0001
+    v3: 0.004553954439948549
+  covariance_matrix:
+    ? - B
+      - B
+    : 517.1758023656174
+    ? - B
+      - v2_t
+    : -0.0004749315533248978
+    ? - B
+      - v2_a
+    : -0.0016673283122377242
+    ? - B
+      - v4_t
+    : 9.943642663809211e-05
+    ? - B
+      - v4_a
+    : -0.0013197469308384641
+    ? - B
+      - v3
+    : 0.031225445953257304
+    ? - v2_t
+      - B
+    : -0.0004749315533248978
+    ? - v2_t
+      - v2_t
+    : 2.1010793507402913e-05
+    ? - v2_t
+      - v2_a
+    : -8.972571277856022e-09
+    ? - v2_t
+      - v4_t
+    : 9.992325441343337e-07
+    ? - v2_t
+      - v4_a
+    : 2.3190807549322114e-07
+    ? - v2_t
+      - v3
+    : -1.1608291084413296e-07
+    ? - v2_a
+      - B
+    : -0.0016673283122377242
+    ? - v2_a
+      - v2_t
+    : -8.972571277856022e-09
+    ? - v2_a
+      - v2_a
+    : 4.014293706717957e-05
+    ? - v2_a
+      - v4_t
+    : -6.91417307584729e-07
+    ? - v2_a
+      - v4_a
+    : 3.838710832679473e-06
+    ? - v2_a
+      - v3
+    : -1.3179132528847885e-06
+    ? - v4_t
+      - B
+    : 9.943642663809211e-05
+    ? - v4_t
+      - v2_t
+    : 9.992325441343337e-07
+    ? - v4_t
+      - v2_a
+    : -6.91417307584729e-07
+    ? - v4_t
+      - v4_t
+    : 2.760374453821469e-05
+    ? - v4_t
+      - v4_a
+    : -5.519255671893636e-07
+    ? - v4_t
+      - v3
+    : -2.3765972341076347e-07
+    ? - v4_a
+      - B
+    : -0.0013197469308384641
+    ? - v4_a
+      - v2_t
+    : 2.3190807549322114e-07
+    ? - v4_a
+      - v2_a
+    : 3.838710832679473e-06
+    ? - v4_a
+      - v4_t
+    : -5.519255671893636e-07
+    ? - v4_a
+      - v4_a
+    : 5.797206391733145e-05
+    ? - v4_a
+      - v3
+    : -9.277309469389755e-07
+    ? - v3
+      - B
+    : 0.031225445953257304
+    ? - v3
+      - v2_t
+    : -1.1608291084413296e-07
+    ? - v3
+      - v2_a
+    : -1.3179132528847885e-06
+    ? - v3
+      - v4_t
+    : -2.3765972341076347e-07
+    ? - v3
+      - v4_a
+    : -9.277309469389755e-07
+    ? - v3
+      - v3
+    : 2.0738644413259974e-05
+  errors: !numpy_array "k05VTVBZAQB2AHsnZGVzY3InOiAnPGY4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBl\n\
+    JzogKDM2LCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\n\
+    ICAgICAgICAgICAgIAoOoQDGK080QLCF4jJ77DJAx8n2Fex1MUDE2a+cCC4wQN4Nw8GVBy1AcS34\n\
+    GL2mKUAUTwbdLNEqQDFGGVcEljBA5a9qUZRNM0Dlr2pRlE0zQDFGGVcEljBAEk8G3SzRKkBxLfgY\n\
+    vaYpQN4Nw8GVBy1AxNmvnAguMEDHyfYV7HUxQLCF4jJ77DJADqEAxitPNEDXp5VTyuE0QKrSdsgS\n\
+    mTRArc18Aqz3M0DwAYu5ku0yQGKDhbotxzBAxivhEO+LK0CN4BuUEfgoQLVbH49kNy1A6dIl19US\n\
+    MUDq0iXX1RIxQCxVH49kNy1Ah98blBH4KEDDK+EQ74srQF2DhbotxzBA8AGLuZLtMkBkznwCrPcz\n\
+    QKvSdsgSmTRA16eVU8rhNEA=\n"
