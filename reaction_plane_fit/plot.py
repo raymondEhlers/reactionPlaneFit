@@ -135,22 +135,36 @@ def fit_draw_func(data_for_plotting: Dict[base.FitType, histogram.Histogram1D], 
     Returns:
         None. The current axis is modified.
     """
-    # Determine the values of the fit function.
+    # Determine the region of the fit.
+    # It will be the same for all of the plotting data, so we just take the first one.
+    fit_type, hist = next(iter(data_for_plotting.items()))
+    # Need to scale the inclusive orientation background down by a factor of 3 because we haven't
+    # scaled by number of triggers. Note that this scaling is only approximate, and is just for
+    # convenience when plotting.
+    scale_factor = 1.
+    if fit_type.orientation == "inclusive":
+        scale_factor = 1. / 3.
+
+    # Determine the values and the errors of the fit function.
     fit_values = component.evaluate_fit(x = x)
+    errors = component.fit_result.errors
+    fit_hist = histogram.Histogram1D(bin_edges = hist.bin_edges, y = fit_values, errors_squared = errors ** 2)
+    fit_hist *= scale_factor
 
     # Plot the main values
-    plot = ax.plot(x, fit_values, label = "Fit", color = AnalysisColors.fit)
+    plot = ax.plot(x, fit_hist.y, label = "Fit", color = AnalysisColors.fit)
     # Plot the fit errors
-    errors = component.fit_result.errors
     ax.fill_between(
-        x, fit_values - errors, fit_values + errors,
+        x, fit_hist.y - fit_hist.errors, fit_hist.y + fit_hist.errors,
         facecolor = plot[0].get_color(), alpha = 0.8, zorder = 2
     )
 
     # Plot the data
     for fit_type, hist in data_for_plotting.items():
+        h_component = hist.copy()
+        h_component *= scale_factor
         ax.errorbar(
-            x, hist.y, yerr = hist.errors, label = f"{fit_type.region.capitalize()} dom. data",
+            x, h_component.y, yerr = h_component.errors, label = f"{fit_type.region.capitalize()} dom. data",
             marker = "o", linestyle = "", fillstyle = "none" if fit_type.region == "background" else "full",
             color = AnalysisColors.signal if fit_type.region == "signal" else AnalysisColors.background,
         )
@@ -161,12 +175,18 @@ def fit_draw_func(data_for_plotting: Dict[base.FitType, histogram.Histogram1D], 
             # Calculate background function values
             values = component.evaluate_background(x)
             errors = component.calculate_background_function_errors(x)
+            fit_hist_component = histogram.Histogram1D(
+                bin_edges = hist.bin_edges, y = values, errors_squared = errors ** 2
+            )
+            fit_hist_component *= scale_factor
             # Plot background values and errors behind everything else
             plot_background = ax.plot(
-                x, values, zorder = 1, label = "Bkg. component", color = AnalysisColors.fit_background
+                fit_hist_component.x, fit_hist_component.y, zorder = 1,
+                label = "Bkg. component", color = AnalysisColors.fit_background
             )
             ax.fill_between(
-                x, values - errors, values + errors,
+                fit_hist_component.x,
+                fit_hist_component.y - fit_hist_component.errors, fit_hist_component.y + fit_hist_component.errors,
                 facecolor = plot_background[0].get_color(), alpha = 0.8, zorder = 1,
             )
 
@@ -227,7 +247,7 @@ def residual_draw_func(data_for_plotting: Dict[base.FitType, histogram.Histogram
 
     # Set the y-axis limit to be symmetric
     # Selected the value by looking at the data.
-    ax.set_ylim(bottom = -0.1, top = 0.1)
+    ax.set_ylim(bottom = -0.25, top = 0.25)
 
 def draw_residual(rp_fit: fit.ReactionPlaneFit, data: Data, fit_label: str, filename: str) -> DrawResult:
     """ Main entry point to draw the residual of the fit.
