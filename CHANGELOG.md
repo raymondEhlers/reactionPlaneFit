@@ -2,6 +2,49 @@
 
 Changelog based on the [format here](https://keepachangelog.com/en/1.0.0/).
 
+## [4.0] - 21 October 2019
+
+## Added
+
+- Additional documentation. See: `c49fa753201250734f6dbc4bdce6a64959a277cb`.
+- Integration test for differential signal fit. See: `efcfc40fdf662d5fb0297ed1d02c2f6b538e2485`.
+
+## Changed
+
+- Switch emphasis to fitting **before** normalizing by the number of triggers, including updating default
+  arguments and documentation. See: `17a5d24397c313c3c5a39964e9a8bd471161153e`,
+  `e04a1f3b1736c8baef41872680bd175f3dadd977`, `73f5f0d8dcbf7f86f1742e57279da43fd62faa1f`.
+- When reading the RP fit object from YAML, setup the entire fit object. See: `1b38175ae421729a1933bae63bcc6652262927d3`.
+- Improve Minuit fit strategy. See: `d8dfb49d0599f564597461270b73bb67d1818bdf`.
+- Rename `_fit` to `cost_func` for clarity - it represents the cost function, not the fit function. And it's
+  sometimes useful to access from outside the object (such as when calculating effective chi squared). See:
+  `3dc750119be1f52f05134b11f24883b2e5c73b07`.
+- Make the Minuit verbosity a user settable option. See: `22e67c85b630ef09a3105bcee4587e8d7091b293`.
+- Allow a user to skip HESSE when necessary. This should be rare, but it is required at times. See:
+  `98104086ca505a25778c75a0c63053085a836368`.
+- Updated the signal differential fit procedure. The inclusive case is just treated as a background only fit.
+  This is required because adding coupling gaussian distributions is not a straightforward process (unlike
+  if they were uncoupled). Consequently, extracting the inclusive width relies on fitting to information already
+  included in the RP fit (included via the differential signal fit components), which means that the covariance of
+  the fit is neglected. Use care when using this fit approach! (A warning is thrown when using it). See:
+  `7ba221d8effcda48d3a5245776aefcb971d7748e`.
+- Sample data now acts as if it is the raw correlation rather than scaled by the number of triggers. See:
+  `5c613d2f5d21882fe9d61d6d0067bd602cb74ff2`, `9484b457012f6647283e3fc1ebf43a719a0fd7e5`,
+  `5c613d2f5d21882fe9d61d6d0067bd602cb74ff2`, and `7db8ea4e4201879c609c0cebeb211ea67570e7ba`.
+- Improve testing procedure by loading stored fits from YAML rather than defining them by hand in the test
+  file. This makes any future updates much easier. See: `5c613d2f5d21882fe9d61d6d0067bd602cb74ff2`.
+
+## Fixed
+
+- Log likelihood fits by updating the underlying `pachyderm.fit` package. See: `33bdcb41cd0f2dcc6e76f8760b8e5eddd24456dd`.
+- Minor typos in code, documentation. See: `150afbba7f065f54895f1bd30409c66df14990b9` and
+  `56af2759823cf2ff027c2b89d7047fdcb2bfc98f`.
+- Create output directory when writing if necessary. See: `7ca7f01d12a897907427972c6a9f6402cba6c616`.
+- Allow specification of `v_{1}` values. See: `ed037ba57f72dc24257dd6a2dbe1351e85e6c73d` and a fix in
+  `63cb49906eabc115f58b6847de756346b61b08c3`.
+- Updated typing. See: `db79b4134f57ff76727356654489b9a823cb6b67`.
+- Integration tests run successfully on TravisCI again. See: `330c3bc6a7f90f1a5e0773c03170a8b27b8cf4ca`.
+
 ## [3.1] - 24 August 2019
 
 ## Changed
