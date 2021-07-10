@@ -71,7 +71,7 @@ setup(
         "numpy",
         "uproot",  # Handles ROOT I/O without needing ROOT itself.
         "iminuit",
-        "pachyderm>2.2",
+        "pachyderm<3.0",
     ],
 
     # Include additional files
